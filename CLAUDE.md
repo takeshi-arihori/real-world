@@ -26,6 +26,8 @@ TypeScript + React 19 フロントエンド / Laravel 12 バックエンドの�
 ## docs/ の運用
 
 - 要件ごとに設計書・仕様書を `docs/specs/` に配置する
+  - テンプレート: `docs/specs/_template-feature-spec.md`
+  - Issue 着手時にコピーして `docs/specs/<feature>.md` を作成する
 - 設計判断の記録は `docs/adr/` に ADR として残す
 - DB スキーマは `docs/dbschema.dbml` に DBML 形式で記録
 - Issue対応時に関連ドキュメントがあれば参照すること
@@ -39,6 +41,8 @@ TypeScript + React 19 フロントエンド / Laravel 12 バックエンドの�
 
 ## 開発フロー
 
+- Issue → 要件整理 → 設計ドキュメント → タスク分解 → TDD 実装 → PR
+- 設計ステップをスキップしない（`docs/specs/<feature>.md` を作成してから実装に入る）
 - Git Flow ベース（`feature/#<issue>-<slug>`）
 - TDD: Red → Green → Refactor
 - 1 Issue = 1 PR, squash merge
