@@ -4,7 +4,7 @@ description: >
   GitHub Issueを起点にTDD（テスト駆動開発）でタスクを遂行するスキル。
   Git Flowベースでブランチを作成し、Red→Green→Refactorサイクルで実装し、
   テスト・リントを通してからPRを作成する。
-  フロントエンド: React 19 + TypeScript 5 + Vite / バックエンド: Laravel 12 + PHP 8.3。
+  フロントエンド: React 19 + TypeScript 5.9 + Vite 8 / バックエンド: Laravel 12 + PHP 8.3。
   トリガー: 「Issue #XXX をTDDで」「このIssueをやって」「GHビューでIssue#XXX」
   など、GitHub IssueベースのTDD開発を求められたとき。
 ---
@@ -15,9 +15,9 @@ GitHub Issueを起点に、TDDサイクルで実装しPRを作成する。
 
 ## 前提
 
-- **フロントエンド**: React 19 + TypeScript 5 + Vite / テスト: Vitest + Testing Library / リント: ESLint
+- **フロントエンド**: React 19 + TypeScript 5.9 + Vite 8 / テスト: Vitest + Testing Library / リント: ESLint
 - **バックエンド**: Laravel 12 + PHP 8.3 / テスト: Pest 4.4 / リント: Laravel Pint
-- **ルール**: `rules/` 配下の各ファイルを作業開始前に必ず確認
+- **ルール**: `rules/` 配下の各ファイルを作業開始前に必ず確認（特に `rules/security.md`）
 - **ディレクトリ**: フロントエンド=`web/` / バックエンド=`api/`
 
 ## ワークフロー
@@ -34,6 +34,7 @@ Issueのタイトル・本文・ラベルを読み取り、実装スコープを
 
 `rules/` ディレクトリ内の関連ルールファイルを確認する。
 対象技術スタック（frontend / backend）に応じて該当ファイルを読む。
+**`rules/security.md` は必ず確認する。**
 
 ### Step 3: ブランチ作成
 
@@ -52,7 +53,7 @@ Issueの要件に基づきテストを先に作成する。
 **フロントエンド (Vitest + Testing Library)**:
 - `web/src/**/__tests__/*.test.tsx` に配置
 - コンポーネントテストは `@testing-library/react` + `@testing-library/jest-dom` を使用
-- `cd web && npx vitest run --reporter=verbose <テストファイル>` で実行し、**失敗を確認**
+- `cd web && pnpm vitest run --reporter=verbose <テストファイル>` で実行し、**失敗を確認**
 
 **バックエンド (Pest)**:
 - `api/tests/Feature/` または `api/tests/Unit/` に配置
@@ -78,8 +79,8 @@ Issueの要件に基づきテストを先に作成する。
 
 **フロントエンド**:
 ```bash
-cd web && npx vitest run
-cd web && npx eslint .
+cd web && pnpm vitest run
+cd web && pnpm eslint .
 ```
 
 **バックエンド**:
