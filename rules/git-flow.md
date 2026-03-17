@@ -21,6 +21,8 @@ Conventional Commits 形式を使用する。
 <type>: <説明（英語）>
 ```
 
+- `Co-Authored-By:` 行は**含めない**
+
 ### コミットタイプ
 
 | type | 用途 |
