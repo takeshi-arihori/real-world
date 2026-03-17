@@ -4,10 +4,10 @@
 
 ## 技術スタック
 
-- Vue 3 (Composition API, `<script setup>`)
+- React 19 (Functional Components, Hooks)
 - TypeScript 5
 - Vite
-- Vitest (テスト)
+- Vitest + Testing Library (テスト)
 - ESLint (リント)
 
 ## コーディング規約

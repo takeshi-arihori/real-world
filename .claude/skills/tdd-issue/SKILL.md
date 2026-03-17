@@ -4,6 +4,7 @@ description: >
   GitHub Issueを起点にTDD（テスト駆動開発）でタスクを遂行するスキル。
   Git Flowベースでブランチを作成し、Red→Green→Refactorサイクルで実装し、
   テスト・リントを通してからPRを作成する。
+  フロントエンド: React 19 + TypeScript 5 + Vite / バックエンド: Laravel 12 + PHP 8.3。
   トリガー: 「Issue #XXX をTDDで」「このIssueをやって」「GHビューでIssue#XXX」
   など、GitHub IssueベースのTDD開発を求められたとき。
 ---
@@ -14,10 +15,9 @@ GitHub Issueを起点に、TDDサイクルで実装しPRを作成する。
 
 ## 前提
 
-- **言語/FW**: TypeScript 5 + Vue 3 (Composition API, `<script setup>`) / Laravel 12 + PHP 8.3
-- **テスト**: フロントエンド=Vitest / バックエンド=Pest 4.4
-- **リント**: フロントエンド=ESLint / バックエンド=Laravel Pint
-- **ルール**: `rules/` 配下の各ファイルを必ず確認してから作業開始すること
+- **フロントエンド**: React 19 + TypeScript 5 + Vite / テスト: Vitest + Testing Library / リント: ESLint
+- **バックエンド**: Laravel 12 + PHP 8.3 / テスト: Pest 4.4 / リント: Laravel Pint
+- **ルール**: `rules/` 配下の各ファイルを作業開始前に必ず確認
 - **ディレクトリ**: フロントエンド=`web/` / バックエンド=`api/`
 
 ## ワークフロー
@@ -49,13 +49,14 @@ git checkout -b feature/#<issue番号>-<issue-slug>
 
 Issueの要件に基づきテストを先に作成する。
 
+**フロントエンド (Vitest + Testing Library)**:
+- `web/src/**/__tests__/*.test.tsx` に配置
+- コンポーネントテストは `@testing-library/react` + `@testing-library/jest-dom` を使用
+- `cd web && npx vitest run --reporter=verbose <テストファイル>` で実行し、**失敗を確認**
+
 **バックエンド (Pest)**:
 - `api/tests/Feature/` または `api/tests/Unit/` に配置
-- `php artisan test --filter=<テスト名>` で実行し、**失敗を確認**
-
-**フロントエンド (Vitest)**:
-- `web/src/**/__tests__/` または `web/src/**/*.test.ts` に配置
-- `npx vitest run --reporter=verbose <テストファイル>` で実行し、**失敗を確認**
+- `cd api && php artisan test --filter=<テスト名>` で実行し、**失敗を確認**
 
 失敗出力をユーザーに提示し、Red状態であることを明示する。
 
@@ -75,16 +76,16 @@ Issueの要件に基づきテストを先に作成する。
 
 全テスト・リントを実行し、既存コードへの影響がないことを確認する。
 
-**バックエンド**:
-```bash
-cd api && php artisan test
-cd api && ./vendor/bin/pint --test
-```
-
 **フロントエンド**:
 ```bash
 cd web && npx vitest run
 cd web && npx eslint .
+```
+
+**バックエンド**:
+```bash
+cd api && php artisan test
+cd api && ./vendor/bin/pint --test
 ```
 
 失敗があれば修正し、全てパスするまで繰り返す。
@@ -111,10 +112,10 @@ gh pr create --title "<タイトル>" --body "$(cat <<'EOF'
 Closes #<issue番号>
 
 ## Test plan
-- [ ] Pest テストパス
 - [ ] Vitest テストパス
-- [ ] Pint リントパス
+- [ ] Pest テストパス
 - [ ] ESLint リントパス
+- [ ] Pint リントパス
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 EOF

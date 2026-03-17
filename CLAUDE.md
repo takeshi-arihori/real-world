@@ -1,10 +1,10 @@
 # プロジェクト概要
 
-TypeScript + Vue 3 フロントエンド / Laravel 12 バックエンドのモノレポ構成。
+TypeScript + React 19 フロントエンド / Laravel 12 バックエンドのモノレポ構成。
 
 ## ディレクトリ構成
 
-- `web/` - フロントエンド (Vue 3 + TypeScript 5 + Vite)
+- `web/` - フロントエンド (React 19 + TypeScript 5 + Vite)
 - `api/` - バックエンド (Laravel 12 + PHP 8.3)
 - `rules/` - AIへの詳細な指示・コーディング規約・設計ルール
 - `docs/` - 要件ごとの設計書・仕様書（要件に応じて追記する）
@@ -27,7 +27,7 @@ TypeScript + Vue 3 フロントエンド / Laravel 12 バックエンドのモ�
 
 | レイヤー | 技術 | テスト | リント |
 |---------|------|--------|-------|
-| フロントエンド | Vue 3 + TS 5 + Vite | Vitest | ESLint |
+| フロントエンド | React 19 + TS 5 + Vite | Vitest | ESLint |
 | バックエンド | Laravel 12 + PHP 8.3 | Pest 4.4 | Pint |
 
 ## 開発フロー
