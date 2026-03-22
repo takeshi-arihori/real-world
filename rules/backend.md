@@ -13,6 +13,10 @@
 
 DDD（ドメイン駆動設計）ベースの4層アーキテクチャを採用する。
 
+> **ドメイン設計仕様の参照**
+> - Bounded Context 定義: [`docs/specs/bounded-contexts.md`](../docs/specs/bounded-contexts.md)
+> - ユビキタス言語定義: [`docs/specs/ubiquitous-language.md`](../docs/specs/ubiquitous-language.md)
+
 ```
 Presentation → Application → Domain ← Infrastructure
 ```
