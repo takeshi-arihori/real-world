@@ -1,7 +1,7 @@
 services:
   devcontainer:
     build:
-      context: .
+      context: .devcontainer
       dockerfile: Dockerfile
       args:
         TZ: "${TZ:-Asia/Tokyo}"
@@ -9,7 +9,7 @@ services:
         GIT_DELTA_VERSION: "0.18.2"
         ZSH_IN_DOCKER_VERSION: "1.2.0"
     volumes:
-      - ..:/workspace:cached
+      - .:/workspace:cached
       - claude-code-bashhistory:/commandhistory
       - claude-code-config:/home/node/.claude
       - "${HOME}/.config/gh:/home/node/.config/gh"
