@@ -4,6 +4,7 @@ description: >
   GitHub Issueを起点にTDD（テスト駆動開発）でタスクを遂行するスキル。
   Git Flowベースでブランチを作成し、Red→Green→Refactorサイクルで実装し、
   テスト・リントを通してからPRを作成する。
+  worktree（隔離環境）またはlocal（ローカルリポジトリ直接）を選択可能。
   フロントエンド: React 19 + TypeScript 5.9 + Vite 8 / バックエンド: Laravel 12 + PHP 8.3。
   トリガー: 「Issue #XXX をTDDで」「このIssueをやって」「GHビューでIssue#XXX」
   など、GitHub IssueベースのTDD開発を求められたとき。
@@ -19,6 +20,43 @@ GitHub Issueを起点に、TDDサイクルで実装しPRを作成する。
 - **バックエンド**: Laravel 12 + PHP 8.3 / テスト: Pest 4.4 / リント: Laravel Pint
 - **ルール**: `rules/` 配下の各ファイルを作業開始前に必ず確認（特に `rules/security.md`）
 - **ディレクトリ**: フロントエンド=`web/` / バックエンド=`api/`
+
+## 作業場所の選択
+
+ユーザーの指示またはタスクの性質に応じて作業場所を選択する。
+
+| モード | 説明 | 使い分け |
+|--------|------|----------|
+| **worktree** | 隔離されたworktree上で作業 | 他の作業に影響を与えたくないとき、並行作業時 |
+| **local** | ローカルリポジトリ上で直接作業 | シンプルな変更、既にローカルで作業中のとき |
+
+- ユーザーが明示的に指定した場合はそれに従う
+- 指定がない場合はユーザーに確認する
+
+### worktreeモードの場合
+
+Step 3の前にworktreeを作成する:
+
+```
+EnterWorktree でworktreeに入る
+```
+
+worktreeには `node_modules/` や `vendor/` が含まれないため、
+変更対象に応じて依存関係をインストールする:
+
+```bash
+# フロントエンド
+cd web && pnpm install
+
+# バックエンド
+cd api && composer install
+```
+
+Step 9のPR作成後にworktreeをクリーンアップする:
+
+```
+ExitWorktree でworktreeを退出・クリーンアップ
+```
 
 ## ワークフロー
 
@@ -126,6 +164,10 @@ EOF
 - PRタイトルは70文字以内
 - `Closes #<issue番号>` でIssueと紐付け
 - マージ方針: squash merge
+
+### Step 10: クリーンアップ（worktreeモードの場合）
+
+worktreeモードで作業した場合は、ExitWorktreeでクリーンアップする。
 
 ## 注意事項
 
