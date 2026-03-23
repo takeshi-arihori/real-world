@@ -1,0 +1,72 @@
+services:
+  db:
+    build:
+      context: ./docker/db
+      dockerfile: Dockerfile
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-secret}"
+      MYSQL_DATABASE: "${DB_DATABASE:-real_world}"
+      MYSQL_USER: "${DB_USERNAME:-real_world}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-secret}"
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  backend-php:
+    build:
+      context: ./docker/backend/php
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      XDEBUG_MODE: "off"
+    depends_on:
+      - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - app-network
+
+  backend-nginx:
+    build:
+      context: ./docker/backend/nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - backend-php
+    networks:
+      - app-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./docker/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+  frontend-node-modules:
+
+networks:
+  app-network:
+    driver: bridge
