@@ -17,3 +17,5 @@ cd backend && php artisan test
 cd backend && ./vendor/bin/pint --test
 cd backend && ./vendor/bin/phpstan analyse
 ```
+
+Dev Container 利用時もコマンドは同じです。`php` / `composer` / `artisan` は `backend-php` コンテナへ委譲されるため、実際の PHP 実行環境は `docker/backend/php/` の定義に統一されます。

@@ -103,4 +103,5 @@ VS Code / Cursor の Dev Containers で開発環境を起動できます。
 - GitHub CLI (`gh`) と `pnpm` がそのまま使える
 - ホストの `~/.claude`（認証情報）・`~/.config/gh`（GitHub CLI）を自動マウント
 - `backend/.env` の環境変数をコンテナ内に自動注入
+- `php` / `composer` / `artisan` は devcontainer から `backend-php` サービスへ委譲されるため、`cd backend && php artisan test` などの既存コマンドをそのまま使える
 - Dev Container は開発用であり、ネットワーク隔離 sandbox としては扱わない
