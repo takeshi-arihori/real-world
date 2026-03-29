@@ -103,5 +103,18 @@ VS Code / Cursor の Dev Containers で開発環境を起動できます。
 - GitHub CLI (`gh`) と `pnpm` がそのまま使える
 - ホストの `~/.claude`（認証情報）・`~/.config/gh`（GitHub CLI）を自動マウント
 - `backend/.env` の環境変数をコンテナ内に自動注入
-- `php` / `composer` / `artisan` は devcontainer から `backend-php` サービスへ委譲されるため、`cd backend && php artisan test` などの既存コマンドをそのまま使える
+- `php` / `composer` は devcontainer から `backend-php` サービスへ委譲されるため、`cd backend && php artisan test` などの既存コマンドをそのまま使える
 - Dev Container は開発用であり、ネットワーク隔離 sandbox としては扱わない
+
+### Dev Container の PHP 実行について
+
+devcontainer 自体は Node ベースの作業コンテナで、PHP は同居させていません。
+PHP の実行環境は `compose.yml` の `backend-php` サービスに一元化しています。
+
+- `php`: `backend-php` コンテナで `php` を実行するラッパー
+- `composer`: `backend-php` コンテナで `composer` を実行するラッパー
+- `delegate-backend-php`: 上記ラッパーの共通実装
+- `docker`: devcontainer 内の `node` ユーザーから Docker Desktop のソケットへアクセスするためのラッパー
+
+このため、devcontainer では `artisan` 専用コマンドは持たず、`php artisan ...` を標準の使い方とします。
+設定変更後は Dev Container を `Rebuild Container` して反映してください。

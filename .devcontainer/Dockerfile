@@ -39,10 +39,8 @@ RUN sh -c "$(curl -fsSL https://github.com/deluan/zsh-in-docker/releases/downloa
 
 COPY bin/ /usr/local/bin/
 
-RUN chmod 755 /usr/local/bin/devcontainer-entrypoint /usr/local/bin/docker /usr/local/bin/delegate-backend-php /usr/local/bin/php /usr/local/bin/composer /usr/local/bin/artisan \
+RUN chmod 755 /usr/local/bin/docker /usr/local/bin/delegate-backend-php /usr/local/bin/php /usr/local/bin/composer \
     && printf '%s\n' 'node ALL=(root) NOPASSWD: /usr/bin/docker *' > /etc/sudoers.d/node-docker \
     && chmod 440 /etc/sudoers.d/node-docker \
     && touch /home/node/.zshrc \
     && chown node:node /home/node/.zshrc
-
-ENTRYPOINT ["/usr/local/bin/devcontainer-entrypoint"]
