@@ -13,9 +13,8 @@ use Tests\TestCase;
 |
 */
 
-pest()->extend(TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+// 各テストファイルで uses(TestCase::class) を明示宣言することで
+// Intelephense が $this の型を正しく推論できる
 
 /*
 |--------------------------------------------------------------------------
