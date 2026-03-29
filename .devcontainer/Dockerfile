@@ -29,4 +29,7 @@ RUN corepack enable
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/deluan/zsh-in-docker/${ZSH_IN_DOCKER_VERSION}/zsh-in-docker.sh)" -- \
     -t robbyrussell
 
+# Create .zshrc for node user to prevent first-time zsh setup prompt
+RUN touch /home/node/.zshrc && chown node:node /home/node/.zshrc
+
 USER node

@@ -1,2 +1,3 @@
 .worktree
 /specs/
+.pnpm-store
