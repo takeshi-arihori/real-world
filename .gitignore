@@ -1,3 +1,4 @@
 .worktree
 /specs/
 .pnpm-store
+node_modules/

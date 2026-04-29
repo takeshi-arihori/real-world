@@ -1,6 +1,9 @@
 {
   "name": "Claude Code Dev Container",
-  "dockerComposeFile": ["../compose.yml", "docker-compose.yml"],
+  "dockerComposeFile": [
+    "../compose.yml",
+    "docker-compose.yml"
+  ],
   "service": "devcontainer",
   "customizations": {
     "vscode": {
@@ -32,5 +35,5 @@
   "remoteUser": "node",
   "workspaceFolder": "/workspace",
   "initializeCommand": "security find-generic-password -s 'Claude Code-credentials' -w 2>/dev/null > ~/.claude/.credentials.json && chmod 600 ~/.claude/.credentials.json || true",
-  "postCreateCommand": "cd /workspace/frontend && pnpm install"
+  "postCreateCommand": "cd /workspace && pnpm install && git config commit.template .github/commit_message_template && cd frontend && pnpm install"
 }

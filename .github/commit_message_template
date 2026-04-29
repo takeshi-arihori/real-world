@@ -1,0 +1,14 @@
+# <type>(<scope>): <説明（日本語・英語可）>
+#
+# type: feat | fix | refactor | test | docs | chore | ci | release | revert
+# scope（任意）: frontend | backend | db | ci | docs | infra
+#
+# 例:
+#   feat(frontend): ログインフォームを追加
+#   fix(backend): ユーザー作成時のバリデーションを修正
+#   chore: commitlint を導入
+#
+# ルール:
+#   - 先頭行は100文字以内
+#   - Co-Authored-By: 行は含めない
+#   - commitlint で自動検証される

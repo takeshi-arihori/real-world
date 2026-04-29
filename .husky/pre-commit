@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# git-secrets によるシークレット漏洩チェック（インストール済みの場合のみ実行）
+GIT_SECRETS=$(which git-secrets 2>/dev/null || true)
+if [ -n "$GIT_SECRETS" ]; then
+  "$GIT_SECRETS" --pre_commit_hook -- "$@"
+fi
