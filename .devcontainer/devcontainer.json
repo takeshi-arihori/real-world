@@ -38,7 +38,8 @@
     "source=${localEnv:SSH_AUTH_SOCK},target=/run/host-services/ssh-auth.sock,type=bind"
   ],
   "remoteEnv": {
-    "SSH_AUTH_SOCK": "/run/host-services/ssh-auth.sock"
+    "SSH_AUTH_SOCK": "/run/host-services/ssh-auth.sock",
+    "GH_TOKEN": "${localEnv:GH_TOKEN}"
   },
   "initializeCommand": "security find-generic-password -s 'Claude Code-credentials' -w 2>/dev/null > ~/.claude/.credentials.json && chmod 600 ~/.claude/.credentials.json || true",
   "postCreateCommand": "cd /workspace && pnpm install && git config commit.template .github/commit_message_template && cd frontend && pnpm install && cd /workspace && git secrets --register-aws --global && git secrets --add --global 'password\\s*=\\s*\\S+' && git secrets --add --global 'secret\\s*=\\s*\\S+' && git secrets --add --global 'api_key\\s*=\\s*\\S+' && git secrets --add --global 'private_key\\s*=\\s*\\S+' && git secrets --install -f"
