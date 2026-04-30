@@ -1,0 +1,158 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - "feature/**"
+      - "fix/**"
+      - "hotfix/**"
+      - "release/**"
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  # ---------------------------------------------------------------
+  # シークレット漏洩スキャン
+  # ---------------------------------------------------------------
+  secrets-scan:
+    name: Secrets Scan (git-secrets)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install git-secrets
+        run: |
+          git clone --branch 1.3.0 --depth 1 --single-branch https://github.com/awslabs/git-secrets.git /tmp/git-secrets
+          cd /tmp/git-secrets && sudo make install
+
+      - name: Register AWS patterns
+        run: |
+          git secrets --register-aws --global
+
+      - name: Add common secret patterns
+        run: |
+          git secrets --add --global 'password\s*=\s*\S+'
+          git secrets --add --global 'secret\s*=\s*\S+'
+          git secrets --add --global 'api_key\s*=\s*\S+'
+          git secrets --add --global 'private_key\s*=\s*\S+'
+
+      - name: Scan repository for secrets
+        run: |
+          git secrets --scan-history
+
+  # ---------------------------------------------------------------
+  # フロントエンド
+  # ---------------------------------------------------------------
+  frontend:
+    name: Frontend (Type Check / Lint / Test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm exec tsc -b --noEmit
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+  # ---------------------------------------------------------------
+  # バックエンド
+  # ---------------------------------------------------------------
+  backend:
+    name: Backend (Test / Lint / Static Analysis)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_real_world
+          MYSQL_USER: real_world
+          MYSQL_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: pdo_mysql, mbstring, dom, fileinfo, pcntl, bcmath
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Set test environment variables
+        run: |
+          echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
+          echo "DB_PORT=3306" >> $GITHUB_ENV
+          echo "DB_DATABASE=test_real_world" >> $GITHUB_ENV
+          echo "DB_USERNAME=real_world" >> $GITHUB_ENV
+          echo "DB_PASSWORD=secret" >> $GITHUB_ENV
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Run tests (Pest)
+        run: php artisan test
+
+      - name: Lint (Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Static analysis (PHPStan / Larastan)
+        run: ./vendor/bin/phpstan analyse --no-progress --memory-limit=512M
