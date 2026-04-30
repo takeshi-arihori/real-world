@@ -24,12 +24,17 @@ RUN apt-get update && apt-get install -y ca-certificates curl gnupg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" \
         > /etc/apt/sources.list.d/docker.list \
     && apt-get update && apt-get install -y \
-    git wget zsh jq gh sudo \
+    git wget zsh jq gh sudo make \
     docker-ce-cli docker-compose-plugin \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL "https://github.com/dandavison/delta/releases/download/${GIT_DELTA_VERSION}/git-delta_${GIT_DELTA_VERSION}_amd64.deb" -o delta.deb \
     && dpkg -i delta.deb && rm delta.deb
+
+# git-secrets のインストール
+RUN git clone https://github.com/awslabs/git-secrets.git /tmp/git-secrets \
+    && cd /tmp/git-secrets && make install \
+    && rm -rf /tmp/git-secrets
 
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 RUN corepack enable

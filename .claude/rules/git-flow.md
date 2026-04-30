@@ -116,3 +116,98 @@ Closes #<issue番号>
 - [ ] N+1 クエリが発生していない
 - [ ] セキュリティ上の問題がない（`rules/security.md` 参照）
 - [ ] 不要なファイル（`.env`, ログ, デバッグコード）が含まれていない
+
+## バージョン管理
+
+[release-please](https://github.com/googleapis/release-please) による自動 SemVer 管理を採用する。
+
+### SemVer 算出ルール
+
+Conventional Commits のタイプから自動的にバージョンを算出する。
+
+| コミットタイプ                      | バージョン変化           | 例                               |
+| ----------------------------------- | ------------------------ | -------------------------------- |
+| `feat`                              | **minor** 上げ (`0.x.0`) | `feat: 検索機能を追加`           |
+| `fix`                               | **patch** 上げ (`0.0.x`) | `fix: ログインエラーを修正`      |
+| `feat!` / `BREAKING CHANGE:`        | **major** 上げ (`x.0.0`) | `feat!: APIレスポンス形式を変更` |
+| `refactor`, `test`, `docs`, `chore` | 変化なし                 | —                                |
+
+### リリースフロー
+
+```
+develop で開発 → release/vX.Y.Z ブランチ → main へ squash merge
+                                                       ↓
+                                          release-please が Release PR を自動作成
+                                                       ↓
+                                          Release PR をマージ → GitHub Release + git タグ自動作成
+```
+
+1. `main` へのプッシュ（squash merge）で `release.yml` が起動
+2. release-please が `CHANGELOG.md` を更新し、バージョンバンプを含む **Release PR** を作成
+3. Release PR をマージすると GitHub Release とタグ（例: `v1.2.3`）が自動作成される
+
+### 初期バージョン
+
+`0.1.0` からスタート。`1.0.0` は最初の安定リリース時に `feat!` コミットで上げる。
+
+### バージョン確認
+
+`.release-please-manifest.json` で現在のバージョンを管理している。
+
+```json
+{
+  ".": "0.1.0"
+}
+```
+
+## シークレット管理（git-secrets）
+
+ローカルでのシークレット漏洩防止に git-secrets を使用する。
+
+### インストール
+
+```bash
+# macOS
+brew install git-secrets
+
+# Linux
+git clone https://github.com/awslabs/git-secrets.git /tmp/git-secrets
+cd /tmp/git-secrets && sudo make install
+```
+
+### セットアップ
+
+```bash
+# AWS パターン登録（グローバル）
+git secrets --register-aws --global
+
+# リポジトリに hooks を設定
+git secrets --install
+```
+
+### CI での自動スキャン
+
+`.github/workflows/ci.yml` の `secrets-scan` ジョブで全コミット履歴をスキャンする。
+push のたびに自動実行されるため、ローカルでも常に `git secrets --scan` を実行して確認すること。
+
+## ブランチ保護設定（GitHub Settings 推奨設定）
+
+以下を GitHub リポジトリの **Settings > Branches** で設定する。
+
+### `main` ブランチ
+
+| 設定項目                              | 値                                                      |
+| ------------------------------------- | ------------------------------------------------------- |
+| Require a pull request before merging | ✅                                                      |
+| Require approvals                     | 1 以上                                                  |
+| Require status checks to pass         | ✅ `CI / Frontend`, `CI / Backend`, `CI / Secrets Scan` |
+| Require branches to be up to date     | ✅                                                      |
+| Restrict pushes                       | ✅（直接 push 禁止）                                    |
+
+### `develop` ブランチ
+
+| 設定項目                              | 値                                                      |
+| ------------------------------------- | ------------------------------------------------------- |
+| Require a pull request before merging | ✅                                                      |
+| Require status checks to pass         | ✅ `CI / Frontend`, `CI / Backend`, `CI / Secrets Scan` |
+| Require branches to be up to date     | ✅                                                      |
