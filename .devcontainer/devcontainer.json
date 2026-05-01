@@ -34,11 +34,7 @@
   },
   "remoteUser": "node",
   "workspaceFolder": "/workspace",
-  "mounts": [
-    "source=${localEnv:SSH_AUTH_SOCK},target=/run/host-services/ssh-auth.sock,type=bind"
-  ],
   "remoteEnv": {
-    "SSH_AUTH_SOCK": "/run/host-services/ssh-auth.sock",
     "GH_TOKEN": "${localEnv:GH_TOKEN}"
   },
   "initializeCommand": "security find-generic-password -s 'Claude Code-credentials' -w 2>/dev/null > ~/.claude/.credentials.json && chmod 600 ~/.claude/.credentials.json || true",

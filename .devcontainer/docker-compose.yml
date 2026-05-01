@@ -19,7 +19,6 @@ services:
       NODE_OPTIONS: "--max-old-space-size=4096 --dns-result-order=ipv4first"
       CLAUDE_CONFIG_DIR: "/home/node/.claude"
       POWERLEVEL9K_DISABLE_GITSTATUS: "true"
-      SSH_AUTH_SOCK: "/run/host-services/ssh-auth.sock"
       GH_TOKEN: "${GH_TOKEN:-}"
     env_file:
       - ./backend/.env
