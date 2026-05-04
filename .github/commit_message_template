@@ -1,4 +1,4 @@
-# <type>(<scope>): <説明（日本語・英語可）>
+# <type>(<scope>): <説明（日本語）>
 #
 # type: feat | fix | refactor | test | docs | chore | ci | release | revert
 # scope（任意）: frontend | backend | db | ci | docs | infra
@@ -10,5 +10,6 @@
 #
 # ルール:
 #   - 先頭行は100文字以内
+#   - type/scope は Conventional Commits に従い英字、説明は日本語で書く
 #   - Co-Authored-By: 行は含めない
 #   - commitlint で自動検証される

@@ -31,7 +31,7 @@ Conventional Commits 形式を使用する。
 <type>: <説明>
 ```
 
-- 説明は**日本語・英語どちらでも可**
+- `type` / `scope` は Conventional Commits に従い英字、説明は**日本語**で書く
 - `Co-Authored-By:` 行は**含めない**
 - コミットメッセージは commitlint で自動検証される（Husky）
 
@@ -86,21 +86,21 @@ chore(ci): GitHub Actions のキャッシュ設定を更新
 
 ### PR タイトル
 
-- 70文字以内
+- 70文字以内、日本語で書く
 - コミットタイプを含める（例: `feat: ユーザー認証を追加 (#42)`）
 
 ### PR テンプレート
 
 ```markdown
-## Summary
+## 概要
 
 - <変更内容を箇条書き>
 
-## Issue
+## 関連 Issue
 
 Closes #<issue番号>
 
-## Test plan
+## テスト計画
 
 - [ ] Vitest テストパス
 - [ ] Pest テストパス
