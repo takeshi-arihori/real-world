@@ -14,13 +14,13 @@ description: >
 
 - **フロントエンド**: `frontend/` - React 19 + TypeScript 5.9 + Vite 8
 - **バックエンド**: `backend/` - Laravel 13 + PHP 8.4
-- **ルール**: `.Codex/rules/security.md` を必ず確認
+- **ルール**: `.claude/rules/security.md` を必ず確認
 
 ## ワークフロー
 
 ### Step 1: セキュリティチェック
 
-`.Codex/rules/security.md` を読み、変更内容に以下がないか確認:
+`.claude/rules/security.md` を読み、変更内容に以下がないか確認:
 
 - `.env` の変更・コミット
 - ハードコーディングされたシークレット

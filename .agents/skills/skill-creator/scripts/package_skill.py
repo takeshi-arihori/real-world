@@ -16,6 +16,19 @@ from pathlib import Path
 from quick_validate import validate_skill
 
 
+EXCLUDED_DIR_NAMES = {'__pycache__', '.pytest_cache', '.mypy_cache', '.ruff_cache', '.git'}
+EXCLUDED_FILE_NAMES = {'.DS_Store'}
+EXCLUDED_FILE_SUFFIXES = {'.pyc', '.pyo'}
+
+
+def should_package_file(file_path):
+    """Return whether a file should be included in a packaged skill."""
+    if any(part in EXCLUDED_DIR_NAMES for part in file_path.parts):
+        return False
+
+    return file_path.name not in EXCLUDED_FILE_NAMES and file_path.suffix not in EXCLUDED_FILE_SUFFIXES
+
+
 def package_skill(skill_path, output_dir=None):
     """
     Package a skill folder into a .skill file.
@@ -68,7 +81,7 @@ def package_skill(skill_path, output_dir=None):
         with zipfile.ZipFile(skill_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
             # Walk through the skill directory
             for file_path in skill_path.rglob('*'):
-                if file_path.is_file():
+                if file_path.is_file() and should_package_file(file_path):
                     # Calculate the relative path within the zip
                     arcname = file_path.relative_to(skill_path.parent)
                     zipf.write(file_path, arcname)

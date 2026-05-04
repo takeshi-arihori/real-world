@@ -18,7 +18,7 @@ GitHub Issueを起点に、要件整理・設計・タスク分解を経てTDD�
 
 - **フロントエンド**: React 19 + TypeScript 5.9 + Vite 8 / テスト: Vitest + Testing Library / リント: ESLint
 - **バックエンド**: Laravel 13 + PHP 8.4 / テスト: Pest 4.4 / リント: Laravel Pint
-- **ルール**: `.Codex/rules/` 配下の各ファイルを作業開始前に必ず確認（特に `.Codex/rules/security.md`）
+- **ルール**: `.claude/rules/` 配下の各ファイルを作業開始前に必ず確認（特に `.claude/rules/security.md`）
 - **ディレクトリ**: フロントエンド=`frontend/` / バックエンド=`backend/`
 
 ## 作業場所の選択
@@ -72,9 +72,9 @@ Issueのタイトル・本文・ラベルを読み取り、実装スコープを
 
 #### Step 2: rulesの確認
 
-`.Codex/rules/` ディレクトリ内の関連ルールファイルを確認する。
+`.claude/rules/` ディレクトリ内の関連ルールファイルを確認する。
 対象技術スタック（frontend / backend）に応じて該当ファイルを読む。
-**`.Codex/rules/security.md` は必ず確認する。**
+**`.claude/rules/security.md` は必ず確認する。**
 
 #### Step 3: 要件整理・設計ドキュメント作成
 
@@ -88,7 +88,7 @@ Issueのタイトル・本文・ラベルを読み取り、実装スコープを
    - **ドメインモデル設計**: Entity / ValueObject / Repository（DDD 適用時）
    - **フロントエンド設計**: Feature 構成、コンポーネント分割、状態管理（フロントエンド関与時）
    - **DB 設計**: テーブル、マイグレーション（DB 変更時）
-   - **セキュリティ確認**: `.Codex/rules/security.md` の禁止事項に抵触しないか
+   - **セキュリティ確認**: `.claude/rules/security.md` の禁止事項に抵触しないか
 3. **タスク分解**: TDD サイクルのコミット単位でタスクを列挙
 4. 設計内容をユーザーに提示し、確認を得てから実装に進む
 
@@ -100,7 +100,7 @@ git checkout -b feature/#<issue番号>-<issue-slug>
 
 - `<issue-slug>`: Issueタイトルから英語kebab-caseで短く生成
 - 例: `feature/#42-add-user-auth`
-- mainブランチの最新から切ること
+- developブランチの最新から切ること
 
 ### Phase 2: TDD 実装
 
@@ -201,7 +201,7 @@ worktreeモードで作業した場合は、ExitWorktreeでクリーンアップ
 - 1 Issue = 1 PR を厳守
 - **Phase 1（分析・設計）を飛ばして Phase 2（実装）に入らない**
 - テストが通らない状態でPRを作成しない
-- `.Codex/rules/` のルールに従うこと
+- `.claude/rules/` のルールに従うこと
 - `docs/` に関連する設計書・仕様書があれば参照すること
 
 ## Issue ラベル運用
