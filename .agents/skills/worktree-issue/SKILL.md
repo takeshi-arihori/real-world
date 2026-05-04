@@ -111,30 +111,30 @@ git commit -m "<type>: <説明>"
 git push -u origin <ブランチ名>
 ```
 
-- コミットメッセージは英語、Conventional Commits形式
+- コミットメッセージは Conventional Commits 形式。`type` / `scope` は英字、説明は日本語で書く
 - 複数コミットOK（内容に応じて分けてよい）
 
 ### Step 8: PR作成
 
 ```bash
 gh pr create --title "<タイトル>" --body "$(cat <<'EOF'
-## Summary
+## 概要
 - <変更内容を箇条書き>
 
-## Issue
+## 関連 Issue
 Closes #<issue番号>
 
-## Test plan
+## テスト計画
 - [ ] リントパス
 - [ ] 型チェックパス（該当する場合）
 - [ ] 既存テストへの影響なし
 
-🤖 Generated with [Codex](https://Codex.com/Codex)
+Codexで生成
 EOF
 )"
 ```
 
-- PRタイトルは70文字以内
+- PRタイトルは70文字以内、日本語で書く
 - `Closes #<issue番号>` でIssueと紐付け
 - マージ方針: squash merge
 

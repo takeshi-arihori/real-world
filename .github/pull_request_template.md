@@ -1,19 +1,19 @@
-## Summary
+## 概要
 
 - <変更内容を箇条書き>
 
-## Issue
+## 関連 Issue
 
 Closes #<issue番号>
 
-## Test plan
+## テスト計画
 
 - [ ] Vitest テストパス
 - [ ] Pest テストパス
 - [ ] ESLint リントパス
 - [ ] Pint リントパス
 
-## Review checklist
+## レビューチェックリスト
 
 - [ ] コードが `rules/` の規約に準拠している
 - [ ] テストが追加・更新されている

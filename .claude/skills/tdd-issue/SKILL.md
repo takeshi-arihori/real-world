@@ -100,7 +100,7 @@ git checkout -b feature/#<issue番号>-<issue-slug>
 
 - `<issue-slug>`: Issueタイトルから英語kebab-caseで短く生成
 - 例: `feature/#42-add-user-auth`
-- mainブランチの最新から切ること
+- developブランチの最新から切ること
 
 ### Phase 2: TDD 実装
 
@@ -161,25 +161,25 @@ git commit -m "<type>: <説明>"
 git push -u origin <ブランチ名>
 ```
 
-- コミットメッセージは英語、Conventional Commits形式
+- コミットメッセージは Conventional Commits 形式。`type` / `scope` は英字、説明は日本語で書く
 - `Co-Authored-By:` 行は含めない
 - TDD サイクルの粒度でコミットを分ける:
-  1. `test: add tests for <feature>` (Red)
-  2. `feat: implement <feature>` (Green)
-  3. `refactor: clean up <feature>` (Refactor、必要な場合のみ)
+  1. `test: <機能>のテストを追加` (Red)
+  2. `feat: <機能>を実装` (Green)
+  3. `refactor: <機能>を整理` (Refactor、必要な場合のみ)
 - `specs/` 配下の作業メモは gitignored のためコミット対象に含めない
 
 #### Step 10: PR作成
 
 ```bash
 gh pr create --title "<タイトル>" --body "$(cat <<'EOF'
-## Summary
+## 概要
 - <変更内容を箇条書き>
 
-## Issue
+## 関連 Issue
 Closes #<issue番号>
 
-## Test plan
+## テスト計画
 - [ ] Vitest テストパス
 - [ ] Pest テストパス
 - [ ] ESLint リントパス
@@ -188,7 +188,7 @@ EOF
 )"
 ```
 
-- PRタイトルは70文字以内
+- PRタイトルは70文字以内、日本語で書く
 - `Closes #<issue番号>` でIssueと紐付け
 - マージ方針: squash merge
 

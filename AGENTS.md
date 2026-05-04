@@ -27,7 +27,7 @@ Frontend は Vitest、Testing Library、`@testing-library/user-event` を使い�
 
 ## コミットと Pull Request
 
-コミットは commitlint で検証される Conventional Commits 形式です。type は `feat`、`fix`、`refactor`、`test`、`docs`、`chore`、`ci`、`release`、`revert` を使います。scope は `frontend`、`backend`、`db`、`infra`、`docs` などが推奨です。ブランチは `develop` から `feature/#<issue>-<slug>` または `fix/#<issue>-<slug>` で切ります。PR は `develop` 向けにし、`.github/pull_request_template.md` に沿って Summary、`Closes #<issue>`、Test plan を記載し、squash merge します。
+コミットは commitlint で検証される Conventional Commits 形式です。type は `feat`、`fix`、`refactor`、`test`、`docs`、`chore`、`ci`、`release`、`revert` を使います。scope は `frontend`、`backend`、`db`、`infra`、`docs` などが推奨です。type/scope は英字、コミット説明は日本語で書いてください。ブランチは `develop` から `feature/#<issue>-<slug>` または `fix/#<issue>-<slug>` で切ります。PR は `develop` 向けにし、タイトル・本文・テンプレート記入内容を日本語で記載します。`.github/pull_request_template.md` に沿って概要、`Closes #<issue>`、テスト計画を記載し、squash merge します。
 
 ## セキュリティとエージェント向け注意
 
