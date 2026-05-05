@@ -6,6 +6,15 @@
 
 Closes #<issue番号>
 
+## Labels
+
+このPRに関連するLabelは [Label運用ガイド](docs/labels.md) を確認してください。
+
+- type:
+- area:
+- priority:
+- status:
+
 ## テスト計画
 
 - [ ] Vitest テストパス
