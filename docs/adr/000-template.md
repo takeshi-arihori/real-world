@@ -19,7 +19,7 @@
 ## コンプライアンス（遵守事項）
 
 この決定が守られているか確認する方法。
-（例: `.claude/rules/xxx.md` のルールに基づき、Pint/ESLint で検証する）
+（例: `docs/rules/xxx.md` のルールに基づき、Pint/ESLint で検証する）
 
 ## 影響
 

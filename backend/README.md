@@ -4,8 +4,8 @@ Laravel 13 ベースの backend アプリケーションです。実装前にル
 
 ## 参照先
 
-- ルール: `../.claude/rules/backend.md`
-- セキュリティ: `../.claude/rules/security.md`
+- ルール: `../docs/rules/backend.md`
+- セキュリティ: `../docs/rules/security.md`
 - ドメイン設計: `../docs/arch/`
 - Issue単位の設計メモ: `../specs/`（gitignored）
 

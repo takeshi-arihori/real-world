@@ -21,14 +21,18 @@ React 19 + Laravel 13 のモノレポ構成。AI駆動開発（ハーネスエ�
 │   ├── frontend/      # Node
 │   └── db/            # MySQL
 ├── specs/             # Issue単位の設計メモ・実行プラン（gitignored）
+├── .agents/
+│   └── skills/        # Codex スキル
 ├── .claude/
-│   ├── rules/         # AI向けコーディング規約
+│   ├── rules/         # 互換用ポインタ（正本は docs/rules/）
 │   └── skills/        # Claude Code スキル
 ├── .devcontainer/     # Dev Container 設定
 ├── docs/
+│   ├── ai/            # AI ハーネス設計
 │   ├── adr/           # アーキテクチャ決定記録
 │   ├── arch/          # ドメイン設計・Bounded Context
-│   └── design/        # 機能設計テンプレート
+│   ├── design/        # 機能設計テンプレート
+│   └── rules/         # AI向けコーディング規約の正本
 └── compose.yml
 ```
 
