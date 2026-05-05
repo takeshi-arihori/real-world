@@ -1,62 +1,32 @@
 # real-world
 
-React 19 + Laravel 13 のモノレポ構成。AI駆動開発（ハーネスエンジニアリング）の学習・実践プロジェクト。
+React 19 + Laravel 13 で API / CRUD / DDD を学ぶためのモノレポです。
+フロントエンド、バックエンド、Docker 環境をまとめて管理しています。
 
 ## 技術スタック
 
-| レイヤー | 技術 | テスト | リント |
-|---------|------|--------|-------|
-| フロントエンド | React 19 + TypeScript 5.9 + Vite 8 | Vitest + Testing Library | ESLint |
-| バックエンド | Laravel 13 + PHP 8.4 | Pest 4.4 | Pint + PHPStan |
-| DB | MySQL 8.0 | — | — |
-
-## ディレクトリ構成
-
-```
-.
-├── frontend/          # React 19 + TypeScript
-├── backend/           # Laravel 13
-├── docker/
-│   ├── backend/       # PHP-FPM / Nginx
-│   ├── frontend/      # Node
-│   └── db/            # MySQL
-├── specs/             # Issue単位の設計メモ・実行プラン（gitignored）
-├── .agents/
-│   └── skills/        # Codex スキル
-├── .claude/
-│   ├── rules/         # 互換用ポインタ（正本は docs/rules/）
-│   └── skills/        # Claude Code スキル
-├── .devcontainer/     # Dev Container 設定
-├── docs/
-│   ├── ai/            # AI ハーネス設計
-│   ├── adr/           # アーキテクチャ決定記録
-│   ├── arch/          # ドメイン設計・Bounded Context
-│   ├── design/        # 機能設計テンプレート
-│   └── rules/         # AI向けコーディング規約の正本
-└── compose.yml
-```
+| レイヤー | 技術 |
+| --- | --- |
+| フロントエンド | React 19 + TypeScript 5.9 + Vite 8 |
+| バックエンド | Laravel 13 + PHP 8.4 |
+| DB | MySQL 8.0 |
+| テスト | Vitest + Testing Library / Pest |
+| 品質チェック | ESLint / Pint / PHPStan |
 
 ## セットアップ
 
-### 必要なもの
+必要なもの:
 
 - Docker Desktop
-- VS Code + Dev Containers 拡張（devcontainer 利用時）
+- VS Code + Dev Containers 拡張（任意）
 
-### 起動
+起動:
 
 ```bash
-# 全サービス起動
 docker compose up -d
-
-# PHPコンテナ接続
-docker compose exec backend-php bash
-
-# 停止
-docker compose down
 ```
 
-### バックエンド初期設定
+バックエンド初期設定:
 
 ```bash
 docker compose exec backend-php bash
@@ -66,59 +36,59 @@ php artisan key:generate
 php artisan migrate
 ```
 
-### フロントエンド初期設定
+フロントエンド初期設定:
 
 ```bash
 docker compose exec frontend sh
 pnpm install
 ```
 
+停止:
+
+```bash
+docker compose down
+```
+
 ## アクセス先
 
 | サービス | URL |
-|---------|-----|
-| フロントエンド | http://localhost:5173 |
+| --- | --- |
+| フロントエンド | http://localhost:3005 |
 | バックエンド API | http://localhost:8080 |
 | Mailpit | http://localhost:8025 |
 
 ## テスト・リント
 
-### フロントエンド
+フロントエンド:
 
 ```bash
-cd frontend && pnpm vitest run      # テスト
-cd frontend && pnpm eslint .        # リント
-cd frontend && pnpm tsc -b --noEmit # 型チェック
+cd frontend && pnpm vitest run
+cd frontend && pnpm eslint .
+cd frontend && pnpm tsc -b --noEmit
 ```
 
-### バックエンド
+バックエンド:
 
 ```bash
-cd backend && php artisan test              # テスト
-cd backend && ./vendor/bin/pint --test      # リント確認
-cd backend && ./vendor/bin/phpstan analyse  # 静的解析
+cd backend && php artisan test
+cd backend && ./vendor/bin/pint --test
+cd backend && ./vendor/bin/phpstan analyse
 ```
 
-## Dev Container
+## 主なディレクトリ
 
-VS Code / Cursor の Dev Containers で開発環境を起動できます。
+| パス | 内容 |
+| --- | --- |
+| `frontend/` | React アプリケーション |
+| `backend/` | Laravel API |
+| `docker/` | Docker 関連設定 |
+| `docs/` | 設計、ADR、運用ルール |
+| `specs/` | Issue 単位の設計メモ・実行プラン（gitignored） |
 
-- Claude Code が事前インストール済み
-- GitHub CLI (`gh`) と `pnpm` がそのまま使える
-- ホストの `~/.claude`（認証情報）・`~/.config/gh`（GitHub CLI）を自動マウント
-- `backend/.env` の環境変数をコンテナ内に自動注入
-- `php` / `composer` は devcontainer から `backend-php` サービスへ委譲されるため、`cd backend && php artisan test` などの既存コマンドをそのまま使える
-- Dev Container は開発用であり、ネットワーク隔離 sandbox としては扱わない
+## 関連ドキュメント
 
-### Dev Container の PHP 実行について
-
-devcontainer 自体は Node ベースの作業コンテナで、PHP は同居させていません。
-PHP の実行環境は `compose.yml` の `backend-php` サービスに一元化しています。
-
-- `php`: `backend-php` コンテナで `php` を実行するラッパー
-- `composer`: `backend-php` コンテナで `composer` を実行するラッパー
-- `delegate-backend-php`: 上記ラッパーの共通実装
-- `docker`: devcontainer 内の `node` ユーザーから Docker Desktop のソケットへアクセスするためのラッパー
-
-このため、devcontainer では `artisan` 専用コマンドは持たず、`php artisan ...` を標準の使い方とします。
-設定変更後は Dev Container を `Rebuild Container` して反映してください。
+- [AI Harness Design](docs/ai/harness.md)
+- [コーディングルール](docs/rules/)
+- [アーキテクチャ決定記録](docs/adr/)
+- [ドメイン設計](docs/arch/)
+- [Label運用ガイド](docs/labels.md)
