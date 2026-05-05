@@ -6,8 +6,9 @@ description: >
   一貫したフローで進める。設計ステップをスキップしない。
   worktree（隔離環境）またはlocal（ローカルリポジトリ直接）を選択可能。
   フロントエンド: React 19 + TypeScript 5.9 + Vite 8 / バックエンド: Laravel 13 + PHP 8.4。
-  トリガー: 「Issue #XXX をTDDで」「このIssueをやって」「GHビューでIssue#XXX」
-  など、GitHub IssueベースのTDD開発を求められたとき。
+when_to_use: >
+  「Issue #XXX をTDDで」「このIssueをやって」「GHビューでIssue#XXX」など、
+  GitHub IssueベースのTDD開発を求められたとき。
 ---
 
 # TDD Issue ワークフロー
@@ -18,7 +19,8 @@ GitHub Issueを起点に、要件整理・設計・タスク分解を経てTDD�
 
 - **フロントエンド**: React 19 + TypeScript 5.9 + Vite 8 / テスト: Vitest + Testing Library / リント: ESLint
 - **バックエンド**: Laravel 13 + PHP 8.4 / テスト: Pest 4.4 / リント: Laravel Pint
-- **ルール**: `.claude/rules/` 配下の各ファイルを作業開始前に必ず確認（特に `.claude/rules/security.md`）
+- **ハーネス**: `docs/ai/harness.md` を正本として確認
+- **ルール**: `docs/rules/` 配下の各ファイルを作業開始前に必ず確認（特に `docs/rules/security.md`）
 - **ディレクトリ**: フロントエンド=`frontend/` / バックエンド=`backend/`
 
 ## 作業場所の選択
@@ -72,9 +74,9 @@ Issueのタイトル・本文・ラベルを読み取り、実装スコープを
 
 #### Step 2: rulesの確認
 
-`.claude/rules/` ディレクトリ内の関連ルールファイルを確認する。
+`docs/ai/harness.md` と `docs/rules/` ディレクトリ内の関連ルールファイルを確認する。
 対象技術スタック（frontend / backend）に応じて該当ファイルを読む。
-**`.claude/rules/security.md` は必ず確認する。**
+**`docs/rules/security.md` は必ず確認する。**
 
 #### Step 3: 要件整理・設計ドキュメント作成
 
@@ -88,7 +90,7 @@ Issueのタイトル・本文・ラベルを読み取り、実装スコープを
    - **ドメインモデル設計**: Entity / ValueObject / Repository（DDD 適用時）
    - **フロントエンド設計**: Feature 構成、コンポーネント分割、状態管理（フロントエンド関与時）
    - **DB 設計**: テーブル、マイグレーション（DB 変更時）
-   - **セキュリティ確認**: `.claude/rules/security.md` の禁止事項に抵触しないか
+   - **セキュリティ確認**: `docs/rules/security.md` の禁止事項に抵触しないか
 3. **タスク分解**: TDD サイクルのコミット単位でタスクを列挙
 4. 設計内容をユーザーに提示し、確認を得てから実装に進む
 
@@ -201,7 +203,7 @@ worktreeモードで作業した場合は、ExitWorktreeでクリーンアップ
 - 1 Issue = 1 PR を厳守
 - **Phase 1（分析・設計）を飛ばして Phase 2（実装）に入らない**
 - テストが通らない状態でPRを作成しない
-- `.claude/rules/` のルールに従うこと
+- `docs/rules/` のルールに従うこと
 - `docs/` に関連する設計書・仕様書があれば参照すること
 
 ## Issue ラベル運用

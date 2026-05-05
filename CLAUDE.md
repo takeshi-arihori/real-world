@@ -1,56 +1,48 @@
 # プロジェクト概要
 
-React 19 + TypeScript / Laravel 13 のモノレポ。AI駆動開発（ハーネスエンジニアリング）の学習・実践プロジェクト。
+React 19 + TypeScript / Laravel 13 のモノレポ。API、CRUD、新しい技術を学ぶためのプロジェクトであり、AI駆動開発のハーネスはレビュー品質を重視する。
 
-## ディレクトリ構成
+このファイルは詳細手順ではなく入口として使う。AI ハーネス設計の正本は `docs/ai/harness.md`、コーディングルールの正本は `docs/rules/*`。
 
-- `frontend/` — React 19 + TypeScript 5.9 + Vite 8
-- `backend/`  — Laravel 13 + PHP 8.4
-- `.claude/rules/` — コーディング規約（詳細ルール）
-- `.claude/skills/` — Claude Code スキル
-- `specs/`        — Issue単位の設計メモ・実行プラン（gitignored）
-- `docs/adr/`    — アーキテクチャ決定記録
-- `docs/arch/`   — ドメイン設計・Bounded Context・ユビキタス言語
-- `docs/design/` — 機能設計テンプレート
+参考:
 
-## ルール参照（作業開始前に確認）
+- `docs/ai/harness.md`
+- https://code.claude.com/docs/en/skills
+- https://code.claude.com/docs/ja/how-claude-code-works
 
-| ファイル | 読むタイミング |
-|---------|--------------|
-| `.claude/rules/security.md` | **常に確認** |
-| `.claude/rules/frontend.md` | `frontend/` 変更時 |
-| `.claude/rules/backend.md`  | `backend/` 変更時 |
-| `.claude/rules/git-flow.md` | コミット・PR作成時 |
-| `.claude/rules/db.md`       | マイグレーション作成時 |
-| `.claude/rules/log.md`      | ログ追加時 |
+## 作業の優先順位
 
-## 開発フロー
+1. 変更差分と目的を把握する。
+2. 該当する skill を読み込む。
+3. `docs/ai/harness.md` と必要な `docs/rules/*` を確認する。
+4. テストの妥当性、アーキテクチャ、セキュリティを重点的に確認する。
 
-Issue → `specs/<feature>.md` 作成 → タスク分解 → TDD実装 → PR
+## Skill の使い分け
 
-- Git Flow: `feature/#<issue>-<slug>`
-- TDD: Red → Green → Refactor
-- 1 Issue = 1 PR, squash merge
-- 設計ドキュメント作成をスキップしない
+- `.claude/skills/code-review/` - コードレビュー、テスト妥当性、アーキテクチャ確認。
+- `.claude/skills/verify-qa/` - 型チェック、テスト、リント、静的解析、audit の実行。
+- `.claude/skills/tdd-issue/` - GitHub Issue 起点の TDD 実装。
+- `.claude/skills/worktree-issue/` - TDD 不要の Issue 対応やドキュメント・設定変更。
 
-## ADR・設計ドキュメント
+## 参照する Rules
 
-- アーキテクチャ決定 → `docs/adr/`（不変原則・ステータス明示）
-- ドメイン設計 → `docs/arch/`
-- 機能設計書 → `specs/<feature>.md`（テンプレート: `docs/design/_template-feature-spec.md`）
+- `docs/rules/security.md` - 常に確認する。
+- `docs/rules/frontend.md` - `frontend/` 変更時。
+- `docs/rules/backend.md` - `backend/` 変更時。
+- `docs/rules/db.md` - DB・マイグレーション変更時。
+- `docs/rules/git-flow.md` - ブランチ、コミット、PR 作成時。
+- `docs/rules/log.md` - ログ追加時。
 
-## Docker・テストコマンド
+## レビュー観点
 
-詳細は `README.md` を参照。
+- テストが仕様、失敗ケース、境界値、認可、バリデーションを検証しているか。
+- Laravel の層分離、Controller の薄さ、FormRequest、Domain/Application/Infrastructure/Presentation の責務が守られているか。
+- React の feature/shared/app/lib 分離、Hooks と Component の責務、ユーザー視点テストが守られているか。
+- `.env` 編集、シークレット直書き、危険な動的実行、SQL 文字列結合がないか。
 
-```bash
-docker compose exec backend-php bash    # PHPコンテナ接続
-cd frontend && pnpm vitest run          # FEテスト
-cd backend && php artisan test          # BEテスト
-```
+## 最低限の制約
 
-## セキュリティ制約（絶対禁止）
-
-- `.env` ファイルの編集・コミット禁止
-- シークレット・APIキーのハードコーディング禁止
-- `eval()`, `exec()`, `shell_exec()` の使用禁止
+- `.env` を編集・コミットしない。
+- シークレットや API キーを直書きしない。
+- サーバーサイド検証を省略しない。
+- 詳細な判断に迷ったら、このファイルへ追記せず `docs/` 側を更新する。

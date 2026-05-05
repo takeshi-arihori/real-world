@@ -4,8 +4,8 @@ React 19 + TypeScript + Vite ベースの frontend アプリケーションで�
 
 ## 参照先
 
-- ルール: `../.claude/rules/frontend.md`
-- セキュリティ: `../.claude/rules/security.md`
+- ルール: `../docs/rules/frontend.md`
+- セキュリティ: `../docs/rules/security.md`
 - ドメイン設計: `../docs/arch/`
 - Issue単位の設計メモ: `../specs/`（gitignored）
 
