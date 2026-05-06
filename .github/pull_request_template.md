@@ -17,10 +17,10 @@ Closes #<issue番号>
 
 ## テスト計画
 
-- [ ] Vitest テストパス
-- [ ] Pest テストパス
-- [ ] ESLint リントパス
-- [ ] Pint リントパス
+- [ ] フロントエンド: `pnpm vitest run` / `pnpm eslint .` / `pnpm tsc -b --noEmit`
+- [ ] バックエンド: `php artisan test` / `./vendor/bin/pint --test` / `./vendor/bin/phpstan analyse`
+- [ ] ドキュメント: `git diff --check` と参照確認
+- [ ] 対象外の検証がある場合は理由を記載
 
 ## レビューチェックリスト
 

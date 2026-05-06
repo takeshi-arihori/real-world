@@ -27,6 +27,7 @@ status: 作業状態
 | `type: docs` | ドキュメント作成・更新に関するIssue / PR |
 | `type: planning` | 要件整理、設計方針、Issue分解など計画系のIssue / PR |
 | `type: feature` | 新機能の実装に関するIssue / PR |
+| `type: fix` | 不具合修正、仕様とのズレ、回帰修正に関するIssue / PR |
 | `type: refactor` | 振る舞いを変えずに内部設計やコード構造を改善するIssue / PR |
 | `type: chore` | 設定、環境構築、依存関係更新など機能以外の作業Issue / PR |
 | `type: test` | テスト追加・修正・テスト方針に関するIssue / PR |
@@ -127,6 +128,15 @@ type: feature
 area: backend
 area: api
 area: auth
+priority: high
+status: ready
+```
+
+### 不具合修正Issue
+
+```text
+type: fix
+area: backend
 priority: high
 status: ready
 ```

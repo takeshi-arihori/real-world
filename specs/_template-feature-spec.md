@@ -1,7 +1,7 @@
 # Feature Spec: [Feature名]
 
 > このテンプレートは GitHub Issue 作成用ではなく、Issue 確定後に `specs/` 配下へ作成する実装前設計メモ用です。
-> Issue 作成テンプレートが必要な場合は `.github/ISSUE_TEMPLATE/` に作成します。
+> Issue 作成テンプレートは `.github/ISSUE_TEMPLATE/` に作成します。
 
 > Issue: #XXX
 > 作成日: YYYY-MM-DD
@@ -28,7 +28,6 @@
 
 - [ ] フロントエンド (`frontend/`)
 - [ ] バックエンド (`backend/`)
-
 
 ### 影響する Bounded Context / Feature
 
@@ -122,8 +121,8 @@ features/<feature>/
 ### テーブル
 
 | カラム名 | 型 | 制約 | 説明 |
-|---------|---|------|------|
-| | | | |
+|---------|---|------|
+| | | |
 
 ### マイグレーション
 
