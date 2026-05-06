@@ -57,5 +57,5 @@ $table->string('status')->default(UserStatus::Active->value);
 
 ## DB スキーマ管理
 
-- スキーマ定義は `docs/dbschema.dbml` に DBML 形式で記録
+- スキーマ定義は `docs/db/dbschema.dbml` に DBML 形式で記録
 - テーブル追加・変更時に `dbschema.dbml` も同時更新すること
