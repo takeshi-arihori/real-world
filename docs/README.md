@@ -8,9 +8,10 @@
 1. [`requirements.md`](requirements.md): MVP の要件、対象ユーザー、機能要件、非機能要件
 2. [`ai/harness.md`](ai/harness.md): AI ハーネス設計、skill の責務、レビュー優先方針
 3. [`rules/`](rules/): フロントエンド、バックエンド、DB、Git、ログ、セキュリティの開発ルール
-4. [`arch/`](arch/): Bounded Context とユビキタス言語
-5. [`../specs/_template-feature-spec.md`](../specs/_template-feature-spec.md): Issue 確定後の実装前設計メモテンプレート
-6. [`labels.md`](labels.md): GitHub Issue / PR ラベル運用
+4. [`context-map.md`](context-map.md): Bounded Context と Context 間の関係
+5. [`arch/`](arch/): ドメイン設計の補足資料
+6. [`../specs/_template-feature-spec.md`](../specs/_template-feature-spec.md): Issue 確定後の実装前設計メモテンプレート
+7. [`labels.md`](labels.md): GitHub Issue / PR ラベル運用
 
 ## ディレクトリ構成
 
@@ -19,6 +20,7 @@
 | `requirements.md` | MVP スコープと機能・非機能要件の正本 |
 | `ai/` | AI ハーネス、skill 連携、レビュー方針 |
 | `rules/` | 実装時に従うコーディング・運用ルール |
+| `context-map.md` | DDD の Bounded Context、責務、Context 間連携 |
 | `arch/` | ドメイン分割、コンテキスト間の関係、用語定義 |
 | `db/` | DBML 形式のスキーマ記録 |
 | `labels.md` | GitHub ラベルの分類と付与ルール |
