@@ -1,12 +1,27 @@
 # RealWorld 要件定義
 
-> Issue: #32
-> ステータス: 初版
+> Parent Issue: #2
+> Initial Requirement Issue: #32
+> ステータス: 詳細計画済み
 
 ## 目的
 
 React 19 + Laravel 13 のモノレポで、RealWorld（Conduit）相当の API / CRUD / DDD を学ぶための MVP 要件を定義する。
 この文書は後続 Issue の分解、設計レビュー、実装範囲確認の正本として扱う。
+
+## Detailed Planning Artifacts
+
+この要件定義の詳細化は次の文書に分割する。
+実装 Issue を作るときは、この文書で MVP スコープを確認したうえで、該当する詳細文書を参照する。
+
+| 領域 | 文書 | 対応Issue | 役割 |
+| --- | --- | --- | --- |
+| DDD | [`context-map.md`](context-map.md) | #33 | Bounded Context、責務、Context 間連携 |
+| DDD | [`ubiquitous-language.md`](ubiquitous-language.md) | #34 | ドメイン用語、命名、混同しやすい語の区別 |
+| API | [`api-requirements.md`](api-requirements.md) | #35 | RealWorld互換API、認証要否、認可、レスポンス形式 |
+| Frontend | [`frontend-features.md`](frontend-features.md) | #36 | 画面一覧、route案、feature構成、フォーム、エラー方針 |
+| Non-functional | [`non-functional-requirements.md`](non-functional-requirements.md) | #37 | 品質、テスト、lint、Git hooks、ローカル再現性 |
+| Planning | [`issue-breakdown.md`](issue-breakdown.md) | #38 | 後続Epic、Backend / Frontend / QA Issue候補 |
 
 ## MVP 対象
 
@@ -113,13 +128,26 @@ MVP では、RealWorld の主要な学習対象である認証、プロフィー
 
 ## 後続 Issue 分解候補
 
-- 認証 API の設計と実装
-- プロフィール API の設計と実装
-- 記事 CRUD API の設計と実装
-- コメント API の設計と実装
-- フォロー API とお気に入り API の設計と実装
-- フィード API とタグ API の設計と実装
-- フロントエンドのアプリ構成とルーティング基盤
-- 認証・プロフィール画面
-- 記事一覧・詳細・作成・編集画面
-- コメント、フォロー、お気に入り操作の UI
+詳細な後続 Issue 分解は [`issue-breakdown.md`](issue-breakdown.md) を正本にする。
+初期実装は次の Epic 単位で進める。
+
+1. Backend Foundation
+2. Frontend Foundation
+3. Identity Context
+4. Publishing Context
+5. Social Context
+6. API Integration
+7. E2E / Quality
+
+## Parent Issue Closure Criteria
+
+親 Issue #2 は、次の条件を満たした時点でクローズできる。
+
+- #33 Context Map が作成されている。
+- #34 Ubiquitous Language が作成されている。
+- #35 API Requirements が作成されている。
+- #36 Frontend Features が作成されている。
+- #37 Non-Functional Requirements が作成されている。
+- #38 Issue Breakdown が作成されている。
+- 後続の Backend / Frontend / QA 実装 Issue 候補が整理されている。
+- 実装時に参照する正本が `docs/` 配下に集約されている。
