@@ -21,6 +21,7 @@ React 19 + TypeScript / Laravel 13 のモノレポ。API、CRUD、新しい技�
 
 - `.agents/skills/code-review/` - コードレビュー、テスト妥当性、アーキテクチャ確認。
 - `.agents/skills/verify-qa/` - 型チェック、テスト、リント、静的解析、audit の実行。
+- `.agents/skills/issue-planning/` - GitHub Issue / Epic / sub-issue の作成、分解、Project field 整理。
 - `.agents/skills/tdd-issue/` - GitHub Issue 起点の TDD 実装。
 - `.agents/skills/worktree-issue/` - TDD 不要の Issue 対応やドキュメント・設定変更。
 
@@ -31,6 +32,7 @@ React 19 + TypeScript / Laravel 13 のモノレポ。API、CRUD、新しい技�
 - `docs/rules/backend.md` - `backend/` 変更時。
 - `docs/rules/db.md` - DB・マイグレーション変更時。
 - `docs/rules/git-flow.md` - ブランチ、コミット、PR 作成時。
+- `docs/rules/project.md` - Issue、Epic、sub-issue、GitHub Projects 運用時。
 - `docs/rules/log.md` - ログ追加時。
 
 ## レビュー観点

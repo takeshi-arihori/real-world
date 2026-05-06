@@ -26,6 +26,7 @@ status: 作業状態
 | --- | --- |
 | `type: docs` | ドキュメント作成・更新に関するIssue / PR |
 | `type: planning` | 要件整理、設計方針、Issue分解など計画系のIssue / PR |
+| `type: epic` | 複数のsub-issueを束ねる機能単位の親Issue |
 | `type: feature` | 新機能の実装に関するIssue / PR |
 | `type: fix` | 不具合修正、仕様とのズレ、回帰修正に関するIssue / PR |
 | `type: refactor` | 振る舞いを変えずに内部設計やコード構造を改善するIssue / PR |
@@ -78,6 +79,9 @@ priority: 原則1つ
 status: 必要に応じて1つ
 ```
 
+GitHub Projects の Epic / sub-issue 運用は `docs/rules/project.md` を正本とする。
+Epic Issue には `type: epic` を付け、実装 Issue は該当 Epic の sub-issue として紐付ける。
+
 例:
 
 ```text
@@ -119,6 +123,17 @@ type: planning
 area: ddd
 priority: medium
 status: needs discussion
+```
+
+### Epic Issue
+
+```text
+type: epic
+type: planning
+area: backend
+area: frontend
+priority: high
+status: ready
 ```
 
 ### Laravel APIの認証機能を実装するIssue

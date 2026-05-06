@@ -78,11 +78,15 @@ chore(ci): GitHub Actions のキャッシュ設定を更新
 
 ## PR 方針
 
+Issue / Project / Epic の運用は [`project.md`](project.md) を正本とする。
+
 ### 基本ルール
 
 - **1 Issue = 1 PR** を厳守
 - **squash merge** で develop/main にマージ
 - `Closes #<issue番号>` で Issue と紐付け
+- Epic Issue は複数 sub-issue の親として扱い、原則として実装 PR では閉じない
+- 実装 PR は Epic の sub-issue を `Closes #<issue番号>` で閉じる
 
 ### PR タイトル
 
