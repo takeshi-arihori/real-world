@@ -43,6 +43,20 @@ body:
       required: true
 
   - type: textarea
+    id: project
+    attributes:
+      label: Project / Epic
+      description: GitHub Projects の Epic field、親Issue、sub-issue候補を記述してください。
+      value: |
+        Epic: <Backend Foundation / Frontend Foundation / Identity Context / Publishing Context / Social Context / API Integration / E2E / Quality>
+        Parent: #
+        Sub-issue分解:
+        - [ ] 不要
+        - [ ] 必要（候補を下に記述）
+    validations:
+      required: true
+
+  - type: textarea
     id: requirements
     attributes:
       label: 要件

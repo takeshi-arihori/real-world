@@ -48,6 +48,20 @@ body:
       required: true
 
   - type: textarea
+    id: project
+    attributes:
+      label: Project / Epic
+      description: GitHub Projects の Epic field、親Issue、sub-issue候補を記述してください。
+      value: |
+        Epic: <該当する場合>
+        Parent: #
+        Sub-issue分解:
+        - [ ] 不要
+        - [ ] 必要（候補を下に記述）
+    validations:
+      required: false
+
+  - type: textarea
     id: acceptance
     attributes:
       label: 受け入れ条件

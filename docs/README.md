@@ -25,6 +25,8 @@
 | `db/` | DBML 形式のスキーマ記録 |
 | `labels.md` | GitHub ラベルの分類と付与ルール |
 
+GitHub Projects、Epic、sub-issue の運用は [`rules/project.md`](rules/project.md) を参照します。
+
 ## Issue 単位の設計メモ
 
 Issue に着手するときは [`../specs/_template-feature-spec.md`](../specs/_template-feature-spec.md) を使い、作業用メモをリポジトリルートの `specs/` に作成します。

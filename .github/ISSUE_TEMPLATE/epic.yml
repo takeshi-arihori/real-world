@@ -1,0 +1,87 @@
+name: Epic
+description: 複数のsub-issueを束ねる機能単位の親Issue
+title: "epic: "
+labels:
+  - "type: epic"
+  - "type: planning"
+  - "status: needs discussion"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Epic / sub-issue / GitHub Project の運用は `docs/rules/project.md` を確認してください。
+        Label の分類と付け方は `docs/labels.md` を確認してください。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: このEpicで実現するユーザー価値や機能単位を記述してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: スコープ
+      description: このEpicに含める範囲を箇条書きで記述してください。
+      value: |
+        - <含める範囲>
+    validations:
+      required: true
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: 対象外
+      description: このEpicでは扱わない範囲を記述してください。
+      value: |
+        - <対象外>
+    validations:
+      required: true
+
+  - type: textarea
+    id: sub_issues
+    attributes:
+      label: Sub-issue候補
+      description: 切り分ける予定の子Issueを記述してください。
+      value: |
+        - [ ] <sub-issue候補>
+    validations:
+      required: true
+
+  - type: textarea
+    id: completion
+    attributes:
+      label: 完了条件
+      description: Epicを閉じられる条件をチェックリストで記述してください。
+      value: |
+        - [ ] すべてのsub-issueが完了している
+        - [ ] 代表的なユーザーフローが確認されている
+        - [ ] 必要なドキュメントが更新されている
+    validations:
+      required: true
+
+  - type: dropdown
+    id: epic_field
+    attributes:
+      label: Project Epic field
+      description: GitHub Projects の `Epic` field に設定する値を選択してください。
+      options:
+        - Backend Foundation
+        - Frontend Foundation
+        - Identity Context
+        - Publishing Context
+        - Social Context
+        - API Integration
+        - E2E / Quality
+        - 未定
+    validations:
+      required: true
+
+  - type: textarea
+    id: related
+    attributes:
+      label: 関連
+      description: 関連Issue、PR、参照docsがあれば記述してください。
+      placeholder: "Related: #"

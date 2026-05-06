@@ -60,5 +60,6 @@ ADR は廃止方向とし、判断は要件・ルール・ドメイン設計・�
 
 - `code-review`: レビュー、テスト妥当性、アーキテクチャ確認。
 - `verify-qa`: 型チェック、テスト、リント、静的解析、audit の実行。
+- `issue-planning`: GitHub Issue / Epic / sub-issue の作成、分解、Project field 整理。
 - `tdd-issue`: GitHub Issue 起点の設計、TDD 実装、PR 準備。
 - `worktree-issue`: TDD 不要の Issue 対応、ドキュメント、設定変更。
