@@ -9,7 +9,7 @@
 2. [`ai/harness.md`](ai/harness.md): AI ハーネス設計、skill の責務、レビュー優先方針
 3. [`rules/`](rules/): フロントエンド、バックエンド、DB、Git、ログ、セキュリティの開発ルール
 4. [`arch/`](arch/): Bounded Context とユビキタス言語
-5. [`design/_template-feature-spec.md`](design/_template-feature-spec.md): Issue 確定後の実装前設計メモテンプレート
+5. [`../specs/_template-feature-spec.md`](../specs/_template-feature-spec.md): Issue 確定後の実装前設計メモテンプレート
 6. [`labels.md`](labels.md): GitHub Issue / PR ラベル運用
 
 ## ディレクトリ構成
@@ -21,16 +21,15 @@
 | `rules/` | 実装時に従うコーディング・運用ルール |
 | `arch/` | ドメイン分割、コンテキスト間の関係、用語定義 |
 | `db/` | DBML 形式のスキーマ記録 |
-| `design/` | Issue 確定後に使う実装前設計メモテンプレート |
 | `labels.md` | GitHub ラベルの分類と付与ルール |
 
 ## Issue 単位の設計メモ
 
-Issue に着手するときは [`design/_template-feature-spec.md`](design/_template-feature-spec.md) を使い、作業用メモをリポジトリルートの `specs/` に作成します。
-`specs/` は gitignored の作業ディレクトリであり、PR には含めません。
+Issue に着手するときは [`../specs/_template-feature-spec.md`](../specs/_template-feature-spec.md) を使い、作業用メモをリポジトリルートの `specs/` に作成します。
+`specs/` はテンプレートだけを tracked にし、実際の作業メモは gitignored として PR には含めません。
 
-`docs/design/` は GitHub Issue 作成テンプレートの置き場ではありません。
-Issue 作成時に GitHub UI で使うテンプレートが必要な場合は `.github/ISSUE_TEMPLATE/` に置きます。
+Issue 作成時に GitHub UI で使うテンプレートは `.github/ISSUE_TEMPLATE/` に置きます。
+このリポジトリでは、ドキュメント/要件/設計用、機能実装用、不具合修正用の Issue template を用意しています。
 
 レビューや実装に必要な恒久的な判断は、作業メモではなく `requirements.md`、`rules/`、`arch/`、`ai/` のいずれかへ反映します。
 

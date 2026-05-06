@@ -83,7 +83,7 @@ cd backend && ./vendor/bin/phpstan analyse
 | `backend/` | Laravel API |
 | `docker/` | Docker 関連設定 |
 | `docs/` | 要件、設計、運用ルール |
-| `specs/` | Issue 単位の設計メモ・実行プラン（gitignored） |
+| `specs/` | Issue 単位の設計メモ・実行プラン（テンプレート以外はgitignored） |
 
 ## 関連ドキュメント
 

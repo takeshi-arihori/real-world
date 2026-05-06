@@ -1,0 +1,91 @@
+name: Bug Fix
+description: 不具合修正、仕様とのズレ、回帰のIssue
+title: "fix: "
+labels:
+  - "type: fix"
+  - "status: needs discussion"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        再現条件、期待結果、実際の結果、影響範囲を具体的に記述してください。
+        Label の分類と付け方は `docs/labels.md` を確認してください。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: どのような不具合かを短く記述してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待結果
+      description: 本来どう動くべきかを記述してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の結果
+      description: 現在どう動いているかを記述してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      description: 再現に必要な操作、リクエスト、入力値を記述してください。
+      value: |
+        1. <手順>
+        2. <手順>
+        3. <手順>
+    validations:
+      required: true
+
+  - type: dropdown
+    id: layers
+    attributes:
+      label: 対象レイヤー
+      description: 主な影響範囲を選択してください。複数ある場合は本文に補足してください。
+      options:
+        - backend
+        - frontend
+        - frontend + backend
+        - docs / planning
+        - infra
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 受け入れ条件
+      description: 修正完了と言える条件をチェックリストで記述してください。
+      value: |
+        - [ ] <条件>
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: テスト観点
+      description: 再発防止のために追加・更新すべきテストを記述してください。
+      value: |
+        - [ ] 再現ケース
+        - [ ] 回帰防止
+        - [ ] 認可 / バリデーション（該当する場合）
+    validations:
+      required: true
+
+  - type: textarea
+    id: related
+    attributes:
+      label: 関連
+      description: 関連Issue、PR、ログ、参考URLがあれば記述してください。
+      placeholder: "Related: #"

@@ -81,7 +81,7 @@ Issueのタイトル・本文・ラベルを読み取り、実装スコープを
 
 **このステップは必須。設計なしに実装に入らない。**
 
-1. `mkdir -p specs` を実行し、`docs/design/_template-feature-spec.md` テンプレートを元に `specs/<feature>.md` を作成する（`specs/` は gitignored の作業ディレクトリ）
+1. `specs/_template-feature-spec.md` テンプレートを元に `specs/<feature>.md` を作成する（`specs/` はテンプレート以外 gitignored の作業ディレクトリ）
 2. 以下のセクションを埋める：
    - **要件の明確化**: 何を実現するか、受け入れ条件
    - **影響範囲**: 対象レイヤー、影響する Bounded Context / Feature

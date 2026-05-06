@@ -1,0 +1,65 @@
+name: Documentation / Planning
+description: 要件定義、設計、ドキュメント更新のIssue
+title: "docs: "
+labels:
+  - "type: docs"
+  - "status: needs discussion"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Label の分類と付け方は `docs/labels.md` を確認してください。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: 何を整理・作成・更新するIssueかを記述してください。
+      placeholder: RealWorldプロジェクトの要件定義書を作成する。
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景
+      description: なぜこのドキュメント作業が必要かを記述してください。
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: 対応内容
+      description: 実施する作業を箇条書きで記述してください。
+      value: |
+        - <対応内容>
+    validations:
+      required: true
+
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: 成果物
+      description: 作成・更新する予定のファイルやドキュメントを記述してください。
+      value: |
+        - `docs/`
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 受け入れ条件
+      description: 完了と言える条件をチェックリストで記述してください。
+      value: |
+        - [ ] <条件>
+    validations:
+      required: true
+
+  - type: textarea
+    id: related
+    attributes:
+      label: 関連
+      description: 親Issue、関連Issue、参考URLがあれば記述してください。
+      placeholder: "Parent: #"

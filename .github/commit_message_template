@@ -1,4 +1,4 @@
-# <type>(<scope>): <説明（日本語）>
+# <type>[(<scope>)]: <説明（日本語）>
 #
 # type: feat | fix | refactor | test | docs | chore | ci | release | revert
 # scope（任意）: frontend | backend | db | ci | docs | infra

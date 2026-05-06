@@ -14,7 +14,7 @@
 - コーディングルール: `docs/rules/*.md`
 - ドメイン設計: `docs/arch/*.md`
 - 要件定義: `docs/requirements.md`
-- 機能設計テンプレート: `docs/design/_template-feature-spec.md`
+- 実装前設計メモテンプレート: `specs/_template-feature-spec.md`
 
 `.claude/rules/*` は互換用の参照ファイルに留める。新しいルールや詳細な手順は `docs/` に追加・更新する。
 ADR は廃止方向とし、判断は要件・ルール・ドメイン設計・ハーネス文書へ直接反映する。
