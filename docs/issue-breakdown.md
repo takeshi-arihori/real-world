@@ -1,0 +1,127 @@
+# RealWorld Issue Breakdown
+
+> Issue: #38
+> Status: 初版
+
+この文書は RealWorld MVP の要件定義を、後続の設計・実装 Issue に分解するための計画である。
+親 Issue #2 を閉じる前に、要件、DDD、API、Frontend、非機能要件の成果物が揃っていることを確認する。
+
+## Reviewed Inputs
+
+| Area | Artifact | Source Issue | Status |
+| --- | --- | --- | --- |
+| Requirements | `docs/requirements.md` | #2 / #32 | merged |
+| Context Map | `docs/context-map.md` | #33 | PR #41 |
+| Ubiquitous Language | `docs/ubiquitous-language.md` | #34 | PR #42 |
+| API Requirements | `docs/api-requirements.md` | #35 | PR #43 |
+| Frontend Features | `docs/frontend-features.md` | #36 | PR #44 |
+| Non-Functional Requirements | `docs/non-functional-requirements.md` | #37 | PR #45 |
+| Rules | `docs/rules/*` | existing | merged |
+
+The implementation phase can start after #33-#38 are merged into `develop`.
+
+## Implementation Order
+
+1. Backend and Frontend foundation
+2. Identity Context
+3. Publishing Context read model baseline
+4. Publishing Context write operations
+5. Social Context
+6. API and Frontend integration per workflow
+7. E2E, QA, and polish
+
+This order avoids building UI workflows before API contracts and authentication state are stable.
+
+## Epic Candidates
+
+| Epic | Goal | Depends on | Done when |
+| --- | --- | --- | --- |
+| Backend Foundation | Laravel API の DDD 構成、共通 error response、認証基盤を用意する | #35, #37 | API 実装 Issue が共通構造に乗る |
+| Frontend Foundation | React Router、API client、Auth Provider、App Shell を用意する | #36, #37 | 画面実装 Issue が共通構造に乗る |
+| Identity Context | Register / Login / Current User / Settings API と画面を実装する | Backend/Foundation, Frontend/Foundation | 認証状態を使う後続機能が実装可能 |
+| Publishing Context | Article / Comment / Tag の API と画面を実装する | Identity | 記事作成から詳細閲覧、コメントまで動く |
+| Social Context | Profile / Follow / Favorite / Feed を実装する | Identity, Publishing | RealWorld の social workflow が動く |
+| API Integration | Backend API と Frontend feature API を結合する | 各 Context | 主要画面が実 API で動く |
+| E2E / Quality | 代表ユーザーフロー、CI、audit、レビュー観点を強化する | 全 Epic | MVP の回帰検出ができる |
+
+## Backend Issue Candidates
+
+| Order | Candidate Issue | Labels | Scope | Acceptance |
+| --- | --- | --- | --- | --- |
+| 1 | chore: Backend DDD ディレクトリとDI基盤を整備する | `type: chore`, `area: backend`, `area: ddd` | `Domain/`, `Application/`, `Infrastructure/`, `Presentation/` skeleton | Layer boundaries and provider bindings documented/tested |
+| 2 | feat: RealWorld API error response を実装する | `type: feature`, `area: backend`, `area: api` | error wrapper, exception mapping, status code policy | 401/403/404/422 tests pass |
+| 3 | feat: Identity Context の登録・ログインAPIを実装する | `type: feature`, `area: backend`, `area: auth` | `POST /api/users`, `POST /api/users/login` | validation, duplicate, token response tests pass |
+| 4 | feat: 現在ユーザー取得・更新APIを実装する | `type: feature`, `area: backend`, `area: auth` | `GET /api/user`, `PUT /api/user` | auth required, update validation, unique exception tests pass |
+| 5 | feat: Profile取得・Follow APIを実装する | `type: feature`, `area: backend`, `area: profile`, `area: social` | profile read, follow, unfollow | optional auth and self-follow rejection tests pass |
+| 6 | feat: Article CRUD APIを実装する | `type: feature`, `area: backend`, `area: article` | create, list, detail, update, delete | slug, pagination, filters, author-only policy tests pass |
+| 7 | feat: Comment APIを実装する | `type: feature`, `area: backend`, `area: comment` | list, create, delete | guest list, auth create, author-only delete tests pass |
+| 8 | feat: Favorite APIを実装する | `type: feature`, `area: backend`, `area: social`, `area: article` | favorite, unfavorite, count | idempotency and count tests pass |
+| 9 | feat: Feed and Tag APIを実装する | `type: feature`, `area: backend`, `area: api` | `/api/articles/feed`, `/api/tags` | auth feed and distinct tag list tests pass |
+| 10 | test: Backend API contract coverageを補強する | `type: test`, `area: backend`, `area: api` | response wrapper, status code, policy gaps | MVP API contract checklist covered |
+
+## Frontend Issue Candidates
+
+| Order | Candidate Issue | Labels | Scope | Acceptance |
+| --- | --- | --- | --- | --- |
+| 1 | chore: React Router と App Shell を導入する | `type: chore`, `area: frontend` | routing, layout, route guards baseline | starter UI removed, routes render |
+| 2 | feat: API client と error normalization を実装する | `type: feature`, `area: frontend`, `area: api` | `lib/apiClient`, typed errors, auth header | 401/422 mapping tests pass |
+| 3 | feat: Auth Provider と認証フォームを実装する | `type: feature`, `area: frontend`, `area: auth` | login, register, current user, logout | token lifecycle and form error tests pass |
+| 4 | feat: Settings画面を実装する | `type: feature`, `area: frontend`, `area: auth`, `area: profile` | current user settings update | submit, validation, logout tests pass |
+| 5 | feat: Home / Feed / Tag filtering を実装する | `type: feature`, `area: frontend`, `area: article` | global feed, your feed, tags, pagination | guest/auth tab behavior tests pass |
+| 6 | feat: Article Detail と Favorite UI を実装する | `type: feature`, `area: frontend`, `area: article`, `area: social` | detail, favorite, author actions | optional auth and button state tests pass |
+| 7 | feat: Article Editor を実装する | `type: feature`, `area: frontend`, `area: article` | create/edit form | validation, submit, redirect tests pass |
+| 8 | feat: Comment UI を実装する | `type: feature`, `area: frontend`, `area: comment` | comment list, create, delete | guest read and author delete tests pass |
+| 9 | feat: Profile / Favorites / Follow UI を実装する | `type: feature`, `area: frontend`, `area: profile`, `area: social` | profile pages, follow button, favorited articles | follow state and tabs tests pass |
+| 10 | test: Frontend workflow coverageを補強する | `type: test`, `area: frontend` | integration-style component tests | auth/article/profile critical paths covered |
+
+## Infra / QA Issue Candidates
+
+| Order | Candidate Issue | Labels | Scope | Acceptance |
+| --- | --- | --- | --- | --- |
+| 1 | chore: READMEとローカルセットアップを実装状態へ追従する | `type: docs`, `area: infra`, `area: non-functional` | README commands, ports, troubleshooting | first-run steps are copy-pasteable |
+| 2 | ci: Frontend / Backend / Secrets Scan のCIをMVP実装へ合わせる | `type: chore`, `area: infra` | GitHub Actions checks | required checks match rules |
+| 3 | test: RealWorld MVP のE2Eスモークを追加する | `type: test`, `area: frontend`, `area: backend` | register/login/article/comment/favorite flow | representative happy path covered |
+| 4 | chore: dependency audit の運用を整理する | `type: chore`, `area: non-functional` | composer audit, pnpm audit | audit command and triage policy documented |
+| 5 | docs: API contract examplesを実装後レスポンスで更新する | `type: docs`, `area: api` | examples in docs | docs match real response tests |
+
+## Suggested Milestones
+
+| Milestone | Contents | Exit Criteria |
+| --- | --- | --- |
+| MVP Foundation | Backend Foundation, Frontend Foundation | Shared skeleton, API client, auth guard ready |
+| MVP Identity | Identity Context backend + frontend | User can register, login, update settings |
+| MVP Publishing | Article, Comment, Tag backend + frontend | Article CRUD and comments work |
+| MVP Social | Profile, Follow, Favorite, Feed backend + frontend | Social workflows work |
+| MVP Hardening | E2E, audits, docs, review fixes | Main checks pass and MVP is demoable |
+
+## Parent Issue #2 Closure Checklist
+
+Parent Issue #2 can be closed when:
+
+- [ ] #33 Context Map is merged
+- [ ] #34 Ubiquitous Language is merged
+- [ ] #35 API Requirements is merged
+- [ ] #36 Frontend Features is merged
+- [ ] #37 Non-Functional Requirements is merged
+- [ ] #38 Issue Breakdown is merged
+- [ ] `docs/requirements.md` links or references the detailed planning artifacts
+- [ ] Backend / Frontend implementation Issue candidates are created or accepted as the next backlog
+
+## Labeling Guidance
+
+Use labels from `docs/labels.md`.
+
+- Planning docs: `type: docs`, `type: planning`
+- Backend implementation: `type: feature`, `area: backend`, plus domain area
+- Frontend implementation: `type: feature`, `area: frontend`, plus feature area
+- Tests: `type: test`
+- CI / setup: `type: chore`, `area: infra`
+- Security-sensitive changes: include the affected `area:*` and call out `docs/rules/security.md` in the PR body
+
+## Security and Review Notes
+
+- Auth, authorization, validation, and error response work should be reviewed before dependent UI work.
+- Article update/delete and Comment delete must include negative authorization tests.
+- Follow self, duplicate favorite, missing resource, and guest access cases must be tested.
+- `.env` changes remain out of scope for all generated Issue candidates.
+- API examples must not include real tokens or credentials.
