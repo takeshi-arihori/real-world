@@ -82,13 +82,14 @@ cd backend && ./vendor/bin/phpstan analyse
 | `frontend/` | React アプリケーション |
 | `backend/` | Laravel API |
 | `docker/` | Docker 関連設定 |
-| `docs/` | 設計、ADR、運用ルール |
+| `docs/` | 要件、設計、運用ルール |
 | `specs/` | Issue 単位の設計メモ・実行プラン（gitignored） |
 
 ## 関連ドキュメント
 
+- [Docs Guide](docs/README.md)
+- [要件定義](docs/requirements.md)
 - [AI Harness Design](docs/ai/harness.md)
 - [コーディングルール](docs/rules/)
-- [アーキテクチャ決定記録](docs/adr/)
 - [ドメイン設計](docs/arch/)
 - [Label運用ガイド](docs/labels.md)

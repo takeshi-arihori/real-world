@@ -208,10 +208,14 @@ worktreeモードで作業した場合は、ExitWorktreeでクリーンアップ
 
 ## Issue ラベル運用
 
+ラベル体系の正本は `docs/labels.md` とする。
+
 | ラベル | 意味 | 付けるタイミング |
 |-------|------|----------------|
-| `needs-design` | 設計が必要 | Issue 作成時（設計未完了） |
-| `ready` | 設計完了・実装可能 | 設計ドキュメントが承認された後 |
-| `frontend` | フロントエンド対象 | 影響範囲の特定後 |
-| `backend` | バックエンド対象 | 影響範囲の特定後 |
-| `fullstack` | フルスタック対象 | 影響範囲の特定後 |
+| `type: planning` | 要件整理・設計方針・Issue分解 | 設計が必要な Issue |
+| `type: feature` | 新機能実装 | 実装対象の Issue |
+| `area: frontend` | フロントエンド対象 | 影響範囲の特定後 |
+| `area: backend` | バックエンド対象 | 影響範囲の特定後 |
+| `area: api` | API 対象 | エンドポイントや契約に影響する場合 |
+| `status: needs discussion` | 方針や仕様の議論が必要 | 設計未確定の場合 |
+| `status: ready` | 着手可能 | 設計内容が確認された後 |

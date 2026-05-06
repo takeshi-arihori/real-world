@@ -12,11 +12,12 @@
 
 - ハーネス設計: `docs/ai/harness.md`
 - コーディングルール: `docs/rules/*.md`
-- アーキテクチャ判断: `docs/adr/*.md`
 - ドメイン設計: `docs/arch/*.md`
+- 要件定義: `docs/requirements.md`
 - 機能設計テンプレート: `docs/design/_template-feature-spec.md`
 
 `.claude/rules/*` は互換用の参照ファイルに留める。新しいルールや詳細な手順は `docs/` に追加・更新する。
+ADR は廃止方向とし、判断は要件・ルール・ドメイン設計・ハーネス文書へ直接反映する。
 
 ## Entry Files
 
@@ -50,7 +51,7 @@
 `code-review` skill は次を優先して確認する。
 
 - テストが仕様、失敗ケース、境界値、認可、バリデーションを検証しているか。
-- Backend は `docs/rules/backend.md` と `docs/adr/003-ddd-architecture.md` の層分離を守っているか。
+- Backend は `docs/rules/backend.md` の層分離を守っているか。
 - Frontend は `docs/rules/frontend.md` の feature/shared/app/lib 境界とユーザー視点テストを守っているか。
 - API/CRUD はリクエスト、レスポンス、ステータスコード、認可、ページング、並び順が一貫しているか。
 - セキュリティは `docs/rules/security.md` に違反していないか。
