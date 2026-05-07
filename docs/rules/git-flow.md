@@ -101,6 +101,15 @@ Issue / Project / Epic の運用は [`project.md`](project.md) を正本とす�
 | `hotfix/*` → `main` | rebase merge | 緊急修正を `main` に直列に反映する |
 | `main` → `develop` | merge commit | release / hotfix / release-please の変更を backmerge として明示する |
 
+### Backmerge 自動化
+
+`main` への push 後、`.github/workflows/backmerge.yml` が `main` と `develop` の履歴差分を確認する。
+`main` が `develop` に含まれていない場合は、`backmerge/main-to-develop` ブランチを作成し、`main` から `develop` への backmerge PR を自動作成する。
+
+- workflow は PR 作成までを担当し、自動 merge はしない
+- backmerge PR は **merge commit** でマージし、squash merge は使わない
+- conflict が発生した場合、workflow は失敗させ、手動で解消する
+
 ### PR タイトル
 
 - 70文字以内、日本語で書く
