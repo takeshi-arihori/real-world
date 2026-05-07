@@ -1,0 +1,88 @@
+name: Backmerge
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: backmerge-main-to-develop
+  cancel-in-progress: false
+
+jobs:
+  create-pr:
+    name: Create main to develop PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Create backmerge PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BACKMERGE_BRANCH: backmerge/main-to-develop
+        run: |
+          set -euo pipefail
+
+          git fetch --prune origin \
+            +refs/heads/main:refs/remotes/origin/main \
+            +refs/heads/develop:refs/remotes/origin/develop
+
+          if git merge-base --is-ancestor origin/main origin/develop; then
+            echo "origin/develop already contains origin/main."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git switch --force-create "$BACKMERGE_BRANCH" origin/develop
+
+          if ! git merge --no-ff --no-edit origin/main; then
+            echo "main -> develop backmerge has conflicts. Resolve it manually." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          git push --force-with-lease origin "HEAD:refs/heads/$BACKMERGE_BRANCH"
+
+          cat > /tmp/backmerge-body.md <<'MARKDOWN'
+          ## 概要
+
+          - `main` に入った release / hotfix / release-please の変更を `develop` に戻します
+          - このPRは `main` への push 後に自動作成されます
+
+          ## マージ方針
+
+          - merge commit でマージする
+          - squash merge は使わない
+          MARKDOWN
+
+          pr_number="$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --head "$BACKMERGE_BRANCH" \
+            --base develop \
+            --state open \
+            --json number \
+            --jq '.[0].number')"
+
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "chore: main の変更を develop に backmerge" \
+              --body "$(cat /tmp/backmerge-body.md)"
+            echo "Updated backmerge PR #$pr_number." >> "$GITHUB_STEP_SUMMARY"
+          else
+            gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base develop \
+              --head "$BACKMERGE_BRANCH" \
+              --title "chore: main の変更を develop に backmerge" \
+              --body-file /tmp/backmerge-body.md
+            echo "Created backmerge PR." >> "$GITHUB_STEP_SUMMARY"
+          fi

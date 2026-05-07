@@ -83,10 +83,32 @@ Issue / Project / Epic の運用は [`project.md`](project.md) を正本とす�
 ### 基本ルール
 
 - **1 Issue = 1 PR** を厳守
-- **squash merge** で develop/main にマージ
+- `feature/*` / `fix/*` から `develop` へは **squash merge** する
+- `develop` から `release/<version>` へは merge せず、`develop` の最新から **branch cut** する
+- `release/<version>` から `main` へは **rebase merge** する（squash merge 禁止）
+- `main` へ取り込んだ後、必要に応じて `main` から `develop` へ **backmerge** する
 - `Closes #<issue番号>` で Issue と紐付け
 - Epic Issue は複数 sub-issue の親として扱い、原則として実装 PR では閉じない
 - 実装 PR は Epic の sub-issue を `Closes #<issue番号>` で閉じる
+
+### マージ方式
+
+| 方向 | 方式 | 理由 |
+| ---- | ---- | ---- |
+| `feature/*` / `fix/*` → `develop` | squash merge | 1 Issue の作業履歴を 1 commit にまとめ、`develop` の履歴を読みやすく保つ |
+| `develop` → `release/<version>` | branch cut | リリース候補を固定するだけなので merge commit を作らない |
+| `release/<version>` → `main` | rebase merge | release branch の commit を `main` に直列に反映し、squash による履歴分岐を避ける |
+| `hotfix/*` → `main` | rebase merge | 緊急修正を `main` に直列に反映する |
+| `main` → `develop` | merge commit | release / hotfix / release-please の変更を backmerge として明示する |
+
+### Backmerge 自動化
+
+`main` への push 後、`.github/workflows/backmerge.yml` が `main` と `develop` の履歴差分を確認する。
+`main` が `develop` に含まれていない場合は、`backmerge/main-to-develop` ブランチを作成し、`main` から `develop` への backmerge PR を自動作成する。
+
+- workflow は PR 作成までを担当し、自動 merge はしない
+- backmerge PR は **merge commit** でマージし、squash merge は使わない
+- conflict が発生した場合、workflow は失敗させ、手動で解消する
 
 ### PR タイトル
 
@@ -139,16 +161,23 @@ Conventional Commits のタイプから自動的にバージョンを算出す�
 ### リリースフロー
 
 ```
-develop で開発 → release/vX.Y.Z ブランチ → main へ squash merge
-                                                       ↓
-                                          release-please が Release PR を自動作成
-                                                       ↓
-                                          Release PR をマージ → GitHub Release + git タグ自動作成
+develop で開発 → release/vX.Y.Z を branch cut → main へ rebase merge
+                                                              ↓
+                                                 release-please が Release PR を自動作成
+                                                              ↓
+                                                 Release PR をマージ → GitHub Release + git タグ自動作成
+                                                              ↓
+                                                 main から develop へ backmerge
 ```
 
-1. `main` へのプッシュ（squash merge）で `release.yml` が起動
-2. release-please が `CHANGELOG.md` を更新し、バージョンバンプを含む **Release PR** を作成
-3. Release PR をマージすると GitHub Release とタグ（例: `v1.2.3`）が自動作成される
+1. `develop` のリリース候補 commit から `release/vX.Y.Z` ブランチを作成する
+2. `release/vX.Y.Z` から `main` へ PR を作成し、**rebase merge** で取り込む
+3. `main` へのプッシュで `release.yml` が起動
+4. release-please が `CHANGELOG.md` を更新し、バージョンバンプを含む **Release PR** を作成
+5. Release PR をマージすると GitHub Release とタグ（例: `v1.2.3`）が自動作成される
+6. release-please の `CHANGELOG.md` / `.release-please-manifest.json` 変更を `main` から `develop` へ backmerge する
+
+`release/vX.Y.Z` 上でリリース調整の commit を追加した場合も、`main` へ取り込んだ後に `main` から `develop` へ backmerge する。
 
 ### 初期バージョン
 
