@@ -1,0 +1,7 @@
+interface:
+  display_name: "RealWorld Spec Check"
+  short_description: "Check PRs against the RealWorld spec"
+  default_prompt: "Use $realworld-spec-check to review this PR against the RealWorld spec before opening it."
+
+policy:
+  allow_implicit_invocation: true

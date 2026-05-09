@@ -1,0 +1,165 @@
+Project real_world {
+  database_type: 'MySQL'
+  Note: '''
+  RealWorld MVP の ER 図 / DB スキーマ初版。
+
+  - 対象: Identity / Publishing / Social Context の MVP テーブル
+  - 認証トークン: Laravel Sanctum の framework managed table で管理するため、この DBML では domain table に限定する
+  - 削除方針: users は Soft Deletes。MVP の Article / Comment / Tag / relation tables は履歴要件がないため現在状態を物理削除で扱う
+  - 命名: docs/rules/db.md の snake_case / 複数形 table / role 付き foreign key 方針に従う
+  '''
+}
+
+Table users {
+  id bigint [pk, increment]
+  username varchar(50) [not null]
+  email varchar(255) [not null]
+  password_hash varchar(255) [not null, note: '平文 password は保存しない']
+  bio text [note: 'Profile に表示する公開自己紹介。nullable']
+  image varchar(2048) [note: 'Profile に表示する画像 URL。nullable']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+
+  indexes {
+    username [unique, name: 'users_username_unique']
+    email [unique, name: 'users_email_unique']
+    deleted_at [name: 'users_deleted_at_index']
+  }
+
+  Note: '''
+  Identity Context の User。
+  password_hash を認証カラムとして使うため、Laravel User Model は authPasswordName / casts / hidden を password_hash に合わせる。
+  Profile response では email / password_hash / internal id を公開しない。
+  '''
+}
+
+Table articles {
+  id bigint [pk, increment]
+  author_user_id bigint [not null, note: 'Article Author の User ID']
+  slug varchar(255) [not null]
+  title varchar(255) [not null]
+  description varchar(255) [not null]
+  body text [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    slug [unique, name: 'articles_slug_unique']
+    (author_user_id, created_at) [name: 'articles_author_user_id_created_at_index']
+    created_at [name: 'articles_created_at_index']
+  }
+
+  Note: '''
+  Publishing Context の Article。
+  title 変更時は slug を再生成し、一意性を維持する。
+  Article 一覧は created_at 降順、author filter、tag filter、favorited filter を想定する。
+  MVP では削除後の履歴保持を要件化しないため物理削除する。
+  '''
+}
+
+Table comments {
+  id bigint [pk, increment]
+  article_id bigint [not null]
+  author_user_id bigint [not null, note: 'Comment Author の User ID']
+  body text [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (article_id, created_at) [name: 'comments_article_id_created_at_index']
+    author_user_id [name: 'comments_author_user_id_index']
+  }
+
+  Note: '''
+  Publishing Context の Comment。
+  Comment author のみ削除できる。
+  MVP では削除後の履歴保持を要件化しないため物理削除する。
+  '''
+}
+
+Table tags {
+  id bigint [pk, increment]
+  name varchar(50) [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    name [unique, name: 'tags_name_unique']
+  }
+
+  Note: '''
+  Publishing Context の Tag。
+  Category 的な階層、色、説明文は MVP 対象外。
+  未使用 Tag の整理が必要になった場合は物理削除する。
+  '''
+}
+
+Table article_tag {
+  id bigint [pk, increment]
+  article_id bigint [not null]
+  tag_id bigint [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (article_id, tag_id) [unique, name: 'article_tag_article_id_tag_id_unique']
+    tag_id [name: 'article_tag_tag_id_index']
+  }
+
+  Note: '''
+  Article と Tag の中間テーブル。
+  中間テーブル名は単数形をアルファベット順で結合する。
+  現在の紐付けだけを表す relation table のため、解除時は物理削除し復元しない。
+  '''
+}
+
+Table follows {
+  id bigint [pk, increment]
+  follower_user_id bigint [not null, note: 'Follow する User ID']
+  followee_user_id bigint [not null, note: 'Follow される User ID']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (follower_user_id, followee_user_id) [unique, name: 'follows_follower_followee_unique']
+    followee_user_id [name: 'follows_followee_user_id_index']
+  }
+
+  Note: '''
+  Social Context の Follow 関係。
+  self-follow は DB 制約ではなく Domain rule / FormRequest / Policy 側で拒否する。
+  Feed 取得では follower_user_id から followee_user_id を取得し、Article author_user_id と突き合わせる。
+  現在の Follow 状態だけを表す relation table のため、Unfollow 時は物理削除し復元しない。
+  '''
+}
+
+Table favorites {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  article_id bigint [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (user_id, article_id) [unique, name: 'favorites_user_id_article_id_unique']
+    article_id [name: 'favorites_article_id_index']
+  }
+
+  Note: '''
+  Social Context の Favorite 関係。
+  duplicate favorite / missing favorite removal は冪等に扱う。
+  favoritesCount は article_id 単位の count、favorited は current user 視点で算出する。
+  現在の Favorite 状態だけを表す relation table のため、Unfavorite 時は物理削除し復元しない。
+  '''
+}
+
+Ref: articles.author_user_id > users.id [delete: restrict, update: cascade]
+Ref: comments.article_id > articles.id [delete: cascade, update: cascade]
+Ref: comments.author_user_id > users.id [delete: restrict, update: cascade]
+Ref: article_tag.article_id > articles.id [delete: cascade, update: cascade]
+Ref: article_tag.tag_id > tags.id [delete: cascade, update: cascade]
+Ref: follows.follower_user_id > users.id [delete: restrict, update: cascade]
+Ref: follows.followee_user_id > users.id [delete: restrict, update: cascade]
+Ref: favorites.user_id > users.id [delete: restrict, update: cascade]
+Ref: favorites.article_id > articles.id [delete: cascade, update: cascade]
