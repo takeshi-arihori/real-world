@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Editor - RealWorld</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "error-container": "#ffdad6",
+                  "primary-fixed": "#99f894",
+                  "on-primary": "#ffffff",
+                  "tertiary": "#a23663",
+                  "on-secondary-container": "#626567",
+                  "tertiary-container": "#f97baa",
+                  "primary-container": "#5cb85c",
+                  "on-error-container": "#93000a",
+                  "surface-dim": "#dadada",
+                  "on-secondary-fixed": "#191c1e",
+                  "on-secondary-fixed-variant": "#444749",
+                  "on-surface-variant": "#3f4a3d",
+                  "surface": "#faf9f9",
+                  "inverse-on-surface": "#f1f0f0",
+                  "on-primary-fixed": "#002204",
+                  "secondary-fixed": "#e1e3e5",
+                  "on-error": "#ffffff",
+                  "tertiary-fixed": "#ffd9e3",
+                  "surface-container-high": "#e9e8e8",
+                  "primary-fixed-dim": "#7edb7b",
+                  "outline": "#6f7a6b",
+                  "on-secondary": "#ffffff",
+                  "secondary-container": "#e1e3e5",
+                  "inverse-surface": "#2f3131",
+                  "tertiary-fixed-dim": "#ffb0c9",
+                  "surface-variant": "#e3e2e2",
+                  "on-primary-container": "#00450e",
+                  "secondary": "#5c5f61",
+                  "surface-container": "#efeeed",
+                  "on-tertiary-fixed-variant": "#831d4b",
+                  "outline-variant": "#bfcab9",
+                  "on-tertiary": "#ffffff",
+                  "on-tertiary-container": "#730d3f",
+                  "on-primary-fixed-variant": "#005312",
+                  "on-tertiary-fixed": "#3e001e",
+                  "on-background": "#1a1c1c",
+                  "surface-container-low": "#f4f3f3",
+                  "surface-tint": "#016e1c",
+                  "background": "#faf9f9",
+                  "secondary-fixed-dim": "#c5c7c9",
+                  "surface-container-lowest": "#ffffff",
+                  "on-surface": "#1a1c1c",
+                  "error": "#ba1a1a",
+                  "inverse-primary": "#7edb7b",
+                  "primary": "#016e1c",
+                  "surface-container-highest": "#e3e2e2",
+                  "surface-bright": "#faf9f9"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "spacing": {
+                  "reading-column-max": "720px",
+                  "stack-sm": "8px",
+                  "container-max": "1200px",
+                  "margin-mobile": "20px",
+                  "stack-md": "16px",
+                  "stack-lg": "32px",
+                  "stack-xl": "64px",
+                  "gutter": "24px"
+          },
+          "fontFamily": {
+                  "ui-label": [
+                          "Manrope"
+                  ],
+                  "display-lg-mobile": [
+                          "Source Serif 4"
+                  ],
+                  "ui-meta": [
+                          "Manrope"
+                  ],
+                  "body-lg": [
+                          "Source Serif 4"
+                  ],
+                  "headline-md": [
+                          "Source Serif 4"
+                  ],
+                  "display-lg": [
+                          "Source Serif 4"
+                  ],
+                  "ui-button": [
+                          "Manrope"
+                  ],
+                  "headline-sm": [
+                          "Source Serif 4"
+                  ],
+                  "body-md": [
+                          "Source Serif 4"
+                  ]
+          },
+          "fontSize": {
+                  "ui-label": [
+                          "14px",
+                          {
+                                  "lineHeight": "20px",
+                                  "letterSpacing": "0.02em",
+                                  "fontWeight": "600"
+                          }
+                  ],
+                  "display-lg-mobile": [
+                          "32px",
+                          {
+                                  "lineHeight": "40px",
+                                  "letterSpacing": "-0.01em",
+                                  "fontWeight": "700"
+                          }
+                  ],
+                  "ui-meta": [
+                          "13px",
+                          {
+                                  "lineHeight": "18px",
+                                  "fontWeight": "400"
+                          }
+                  ],
+                  "body-lg": [
+                          "20px",
+                          {
+                                  "lineHeight": "32px",
+                                  "fontWeight": "400"
+                          }
+                  ],
+                  "headline-md": [
+                          "32px",
+                          {
+                                  "lineHeight": "42px",
+                                  "fontWeight": "600"
+                          }
+                  ],
+                  "display-lg": [
+                          "48px",
+                          {
+                                  "lineHeight": "56px",
+                                  "letterSpacing": "-0.02em",
+                                  "fontWeight": "700"
+                          }
+                  ],
+                  "ui-button": [
+                          "15px",
+                          {
+                                  "lineHeight": "1",
+                                  "fontWeight": "500"
+                          }
+                  ],
+                  "headline-sm": [
+                          "24px",
+                          {
+                                  "lineHeight": "32px",
+                                  "fontWeight": "600"
+                          }
+                  ],
+                  "body-md": [
+                          "18px",
+                          {
+                                  "lineHeight": "28px",
+                                  "fontWeight": "400"
+                          }
+                  ]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Ensure minimal inputs remove default ring */
+    input:focus, textarea:focus {
+      outline: none;
+      box-shadow: none !important;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-background docked full-width top-0 sticky border-b border-surface-container-highest dark:border-outline-variant z-50">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-16">
+<a class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed" href="/">RealWorld</a>
+<div class="flex items-center gap-stack-lg">
+<ul class="hidden md:flex items-center gap-stack-lg">
+<li>
+<a class="font-ui-label text-ui-label text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="/">Home</a>
+</li>
+<li>
+<a class="font-ui-label text-ui-label text-on-surface dark:text-on-surface font-bold opacity-80 transition-opacity hover:text-primary dark:hover:text-primary-fixed transition-colors" href="/editor">New Article</a>
+</li>
+<li>
+<a class="font-ui-label text-ui-label text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="/settings">Settings</a>
+</li>
+</ul>
+<a class="flex items-center gap-2 font-ui-label text-ui-label text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="/profile">
+<span>Profile</span>
+<img alt="User profile avatar" class="w-8 h-8 rounded-full border border-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfkCK2dwh7hEv-_WbrULzarD5qZPYS3aYC1jO8iLyJquaKgvB7ICDoXdWbgkXMrzLWiTCojoqmiWcz_h8Kc-LzGSE5YFa8ScEFxWlScQnQlfv2Bwtuw5GiSL4FATqU1k_mOtSNfISa1vfFwjczewjOTuQ7t89SsBdxb3zBxBZQs2wlPBfzUZ9YwRnV02dxnp2RvpHRovAh085-RcS1WLxugV1TuvSJMmVQDaM6o17slA1mNUTo4Kh4LF2pkumZrpbdsN0cKU1JtIY"/>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Editor Canvas -->
+<main class="flex-grow w-full py-stack-xl px-margin-mobile md:px-0">
+<form class="max-w-reading-column-max mx-auto flex flex-col gap-stack-xl">
+<!-- Article Title -->
+<div class="w-full">
+<input class="w-full bg-transparent border border-transparent border-b-surface-container-highest focus:border-primary-container focus:rounded focus:bg-surface px-3 py-4 font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface placeholder-secondary-fixed-dim transition-all" placeholder="Article Title" type="text"/>
+</div>
+<!-- Description -->
+<div class="w-full">
+<input class="w-full bg-transparent border border-transparent border-b-surface-container-highest focus:border-primary-container focus:rounded focus:bg-surface px-3 py-3 font-body-md text-body-md text-on-surface placeholder-secondary transition-all" placeholder="What's this article about?" type="text"/>
+</div>
+<!-- Body -->
+<div class="w-full flex-grow">
+<textarea class="w-full min-h-[400px] bg-transparent border border-transparent border-b-surface-container-highest focus:border-primary-container focus:rounded focus:bg-surface px-3 py-4 font-body-lg text-body-lg text-on-surface placeholder-secondary resize-y transition-all" placeholder="Write your article (in markdown)" rows="16"></textarea>
+</div>
+<!-- Tags -->
+<div class="w-full">
+<input class="w-full bg-transparent border border-transparent border-b-surface-container-highest focus:border-primary-container focus:rounded focus:bg-surface px-3 py-3 font-body-md text-body-md text-on-surface placeholder-secondary transition-all" placeholder="Enter tags" type="text"/>
+</div>
+<!-- Actions -->
+<div class="w-full flex justify-end pt-stack-sm pb-stack-xl">
+<button class="bg-primary-container text-on-primary font-ui-button text-ui-button px-8 py-4 rounded shadow-[0_4px_16px_rgba(92,184,92,0.15)] hover:bg-[#4cae4c] hover:shadow-[0_6px_24px_rgba(92,184,92,0.25)] transition-all active:scale-[0.98]" type="button">
+          Publish Article
+        </button>
+</div>
+</form>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-dim full-width border-t border-surface-container-highest dark:border-outline-variant mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile py-stack-lg max-w-container-max mx-auto gap-stack-md">
+<a class="font-ui-label text-ui-label font-bold text-primary dark:text-primary-fixed" href="/">RealWorld</a>
+<span class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim text-center md:text-left flex-grow md:ml-stack-lg">
+        RealWorld — An interactive learning project from Thinkster. Code &amp; design licensed under MIT.
+      </span>
+<ul class="flex gap-stack-lg">
+<li>
+<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="/">Home</a>
+</li>
+<li>
+<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="/terms">Terms</a>
+</li>
+<li>
+<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="/privacy">Privacy</a>
+</li>
+</ul>
+</div>
+</footer>
+</body></html>
