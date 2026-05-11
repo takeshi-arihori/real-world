@@ -5,7 +5,7 @@ import {
   type InitialEntry,
   type RouteObject,
 } from 'react-router-dom';
-import { AppShell } from '../../shared/components/AppShell';
+import { AppShell } from '../layouts/AppShell';
 import { GuestOnly, RequireAuth } from './guards';
 import {
   ArticleDetailPage,

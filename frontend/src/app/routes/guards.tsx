@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../providers/useAuth';
+import { getSafeReturnTo } from './returnTo';
 
 interface GuardProps {
   children: ReactNode;
@@ -36,12 +37,4 @@ export function GuestOnly({ children }: GuardProps): ReactElement {
   }
 
   return <>{children}</>;
-}
-
-function getSafeReturnTo(value: string | null): string {
-  if (value === null || !value.startsWith('/') || value.startsWith('//')) {
-    return '/';
-  }
-
-  return value;
 }

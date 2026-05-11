@@ -1,6 +1,7 @@
 import type { FormEvent, ReactElement } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../providers/useAuth';
+import { getSafeReturnTo } from './returnTo';
 
 const SAMPLE_ARTICLES = [
   {
@@ -31,14 +32,6 @@ const POPULAR_TAGS = [
   'architecture',
   'testing',
 ] as const;
-
-function getSafeReturnTo(value: string | null): string {
-  if (value === null || !value.startsWith('/') || value.startsWith('//')) {
-    return '/';
-  }
-
-  return value;
-}
 
 export function HomePage(): ReactElement {
   const { isAuthenticated } = useAuth();

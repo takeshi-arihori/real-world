@@ -50,6 +50,21 @@ describe('app router', () => {
     ).toBeInTheDocument();
   });
 
+  it.each([
+    ['protocol-relative return path', '//evil.example'],
+    ['backslash return path', '/\\\\evil.example'],
+  ])('falls back to home for unsafe %s', async (_caseName, returnTo) => {
+    const user = userEvent.setup();
+    const { render } = await import('@testing-library/react');
+
+    render(renderRoute(`/login?returnTo=${encodeURIComponent(returnTo)}`));
+    await user.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Global Feed' }),
+    ).toBeInTheDocument();
+  });
+
   it('redirects authenticated users away from guest routes', async () => {
     const { render } = await import('@testing-library/react');
 

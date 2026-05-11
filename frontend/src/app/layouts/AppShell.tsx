@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../app/providers/useAuth';
+import { useAuth } from '../providers/useAuth';
 
 interface AppShellProps {
   children?: ReactNode;
