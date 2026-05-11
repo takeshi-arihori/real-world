@@ -25,11 +25,40 @@
 | Profile | `/profile/:username` | Optional | `profile`, `article`, `follow` | Author profile and authored Articles |
 | Profile Favorites | `/profile/:username/favorites` | Optional | `profile`, `article`, `favorite` | Articles favorited by Profile User |
 
-Auth meanings:
+認証区分:
 
-- Guest: redirect authenticated users away from login/register.
-- Required: redirect unauthenticated users to `/login` with return path.
-- Optional: render for guests, but use token when available to compute `following` and `favorited`.
+- Guest: 認証済みユーザーは login/register から別画面へ遷移させる。
+- Required: 未認証ユーザーは return path 付きで `/login` へ遷移させる。
+- Optional: ゲストでも表示し、token がある場合だけ `following` / `favorited` の判定に使う。
+
+## 画面遷移図
+
+Issue #63 の App Shell では、React Router の route guard を次の遷移で扱う。
+
+```mermaid
+flowchart TD
+  Guest["ゲストユーザー"] --> Home["/ グローバルフィード"]
+  Guest --> Article["/article/:slug"]
+  Guest --> Profile["/profile/:username"]
+  Guest --> Login["/login"]
+  Guest --> Register["/register"]
+  Guest --> Required["認証必須ルート: /settings または /editor"]
+  Required --> LoginReturn["/login?returnTo=<遷移元パス>"]
+  LoginReturn --> AuthReturn["ログイン後に遷移元へ戻る"]
+
+  Auth["認証済みユーザー"] --> Home
+  Auth --> Settings["/settings"]
+  Auth --> Editor["/editor と /editor/:slug"]
+  Auth --> Article
+  Auth --> Profile
+  Auth --> GuestOnly["ゲスト専用ルート: /login または /register"]
+  GuestOnly --> Home
+
+  Author["記事作成者"] --> Editor
+  Author --> ArticleActions["記事の編集・削除操作"]
+  NonAuthor["記事作成者以外"] --> ArticleRead["記事詳細の閲覧のみ"]
+  Unknown["未定義ルート"] --> NotFound["404 ページ"]
+```
 
 ## App Structure
 
