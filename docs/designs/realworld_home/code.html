@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RealWorld - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "primary-fixed": "#99f894",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#a23663",
+                    "on-secondary-container": "#626567",
+                    "tertiary-container": "#f97baa",
+                    "primary-container": "#5cb85c",
+                    "on-error-container": "#93000a",
+                    "surface-dim": "#dadada",
+                    "on-secondary-fixed": "#191c1e",
+                    "on-secondary-fixed-variant": "#444749",
+                    "on-surface-variant": "#3f4a3d",
+                    "surface": "#faf9f9",
+                    "inverse-on-surface": "#f1f0f0",
+                    "on-primary-fixed": "#002204",
+                    "secondary-fixed": "#e1e3e5",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffd9e3",
+                    "surface-container-high": "#e9e8e8",
+                    "primary-fixed-dim": "#7edb7b",
+                    "outline": "#6f7a6b",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#e1e3e5",
+                    "inverse-surface": "#2f3131",
+                    "tertiary-fixed-dim": "#ffb0c9",
+                    "surface-variant": "#e3e2e2",
+                    "on-primary-container": "#00450e",
+                    "secondary": "#5c5f61",
+                    "surface-container": "#efeeed",
+                    "on-tertiary-fixed-variant": "#831d4b",
+                    "outline-variant": "#bfcab9",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-container": "#730d3f",
+                    "on-primary-fixed-variant": "#005312",
+                    "on-tertiary-fixed": "#3e001e",
+                    "on-background": "#1a1c1c",
+                    "surface-container-low": "#f4f3f3",
+                    "surface-tint": "#016e1c",
+                    "background": "#faf9f9",
+                    "secondary-fixed-dim": "#c5c7c9",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1a1c1c",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#7edb7b",
+                    "primary": "#016e1c",
+                    "surface-container-highest": "#e3e2e2",
+                    "surface-bright": "#faf9f9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "reading-column-max": "720px",
+                    "stack-sm": "8px",
+                    "container-max": "1200px",
+                    "margin-mobile": "20px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px",
+                    "stack-xl": "64px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "ui-label": [
+                            "Manrope"
+                    ],
+                    "display-lg-mobile": [
+                            "Source Serif 4"
+                    ],
+                    "ui-meta": [
+                            "Manrope"
+                    ],
+                    "body-lg": [
+                            "Source Serif 4"
+                    ],
+                    "headline-md": [
+                            "Source Serif 4"
+                    ],
+                    "display-lg": [
+                            "Source Serif 4"
+                    ],
+                    "ui-button": [
+                            "Manrope"
+                    ],
+                    "headline-sm": [
+                            "Source Serif 4"
+                    ],
+                    "body-md": [
+                            "Source Serif 4"
+                    ]
+            },
+            "fontSize": {
+                    "ui-label": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "ui-meta": [
+                            "13px",
+                            {
+                                    "lineHeight": "18px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "20px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "32px",
+                            {
+                                    "lineHeight": "42px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "ui-button": [
+                            "15px",
+                            {
+                                    "lineHeight": "1",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-sm": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-ui-label antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-background full-width top-0 sticky z-50 border-b border-surface-container-highest dark:border-outline-variant flat no shadows">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-16">
+<a class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed" href="/">
+                RealWorld
+            </a>
+<nav class="hidden md:flex items-center gap-gutter">
+<a class="text-on-surface dark:text-on-surface font-bold font-ui-label text-ui-label opacity-80 transition-opacity" href="/">
+                    Home
+                </a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors font-ui-label text-ui-label flex items-center gap-2" href="/editor">
+<span class="material-symbols-outlined" style="font-size: 18px;">edit_square</span>
+                    New Article
+                </a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors font-ui-label text-ui-label flex items-center gap-2" href="/settings">
+<span class="material-symbols-outlined" style="font-size: 18px;">settings</span>
+                    Settings
+                </a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors font-ui-label text-ui-label flex items-center gap-2 ml-4" href="/profile">
+<img alt="User profile avatar" class="w-8 h-8 rounded-full object-cover" data-alt="A small, circular portrait photograph of a young woman with a neutral expression. The lighting is soft and natural, emphasizing a clean, modern aesthetic suitable for a professional profile avatar. The background is subtle and out of focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3-6n5KSEj9IIN4ZqKcmXA35Gz7Vbfe4yFbJuh-3O8QRMJcBYXcE6usiD2i9mxQAUzor8F6nWi_kkJDf4HL3tG23FMkmG8V0ug10xXNLrCHdZ5aUAfIU4ZTkigsSxWZuPs1JdkP2ChjvpMnkpsZfSOhhqIrI7MHSmsjgHRNHNW6o4nn8b3HZY-HfHQfXOcmXCEc6bCOsesHFvjinvVWPKPMYCHuTbyGe7t0zoR6_FLM8tft4MhAm-DDNndmWxIBuvMib37v1X6VHo"/>
+                    Profile
+                </a>
+</nav>
+<button class="md:hidden text-on-surface">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto py-stack-lg">
+<!-- Hero Section -->
+<section class="bg-primary-container text-on-primary rounded text-center py-stack-xl mb-stack-lg shadow-[0_4px_14px_0_rgba(92,184,92,0.39)]">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg mb-stack-sm drop-shadow-sm">conduit</h1>
+<p class="font-body-lg text-body-lg opacity-90">A place to share your knowledge.</p>
+</section>
+<!-- Discovery Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Feed Column (Main) -->
+<div class="md:col-span-8 lg:col-span-9">
+<!-- Feed Toggles -->
+<div class="border-b border-surface-container-highest mb-stack-md flex gap-stack-md">
+<button class="text-secondary font-ui-label text-ui-label pb-stack-sm hover:text-primary transition-colors">Your Feed</button>
+<button class="text-primary font-ui-label text-ui-label pb-stack-sm border-b-2 border-primary">Global Feed</button>
+</div>
+<!-- Article List -->
+<div class="flex flex-col gap-stack-lg">
+<!-- Article Item 1 -->
+<article class="group pb-stack-md border-b border-surface-container-highest last:border-b-0">
+<div class="flex justify-between items-start mb-stack-sm">
+<div class="flex items-center gap-stack-sm">
+<a href="/profile/eric-simons">
+<img alt="Eric Simons" class="w-10 h-10 rounded-full object-cover" data-alt="A small, circular portrait photograph of a young man with a slight smile. The lighting is natural and bright, suggesting an outdoor setting. The image is clean and modern, serving as a user avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmM9ZIYbJyrfbhC6HuhF90igxgiQWkwPTOwkbYsR2Zjl9Jl4ARyFBQuLxK6gMccj3vq3oZgQNfH35Gmidy12ewTNmIEEIcHCIBaZMleyiUfeZRDfjhcP_F-OMqiJmumv2U9ZJOPFgRkHj_d86Y_1QV9Q2bBe-3gCiS4rhI52wyYwSHsJjPXXwlVv5v3Ta918qjFyAolY0dXWtKPvk8iHNBm3AC0jtyHwZ0u5cwbW-NT2WAyuNOp0j30e8tNMuRwYgpVkN0ee5tb40"/>
+</a>
+<div>
+<a class="font-ui-label text-primary hover:underline block" href="/profile/eric-simons">Eric Simons</a>
+<span class="font-ui-meta text-ui-meta text-secondary">January 20, 2025</span>
+</div>
+</div>
+<button class="border border-outline-variant text-secondary hover:bg-surface-container hover:text-primary rounded px-2 py-1 flex items-center gap-1 font-ui-meta text-ui-meta transition-colors">
+<span class="material-symbols-outlined" style="font-size: 14px;">favorite</span>
+                                29
+                            </button>
+</div>
+<a class="block" href="/article/how-to-build-webapps">
+<h2 class="font-headline-md text-headline-sm md:text-headline-md text-on-surface mb-stack-sm group-hover:text-primary transition-colors">How to build webapps that scale</h2>
+<p class="font-body-md text-body-md text-secondary mb-stack-md">This is the description for the post. It gives a brief overview of what the article is about without giving everything away.</p>
+<div class="flex justify-between items-center mt-stack-sm">
+<span class="font-ui-meta text-ui-meta text-secondary hover:underline">Read more...</span>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container px-2 py-1 rounded-full font-ui-meta text-ui-meta text-secondary border border-surface-container-highest hover:bg-surface-variant transition-colors cursor-pointer">programming</span>
+<span class="bg-surface-container px-2 py-1 rounded-full font-ui-meta text-ui-meta text-secondary border border-surface-container-highest hover:bg-surface-variant transition-colors cursor-pointer">webdev</span>
+</div>
+</div>
+</a>
+</article>
+<!-- Article Item 2 -->
+<article class="group pb-stack-md border-b border-surface-container-highest last:border-b-0">
+<div class="flex justify-between items-start mb-stack-sm">
+<div class="flex items-center gap-stack-sm">
+<a href="/profile/albert-pai">
+<img alt="Albert Pai" class="w-10 h-10 rounded-full object-cover" data-alt="A small, circular portrait photograph of a man looking directly at the camera. The background is simple and out of focus. The image has a professional yet approachable tone, typical of a modern tech blog avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwqlJJOx48xqYQ6RDhJnR2-R6wdh8mlPu4IV_pXmR2DDJAJPIcysJsLvpZrvtzbeDa9ojlSDOvVfwILz88fH2WWGaBv6tADVm0U1SrzsZ4iXVvU8wmqCbuXDoE7TzT0y9ZbmalTiQPByt1U_gUCc1UY952uYaHpx_iQ25BgKNZ2Nl-sa3cPvoex18jvF5YlwrqCQS4LxPcAs9iRG9gAK5qrUEHYhR8stWUroQUo4c41rQc5lnJpdNGCyDAU-KJ8CQASsO7dp5w00M"/>
+</a>
+<div>
+<a class="font-ui-label text-primary hover:underline block" href="/profile/albert-pai">Albert Pai</a>
+<span class="font-ui-meta text-ui-meta text-secondary">January 19, 2025</span>
+</div>
+</div>
+<button class="border border-outline-variant text-secondary hover:bg-surface-container hover:text-primary rounded px-2 py-1 flex items-center gap-1 font-ui-meta text-ui-meta transition-colors">
+<span class="material-symbols-outlined" style="font-size: 14px;">favorite</span>
+                                14
+                            </button>
+</div>
+<a class="block" href="/article/the-song-you-wont-ever">
+<h2 class="font-headline-md text-headline-sm md:text-headline-md text-on-surface mb-stack-sm group-hover:text-primary transition-colors">The song you won't ever stop singing. No matter how hard you try.</h2>
+<p class="font-body-md text-body-md text-secondary mb-stack-md">This is the description for the post. It gives a brief overview of what the article is about.</p>
+<div class="flex justify-between items-center mt-stack-sm">
+<span class="font-ui-meta text-ui-meta text-secondary hover:underline">Read more...</span>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container px-2 py-1 rounded-full font-ui-meta text-ui-meta text-secondary border border-surface-container-highest hover:bg-surface-variant transition-colors cursor-pointer">music</span>
+<span class="bg-surface-container px-2 py-1 rounded-full font-ui-meta text-ui-meta text-secondary border border-surface-container-highest hover:bg-surface-variant transition-colors cursor-pointer">song</span>
+</div>
+</div>
+</a>
+</article>
+<!-- Article Item 3 -->
+<article class="group pb-stack-md border-b border-surface-container-highest last:border-b-0">
+<div class="flex justify-between items-start mb-stack-sm">
+<div class="flex items-center gap-stack-sm">
+<a href="/profile/jane-doe">
+<img alt="Jane Doe" class="w-10 h-10 rounded-full object-cover" data-alt="A small, circular portrait photograph of a woman with a warm smile. The lighting is soft, creating a friendly and inviting profile picture. The background is neutral." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADzvl7A_FvzINQEREiwU_V1nSDkcI1sD61SQq6C3D2dVkpUYmko_co4hMZEUpXCi6JiP-Og29e9z6QW5Qa-VhR-hDLboPa3p_5XTp3SQR7ek_qi5UZ9_MTzhhY8eDx2llXAas-9Yf-kQythsvC56Pdr7RGWrL511frtqjw7vocOniQDee0buW0mv_TiJDnkMAJHkDAFSgLKZ4DbYg0YLgHOZFam4bTNMxKrVXSzOuIDprInsttaOdtUqQHdqe1rWXbaCZE7XJEXgU"/>
+</a>
+<div>
+<a class="font-ui-label text-primary hover:underline block" href="/profile/jane-doe">Jane Doe</a>
+<span class="font-ui-meta text-ui-meta text-secondary">January 15, 2025</span>
+</div>
+</div>
+<button class="border border-outline-variant text-secondary hover:bg-surface-container hover:text-primary rounded px-2 py-1 flex items-center gap-1 font-ui-meta text-ui-meta transition-colors">
+<span class="material-symbols-outlined" data-weight="fill" style="font-size: 14px;">favorite</span>
+<span class="text-primary">128</span>
+</button>
+</div>
+<a class="block" href="/article/exploring-the-depths">
+<h2 class="font-headline-md text-headline-sm md:text-headline-md text-on-surface mb-stack-sm group-hover:text-primary transition-colors">Exploring the Depths of Functional Programming</h2>
+<p class="font-body-md text-body-md text-secondary mb-stack-md">A deep dive into why pure functions and immutability can save your codebase from itself.</p>
+<div class="flex justify-between items-center mt-stack-sm">
+<span class="font-ui-meta text-ui-meta text-secondary hover:underline">Read more...</span>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container px-2 py-1 rounded-full font-ui-meta text-ui-meta text-secondary border border-surface-container-highest hover:bg-surface-variant transition-colors cursor-pointer">haskell</span>
+<span class="bg-surface-container px-2 py-1 rounded-full font-ui-meta text-ui-meta text-secondary border border-surface-container-highest hover:bg-surface-variant transition-colors cursor-pointer">functional</span>
+</div>
+</div>
+</a>
+</article>
+</div>
+<!-- Pagination -->
+<nav class="mt-stack-lg flex justify-center">
+<ul class="flex border border-surface-container-highest rounded bg-surface">
+<li>
+<a class="px-4 py-2 block font-ui-label text-primary hover:bg-surface-container transition-colors border-r border-surface-container-highest bg-surface-container-highest" href="#">1</a>
+</li>
+<li>
+<a class="px-4 py-2 block font-ui-label text-primary hover:bg-surface-container transition-colors border-r border-surface-container-highest" href="#">2</a>
+</li>
+<li>
+<a class="px-4 py-2 block font-ui-label text-primary hover:bg-surface-container transition-colors border-r border-surface-container-highest" href="#">3</a>
+</li>
+<li>
+<span class="px-4 py-2 block font-ui-label text-secondary">...</span>
+</li>
+<li>
+<a class="px-4 py-2 block font-ui-label text-primary hover:bg-surface-container transition-colors" href="#">10</a>
+</li>
+</ul>
+</nav>
+</div>
+<!-- Sidebar (Tags) -->
+<aside class="md:col-span-4 lg:col-span-3">
+<div class="bg-surface-container-low p-stack-md rounded border border-surface-container-highest">
+<h3 class="font-ui-label text-ui-label text-on-surface mb-stack-sm">Popular Tags</h3>
+<div class="flex flex-wrap gap-2">
+<a class="bg-surface-container px-3 py-1 rounded-full font-ui-meta text-ui-meta text-secondary hover:bg-primary-container hover:text-on-primary transition-colors cursor-pointer border border-transparent" href="/tag/programming">programming</a>
+<a class="bg-surface-container px-3 py-1 rounded-full font-ui-meta text-ui-meta text-secondary hover:bg-primary-container hover:text-on-primary transition-colors cursor-pointer border border-transparent" href="/tag/javascript">javascript</a>
+<a class="bg-surface-container px-3 py-1 rounded-full font-ui-meta text-ui-meta text-secondary hover:bg-primary-container hover:text-on-primary transition-colors cursor-pointer border border-transparent" href="/tag/emberjs">emberjs</a>
+<a class="bg-surface-container px-3 py-1 rounded-full font-ui-meta text-ui-meta text-secondary hover:bg-primary-container hover:text-on-primary transition-colors cursor-pointer border border-transparent" href="/tag/angularjs">angularjs</a>
+<a class="bg-surface-container px-3 py-1 rounded-full font-ui-meta text-ui-meta text-secondary hover:bg-primary-container hover:text-on-primary transition-colors cursor-pointer border border-transparent" href="/tag/react">react</a>
+<a class="bg-surface-container px-3 py-1 rounded-full font-ui-meta text-ui-meta text-secondary hover:bg-primary-container hover:text-on-primary transition-colors cursor-pointer border border-transparent" href="/tag/mean">mean</a>
+<a class="bg-surface-container px-3 py-1 rounded-full font-ui-meta text-ui-meta text-secondary hover:bg-primary-container hover:text-on-primary transition-colors cursor-pointer border border-transparent" href="/tag/node">node</a>
+<a class="bg-surface-container px-3 py-1 rounded-full font-ui-meta text-ui-meta text-secondary hover:bg-primary-container hover:text-on-primary transition-colors cursor-pointer border border-transparent" href="/tag/rails">rails</a>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-dim full-width border-t border-surface-container-highest dark:border-outline-variant flat no shadows mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile py-stack-lg max-w-container-max mx-auto gap-stack-md">
+<a class="font-ui-label text-ui-label font-bold text-primary dark:text-primary-fixed" href="/">
+                RealWorld
+            </a>
+<span class="font-ui-meta text-ui-meta text-secondary dark:text-secondary-fixed-dim text-center md:text-left">
+                RealWorld — An interactive learning project from Thinkster. Code &amp; design licensed under MIT.
+            </span>
+<nav class="flex gap-4">
+<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="/">Home</a>
+<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="/terms">Terms</a>
+<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="/privacy">Privacy</a>
+</nav>
+</div>
+</footer>
+</body></html>

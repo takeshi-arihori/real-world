@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Article Detail - RealWorld</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+          font-family: 'Material Symbols Outlined';
+          font-weight: normal;
+          font-style: normal;
+          font-size: 24px;
+          line-height: 1;
+          letter-spacing: normal;
+          text-transform: none;
+          display: inline-block;
+          white-space: nowrap;
+          word-wrap: normal;
+          direction: ltr;
+          -webkit-font-feature-settings: 'liga';
+          -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "primary-fixed": "#99f894",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#a23663",
+                    "on-secondary-container": "#626567",
+                    "tertiary-container": "#f97baa",
+                    "primary-container": "#5cb85c",
+                    "on-error-container": "#93000a",
+                    "surface-dim": "#dadada",
+                    "on-secondary-fixed": "#191c1e",
+                    "on-secondary-fixed-variant": "#444749",
+                    "on-surface-variant": "#3f4a3d",
+                    "surface": "#faf9f9",
+                    "inverse-on-surface": "#f1f0f0",
+                    "on-primary-fixed": "#002204",
+                    "secondary-fixed": "#e1e3e5",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffd9e3",
+                    "surface-container-high": "#e9e8e8",
+                    "primary-fixed-dim": "#7edb7b",
+                    "outline": "#6f7a6b",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#e1e3e5",
+                    "inverse-surface": "#2f3131",
+                    "tertiary-fixed-dim": "#ffb0c9",
+                    "surface-variant": "#e3e2e2",
+                    "on-primary-container": "#00450e",
+                    "secondary": "#5c5f61",
+                    "surface-container": "#efeeed",
+                    "on-tertiary-fixed-variant": "#831d4b",
+                    "outline-variant": "#bfcab9",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-container": "#730d3f",
+                    "on-primary-fixed-variant": "#005312",
+                    "on-tertiary-fixed": "#3e001e",
+                    "on-background": "#1a1c1c",
+                    "surface-container-low": "#f4f3f3",
+                    "surface-tint": "#016e1c",
+                    "background": "#faf9f9",
+                    "secondary-fixed-dim": "#c5c7c9",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1a1c1c",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#7edb7b",
+                    "primary": "#016e1c",
+                    "surface-container-highest": "#e3e2e2",
+                    "surface-bright": "#faf9f9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "reading-column-max": "720px",
+                    "stack-sm": "8px",
+                    "container-max": "1200px",
+                    "margin-mobile": "20px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px",
+                    "stack-xl": "64px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "ui-label": [
+                            "Manrope"
+                    ],
+                    "display-lg-mobile": [
+                            "Source Serif 4"
+                    ],
+                    "ui-meta": [
+                            "Manrope"
+                    ],
+                    "body-lg": [
+                            "Source Serif 4"
+                    ],
+                    "headline-md": [
+                            "Source Serif 4"
+                    ],
+                    "display-lg": [
+                            "Source Serif 4"
+                    ],
+                    "ui-button": [
+                            "Manrope"
+                    ],
+                    "headline-sm": [
+                            "Source Serif 4"
+                    ],
+                    "body-md": [
+                            "Source Serif 4"
+                    ]
+            },
+            "fontSize": {
+                    "ui-label": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "ui-meta": [
+                            "13px",
+                            {
+                                    "lineHeight": "18px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "20px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "32px",
+                            {
+                                    "lineHeight": "42px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "ui-button": [
+                            "15px",
+                            {
+                                    "lineHeight": "1",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-sm": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md antialiased">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-background full-width top-0 sticky border-b border-surface-container-highest dark:border-outline-variant z-50">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-16">
+<a class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed" href="#">RealWorld</a>
+<div class="hidden md:flex items-center gap-6">
+<a class="font-ui-label text-ui-label text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Home</a>
+<a class="font-ui-label text-ui-label text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">New Article</a>
+<a class="font-ui-label text-ui-label text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Settings</a>
+<a class="font-ui-label text-ui-label text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors flex items-center gap-2" href="#">
+<img alt="User profile avatar" class="w-8 h-8 rounded-full object-cover" data-alt="A small circular portrait photograph of a young woman with light brown hair pulled back, wearing a simple white top. She has a subtle, friendly smile. The lighting is soft and natural, suggesting an outdoor setting with a slightly blurred background in a modern, light-mode editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPVSQDO4JNVsZ2Z2HvbRAc6Fo8uaWF0RCrrB6SumetGlQIbTriA9noH_93iB7sdDsN1XKm7_trm5rcRrgEOYx7SCE0u517et-BkQy9iMMJv--lENXjaB3jQHRvfpNCnZXE2C5vS7dKWvqYloQQP9FptiiC2RFtUCz68h7klVbRaSCC0RPFJ4DwL6rKGYHw3a220Mhz-yfHvFjDAH2rYdiDKhNSiIDhyzcf9WTLpWqDEaWhBLe2Tm53349NChnjLV2ogjN8PH4hgU0"/>
+                    Profile
+                </a>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full px-margin-mobile md:px-gutter mx-auto max-w-container-max py-stack-xl flex flex-col items-center">
+<!-- Article Header -->
+<header class="w-full max-w-reading-column-max text-center mb-stack-xl">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-stack-lg leading-tight">
+                The Philosophy of Minimalist Digital Experiences in the Modern Age
+            </h1>
+<!-- Author Meta Row -->
+<div class="flex items-center justify-center gap-4">
+<img alt="Author avatar" class="w-12 h-12 rounded-full object-cover" data-alt="A circular portrait photograph of a man with short brown hair and glasses, wearing a dark blue shirt. He has a thoughtful expression. The background is slightly blurred and bright, fitting a clean, intellectual editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDBfR_S2j_pi95Y0qCro70NIaLMXPMSasGKabJBY3EAPVmWTw_E5DuCLiT2T4DoZlxFqKrtQp3DMDM4-rQP0XNq2m5KVAzA5b0N2_oyj2YvsA6cuZNX_eRZTZN_TOwhJ6ShjaeEQ149i3vg7SI73HYD2lbRYLEgRnzT2hofqPc1GaPU3CaiQEzsMD36brsfW9IIVjEFdLeoVkYFhUdF1XnTxA0fpeL3Bna9SIz5fibQ1lqbAIrm5tsjjIzqiMdoiUMWjALWSKbseU"/>
+<div class="flex flex-col items-start">
+<a class="font-ui-label text-ui-label text-primary hover:underline" href="#">Eric Simons</a>
+<span class="font-ui-meta text-ui-meta text-secondary">January 20, 2024</span>
+</div>
+<div class="flex items-center gap-2 ml-4">
+<button class="font-ui-button text-ui-button border border-secondary text-secondary px-4 py-2 rounded flex items-center gap-1 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" style="font-size: 16px;">add</span>
+                        Follow Eric Simons
+                    </button>
+<button class="font-ui-button text-ui-button bg-primary-container text-on-primary px-4 py-2 rounded flex items-center gap-1 hover:bg-primary transition-colors shadow-sm shadow-primary-container/20">
+<span class="material-symbols-outlined" style="font-size: 16px; font-variation-settings: 'FILL' 1;">favorite</span>
+                        Favorite Post <span class="font-normal opacity-80 ml-1">(29)</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Article Body -->
+<article class="w-full max-w-reading-column-max font-body-lg text-body-lg text-on-surface-variant space-y-stack-md leading-relaxed">
+<p>
+                In an era characterized by relentless digital noise, the concept of minimalism has transcended its roots in art and architecture to become a fundamental principle of user interface design. It is no longer simply about using less; it is about creating deliberate focus. The intellectual appeal of a minimalist interface lies in its refusal to compete for attention, instead offering a serene environment where content is paramount.
+            </p>
+<p>
+                When we strip away extraneous containers, heavy shadows, and decorative flourishes, what remains is the essence of communication. Typography becomes the primary vehicle for both meaning and aesthetic value. A well-considered serif font, traditionally associated with printed literature, can evoke a sense of permanence and credibility in a digital space that often feels ephemeral.
+            </p>
+<h2 class="font-headline-md text-headline-md text-on-surface mt-stack-lg mb-stack-sm">The Reading State</h2>
+<p>
+                Designing for the "reading state" requires a shift in priorities. The interface must actively recede. This is achieved through generous whitespace—not as empty space, but as a structural element that guides the eye and provides cognitive relief. Line lengths must be carefully constrained to ensure comfortable scanning, and color should be used sparingly, primarily to indicate subtle interactive states or to establish a clear hierarchy.
+            </p>
+<blockquote class="border-l-4 border-surface-container-highest pl-4 italic text-secondary my-stack-md">
+                "Simplicity is not the absence of clutter, that's a consequence of simplicity. Simplicity is somehow essentially describing the purpose and place of an object and product." — Jonathan Ive
+            </blockquote>
+<p>
+                Ultimately, a successful minimalist design feels less like a software application and more like a beautifully typeset page. It respects the user's time and attention, fostering an environment conducive to deep work and thoughtful consumption. By embracing flat tonal layers and low-contrast outlines, we create depth without heaviness, ensuring the digital experience remains light, airy, and profoundly focused.
+            </p>
+</article>
+<!-- Tags List -->
+<div class="w-full max-w-reading-column-max flex flex-wrap gap-2 mt-stack-xl mb-stack-lg">
+<a class="font-ui-meta text-ui-meta text-secondary bg-surface-container px-3 py-1 rounded-full hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors" href="#">design</a>
+<a class="font-ui-meta text-ui-meta text-secondary bg-surface-container px-3 py-1 rounded-full hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors" href="#">minimalism</a>
+<a class="font-ui-meta text-ui-meta text-secondary bg-surface-container px-3 py-1 rounded-full hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors" href="#">typography</a>
+<a class="font-ui-meta text-ui-meta text-secondary bg-surface-container px-3 py-1 rounded-full hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors" href="#">ui</a>
+</div>
+<hr class="w-full max-w-reading-column-max border-t border-surface-container-highest my-stack-lg"/>
+<!-- Footer Author Meta Row -->
+<div class="w-full max-w-reading-column-max flex flex-col items-center justify-center gap-4 mb-stack-xl">
+<div class="flex items-center justify-center gap-4">
+<img alt="Author avatar" class="w-10 h-10 rounded-full object-cover" data-alt="A smaller circular portrait photograph of a man with short brown hair and glasses, wearing a dark blue shirt. He has a thoughtful expression. The background is slightly blurred and bright, fitting a clean, intellectual editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxttVLxWVGHsFdi8_UxjizybHCJXBoYFTj5k3b_-XuJCgk2jImVsHQXFafPqGvd0mXlpvPGyBHibzSggeW6TsauakQ8pjvBl4vlJKRkwKqmqBFV6PXvI_GxEIFKfyDHG_CI2JadZSiJQro4MRDYqxTXLE5Re3s8upRLoPvx_eCLqUbAW688m5m2doT7U4dCzj3LpUluNjcky4bqu398g6RSu7gKfKqWFZlRjPprSpqiFUl_yheKHOFXOufqA4sqwultAbNN30ON0c"/>
+<div class="flex flex-col items-start">
+<a class="font-ui-label text-ui-label text-primary hover:underline" href="#">Eric Simons</a>
+<span class="font-ui-meta text-ui-meta text-secondary">January 20, 2024</span>
+</div>
+<div class="flex items-center gap-2 ml-4">
+<button class="font-ui-button text-ui-button border border-secondary text-secondary px-3 py-1.5 rounded flex items-center gap-1 hover:bg-surface-variant transition-colors text-sm">
+<span class="material-symbols-outlined" style="font-size: 14px;">add</span>
+                        Follow
+                    </button>
+<button class="font-ui-button text-ui-button bg-primary-container text-on-primary px-3 py-1.5 rounded flex items-center gap-1 hover:bg-primary transition-colors shadow-sm shadow-primary-container/20 text-sm">
+<span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">favorite</span>
+                        Favorite <span class="font-normal opacity-80 ml-1">(29)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Comments Section -->
+<section class="w-full max-w-reading-column-max mt-stack-md">
+<!-- Comment Form -->
+<div class="border border-surface-container-highest rounded-lg overflow-hidden mb-stack-lg bg-surface">
+<textarea class="w-full border-none bg-transparent p-4 font-body-md text-body-md text-on-surface focus:ring-0 resize-none min-h-[120px]" placeholder="Write a comment..."></textarea>
+<div class="bg-surface-container-low px-4 py-3 flex justify-between items-center border-t border-surface-container-highest">
+<img alt="Current user avatar" class="w-8 h-8 rounded-full object-cover" data-alt="A small circular portrait photograph of a young woman with light brown hair pulled back, wearing a simple white top. She has a subtle, friendly smile. The lighting is soft and natural, suggesting an outdoor setting with a slightly blurred background in a modern, light-mode editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1ZaEjOiZyZ_XV9PGbxh9dlgLolOs-pQlc2FIL70ZcO_UIVTIoaHHjvKt92aYbnzmvrJJgTi76fGdX206uVp90GAd7MkCfKKnJAwXemUB8YuYC1sYi1Of7q5GLi-4bLfPZ3EarPO9URJ76ptLfEf55IJwebUEN-HSyZvEw5nXvSLKKUx1pQK4u9c9-3uML4Or80zmC42-XdH8LfBL7VxoQ7BJ_DHIQdisJp0vdt5afySAI68OYP9BgLrgilPqTR0qfYngLRa-Tokk"/>
+<button class="font-ui-button text-ui-button bg-primary-container text-on-primary px-4 py-2 rounded hover:bg-primary transition-colors shadow-sm shadow-primary-container/20">
+                        Post Comment
+                    </button>
+</div>
+</div>
+<!-- Comment List -->
+<div class="space-y-stack-md">
+<!-- Comment Card 1 -->
+<div class="border border-surface-container-highest rounded-lg overflow-hidden bg-surface">
+<div class="p-4 font-body-md text-body-md text-on-surface-variant">
+                        This is an incredibly insightful piece. The focus on typography as the primary driver of both aesthetic and function is exactly what modern UI design needs more of. Less noise, more clarity.
+                    </div>
+<div class="bg-surface-container-low px-4 py-2 flex items-center gap-2 border-t border-surface-container-highest">
+<img alt="Commenter avatar" class="w-6 h-6 rounded-full object-cover" data-alt="A small circular portrait photograph of a man with short dark hair and a light beard, wearing a grey t-shirt. The background is a soft, light grey, fitting a clean, minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbXqOUG5sn_Cu260tI_Rf0insUZev1Ucrhy_J8sajN82QqwB1ciP5gjVPQmstQAe2JVcyIwMQT1t-iORp_xDmUIH0eskSTgNXzJg5VC37ltnDtD9bM039-tSUE8-DKgioVtalsi2d6RmbKBo-llIbVwo3E99YZ5_YmSbkeuWyR7-HzT4sokeYdTJ9nt4zic5OVhOyB83oNxGl-w0vhkGyT1tEP98Tm7MXRUhrc1PRllVmTRdDKuaKEskO0OfahYyhXZWudDU8jtrY"/>
+<a class="font-ui-meta text-ui-meta text-primary hover:underline" href="#">Jacob Schmidt</a>
+<span class="font-ui-meta text-ui-meta text-secondary ml-auto">Jan 21, 2024</span>
+</div>
+</div>
+<!-- Comment Card 2 -->
+<div class="border border-surface-container-highest rounded-lg overflow-hidden bg-surface">
+<div class="p-4 font-body-md text-body-md text-on-surface-variant">
+                        I agree completely. The 'reading state' is often overlooked in favor of creating 'engaging' (read: distracting) interactive elements. Thank you for this perspective.
+                    </div>
+<div class="bg-surface-container-low px-4 py-2 flex items-center gap-2 border-t border-surface-container-highest">
+<img alt="Commenter avatar" class="w-6 h-6 rounded-full object-cover" data-alt="A small circular portrait photograph of a woman with long wavy brown hair, wearing a dark top. She is smiling softly. The lighting is bright and natural, set against a blurred outdoor background, maintaining a clean editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxLZfYRDT7y9AWI_TFYc5J7JvJ2lHiYEyk8agWIUTHDVU0F6PdIAP8T37cOEgbYj-CWAYF6TfYkhnsmFtIngvsoomztZHkF61BAY2l1iG2TcKFpxctmcTUGFNQ7NCjF8Bcuh2BWtrlb0-5xYK16NP5gnhfJHk-BOKSPUWm27bV0OzhK-R84E_yY6oSgcqgyb6ACKb8kSajT_S8JKoItf_n3oHkYcw_mrJQeCrTRPTj8JnDrxPVnmxJFTaS4Edi6NJky4rZQY4zaeI"/>
+<a class="font-ui-meta text-ui-meta text-primary hover:underline" href="#">Alice Johnson</a>
+<span class="font-ui-meta text-ui-meta text-secondary ml-auto">Jan 22, 2024</span>
+</div>
+</div>
+</div>
+<div class="mt-stack-lg text-center font-ui-meta text-ui-meta text-secondary">
+<a class="text-primary hover:underline" href="#">Sign in</a> or <a class="text-primary hover:underline" href="#">sign up</a> to add comments on this article.
+            </div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-dim full-width border-t border-surface-container-highest dark:border-outline-variant mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile py-stack-lg max-w-container-max mx-auto gap-stack-md">
+<div class="flex flex-col items-center md:items-start gap-1">
+<a class="font-ui-label text-ui-label font-bold text-primary dark:text-primary-fixed" href="#">RealWorld</a>
+<span class="font-ui-meta text-ui-meta text-secondary dark:text-secondary-fixed-dim text-center md:text-left">
+                    RealWorld — An interactive learning project from Thinkster. Code &amp; design licensed under MIT.
+                </span>
+</div>
+<div class="flex items-center gap-4">
+<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="#">Home</a>
+<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="#">Terms</a>
+<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="#">Privacy</a>
+</div>
+</div>
+</footer>
+</body></html>
