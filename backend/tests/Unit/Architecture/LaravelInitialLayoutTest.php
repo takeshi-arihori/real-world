@@ -11,7 +11,7 @@ uses(TestCase::class);
 describe('Laravel initial DDD layout', function (): void {
     it('User Eloquent model is placed under Infrastructure persistence', function (): void {
         expect(class_exists(User::class))->toBeTrue()
-            ->and(new User())->toBeInstanceOf(Authenticatable::class)
+            ->and(new User)->toBeInstanceOf(Authenticatable::class)
             ->and(class_exists('App\\Models\\User'))->toBeFalse();
     });
 
