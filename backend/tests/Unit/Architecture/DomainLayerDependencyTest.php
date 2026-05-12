@@ -7,6 +7,12 @@ use Tests\TestCase;
 uses(TestCase::class);
 
 describe('Domain layer dependencies', function (): void {
+    it('DDD 4層の初期ディレクトリを用意する', function (): void {
+        foreach (['Domain', 'Application', 'Infrastructure', 'Presentation'] as $layer) {
+            $this->assertDirectoryExists(app_path($layer), "{$layer} layer directory must exist.");
+        }
+    });
+
     it('Domain層がLaravelや外側レイヤーに依存しない', function (): void {
         $domainPath = app_path('Domain');
 
