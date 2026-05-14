@@ -1,6 +1,6 @@
 # Frontend
 
-React 19 + TypeScript + Vite ベースの frontend アプリケーションです。実装前にルートの `README.md` と `CLAUDE.md` を確認してください。
+React 19 + TypeScript + Vite ベースの frontend アプリケーションです。実装前にルートの `README.md` と `AGENTS.md` を確認してください。
 
 ## 参照先
 
