@@ -17,6 +17,12 @@ React 19 + TypeScript / Laravel 13 のモノレポ。API、CRUD、新しい技�
 3. `docs/ai/harness.md` と必要な `docs/rules/*` を確認する。
 4. テストの妥当性、アーキテクチャ、セキュリティを重点的に確認する。
 
+## Worktree 運用
+
+- Issue 対応を worktree で行う場合、repo root 配下の `.worktree/<task-name>` に作成する。
+- `.worktree` は gitignored の非追跡作業領域として扱い、作業完了後にクリーンアップする。
+- 詳細な作成手順と命名は `docs/ai/harness.md` と該当 skill を正本とする。
+
 ## Skill の使い分け
 
 - `.agents/skills/code-review/` - コードレビュー、テスト妥当性、アーキテクチャ確認。
