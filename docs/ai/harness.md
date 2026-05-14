@@ -27,6 +27,18 @@ ADR は廃止方向とし、判断は要件・ルール・ドメイン設計・�
 - https://openai.com/ja-JP/index/harness-engineering/
 - https://developers.openai.com/codex/skills
 
+## Worktree Policy
+
+AI agent が Issue 対応で worktree を使う場合、作業用 checkout は repo root 配下の `.worktree/<task-name>` に作成する。
+session をまたいでも作業場所を再発見できるように、標準の作成先として repo 外の一時ディレクトリは使わない。
+
+- `.worktree` は `.gitignore` 済みの非追跡作業領域として扱い、配下の内容は git 管理しない。
+- `<task-name>` は `issue-<issue-number>-<short-slug>` を基本形にする。
+- ブランチ名は `docs/rules/git-flow.md` に従い、例として `feature/#102-worktree-location` のようにする。
+- 手動で作成する場合は repo root で `git worktree add -b "feature/#<issue-number>-<slug>" ".worktree/issue-<issue-number>-<slug>" develop` を実行する。
+- worktree には `node_modules/` や `vendor/` が含まれないため、対象レイヤーに応じて worktree 内で依存関係を入れる。
+- 作業完了後、PR 作成と必要な引き継ぎが済んだ worktree はクリーンアップする。
+
 ## Skill Trigger Policy
 
 - Repository skill は `.agents/skills/<skill-name>/SKILL.md` に置く。

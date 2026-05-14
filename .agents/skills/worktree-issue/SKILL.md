@@ -40,20 +40,21 @@ Issueのタイトル・本文・ラベル・コメントを読み取り、実装
 
 ### Step 3: worktree作成・ブランチ切り替え
 
-EnterWorktreeツールを使用してworktreeを作成する。
+repo root 配下の `.worktree/<task-name>` に worktree を作成する。
+標準の作成先として repo 外の一時ディレクトリは使わない。
 
-```
-EnterWorktree でworktreeに入る
-```
+`<task-name>` は `issue-<issue番号>-<issue-slug>` を基本形にする。
 
-worktree内でブランチを作成:
+repo root で実行:
 
 ```bash
-git checkout -b feature/#<issue番号>-<issue-slug>
+mkdir -p .worktree
+git worktree add -b "feature/#<issue番号>-<issue-slug>" ".worktree/issue-<issue番号>-<issue-slug>" develop
+cd ".worktree/issue-<issue番号>-<issue-slug>"
 ```
 
 - `<issue-slug>`: Issueタイトルから英語kebab-caseで短く生成
-- 例: `feature/#42-update-docs`
+- 例: `.worktree/issue-42-update-docs` / `feature/#42-update-docs`
 - developブランチの最新から切ること
 
 ### Step 4: 依存関係インストール
@@ -141,10 +142,10 @@ EOF
 
 ### Step 9: worktreeクリーンアップ
 
-ExitWorktreeツールを使用してworktreeから退出する。
+PR作成と必要な引き継ぎが済んだら、repo root から worktree を削除する。
 
-```
-ExitWorktree でworktreeを退出・クリーンアップ
+```bash
+git worktree remove ".worktree/issue-<issue番号>-<issue-slug>"
 ```
 
 ## 注意事項

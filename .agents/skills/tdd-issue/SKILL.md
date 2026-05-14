@@ -36,10 +36,17 @@ GitHub Issueを起点に、要件整理・設計・タスク分解を経てTDD�
 
 ### worktreeモードの場合
 
-Step 4（ブランチ作成）の前にworktreeを作成する:
+Step 4（ブランチ作成）の前に、repo root 配下の `.worktree/<task-name>` に worktree を作成する。
+標準の作成先として repo 外の一時ディレクトリは使わない。
 
-```
-EnterWorktree でworktreeに入る
+`<task-name>` は `issue-<issue番号>-<issue-slug>` を基本形にする。
+
+repo root で実行:
+
+```bash
+mkdir -p .worktree
+git worktree add -b "feature/#<issue番号>-<issue-slug>" ".worktree/issue-<issue番号>-<issue-slug>" develop
+cd ".worktree/issue-<issue番号>-<issue-slug>"
 ```
 
 worktreeには `node_modules/` や `vendor/` が含まれないため、
@@ -53,10 +60,10 @@ cd frontend && pnpm install
 cd backend && composer install
 ```
 
-Step 10のPR作成後にworktreeをクリーンアップする:
+Step 10のPR作成と必要な引き継ぎが済んだら、repo root から worktree を削除する:
 
-```
-ExitWorktree でworktreeを退出・クリーンアップ
+```bash
+git worktree remove ".worktree/issue-<issue番号>-<issue-slug>"
 ```
 
 ## ワークフロー
@@ -95,9 +102,13 @@ Issueのタイトル・本文・ラベルを読み取り、実装スコープを
 
 #### Step 4: ブランチ作成
 
+localモードの場合:
+
 ```
 git checkout -b feature/#<issue番号>-<issue-slug>
 ```
+
+worktreeモードの場合は、上記の `git worktree add -b` でブランチ作成済みのため、この手順では作業ブランチ名だけを確認する。
 
 - `<issue-slug>`: Issueタイトルから英語kebab-caseで短く生成
 - 例: `feature/#42-add-user-auth`
@@ -195,7 +206,7 @@ EOF
 
 ### Step 11: クリーンアップ（worktreeモードの場合）
 
-worktreeモードで作業した場合は、ExitWorktreeでクリーンアップする。
+worktreeモードで作業した場合は、PR作成と必要な引き継ぎが済んだ後に `.worktree/<task-name>` の worktree をクリーンアップする。
 
 ## 注意事項
 
