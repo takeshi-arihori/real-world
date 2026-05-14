@@ -66,7 +66,7 @@ chore(ci): GitHub Actions のキャッシュ設定を更新
 | `db`       | マイグレーション・DB設計の変更      |
 | `ci`       | CI/CD 設定の変更                    |
 | `docs`     | ドキュメントの変更                  |
-| `infra`    | Docker・devcontainer 等インフラ変更 |
+| `infra`    | Docker・開発環境等インフラ変更      |
 
 ### コミット粒度
 

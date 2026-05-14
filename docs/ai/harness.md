@@ -1,6 +1,6 @@
 # AI Harness Design
 
-このプロジェクトの AI ハーネス設計の正本。`AGENTS.md`、`CLAUDE.md`、`.agents/skills/*`、`.claude/skills/*` は、この文書と `docs/rules/*` を参照する入口として扱う。
+このプロジェクトの AI ハーネス設計の正本。`AGENTS.md` と `.agents/skills/*` は、この文書と `docs/rules/*` を参照する入口として扱う。
 
 ## 目的
 
@@ -16,34 +16,22 @@
 - 要件定義: `docs/requirements.md`
 - 実装前設計メモテンプレート: `specs/_template-feature-spec.md`
 
-`.claude/rules/*` は互換用の参照ファイルに留める。新しいルールや詳細な手順は `docs/` に追加・更新する。
 ADR は廃止方向とし、判断は要件・ルール・ドメイン設計・ハーネス文書へ直接反映する。
 
 ## Entry Files
 
-`AGENTS.md` と `CLAUDE.md` には概要、正本への導線、skill の一覧だけを書く。詳細なチェックリストやコマンド列は置かない。
+`AGENTS.md` には概要、正本への導線、skill の一覧だけを書く。詳細なチェックリストやコマンド列は置かない。
 
 参考:
 
 - https://openai.com/ja-JP/index/harness-engineering/
 - https://developers.openai.com/codex/skills
-- https://code.claude.com/docs/en/skills
-- https://code.claude.com/docs/ja/how-claude-code-works
 
 ## Skill Trigger Policy
-
-### Codex
 
 - Repository skill は `.agents/skills/<skill-name>/SKILL.md` に置く。
 - `SKILL.md` の frontmatter は `name` と `description` を必須にする。
 - 暗黙起動は `description` に依存するため、用途とトリガー語を冒頭に書く。
-- 本文には workflow だけを書き、詳細ルールは `docs/rules/*` を読むように指示する。
-
-### Claude Code
-
-- Project skill は `.claude/skills/<skill-name>/SKILL.md` に置く。
-- `description` に用途を短く書き、必要に応じて `when_to_use` にトリガー例を分ける。
-- 自動起動させたくない task skill だけ `disable-model-invocation: true` を使う。
 - 本文には workflow だけを書き、詳細ルールは `docs/rules/*` を読むように指示する。
 
 ## Review-First Policy

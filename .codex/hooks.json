@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "file=\"$CLAUDE_FILE_PATH\"; if echo \"$file\" | grep -qE '\\.(ts|tsx)$'; then cd frontend && pnpm eslint \"$file\" 2>&1 | head -20; elif echo \"$file\" | grep -qE '\\.php$'; then cd backend && ./vendor/bin/pint --test \"$file\" 2>&1 | head -20; fi"
+            "command": "file=\"${CODEX_FILE_PATH:-${FILE_PATH:-}}\"; if echo \"$file\" | grep -qE '\\.(ts|tsx)$'; then cd frontend && pnpm eslint \"$file\" 2>&1 | head -20; elif echo \"$file\" | grep -qE '\\.php$'; then cd backend && ./vendor/bin/pint --test \"$file\" 2>&1 | head -20; fi"
           }
         ]
       }
