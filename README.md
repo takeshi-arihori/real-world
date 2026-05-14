@@ -18,7 +18,6 @@ React 19 + Laravel 13 で API / CRUD / DDD を学ぶためのモノレポです�
 必要なもの:
 
 - Docker Desktop
-- VS Code + Dev Containers 拡張（任意）
 
 起動:
 

@@ -195,7 +195,6 @@ Required local prerequisites:
 - Docker Desktop or compatible Docker environment
 - Node / pnpm for frontend work outside the container
 - Composer / PHP for backend work outside the container
-- Optional: VS Code Dev Containers
 
 Version hints:
 
