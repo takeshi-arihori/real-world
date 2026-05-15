@@ -80,8 +80,8 @@ describe('RealWorld API error response', function (): void {
             $this->postJson('/api/__test-validation', []),
             422,
             [
-                'The title field is required.',
-                'The body field is required.',
+                'title is required',
+                'body is required',
             ],
         );
     });

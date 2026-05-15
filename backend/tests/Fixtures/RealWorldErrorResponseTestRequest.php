@@ -23,4 +23,15 @@ class RealWorldErrorResponseTestRequest extends FormRequest
             'body' => ['required', 'string'],
         ];
     }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'title.required' => 'title is required',
+            'body.required' => 'body is required',
+        ];
+    }
 }
