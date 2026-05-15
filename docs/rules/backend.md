@@ -204,6 +204,12 @@ public function store(Request $request): JsonResponse
   - **システムエラー**: `RuntimeException` を継承。ログに記録し汎用メッセージを返す
 - Presentation 層の例外ハンドラで Domain 例外を適切な HTTP ステータスコードに変換する
 
+### PHPDoc / コメント方針
+
+- クラスの public / protected / private メソッドには PHPDoc を付け、処理内容ではなくメソッドが担う契約・意図を短く書く
+- 配列 shape や list など PHP の型宣言だけで表現できない返り値は `@return` で明示する
+- 単純な代入やフレームワーク既定動作の説明だけのコメントは避ける
+
 ### トランザクション方針
 
 - トランザクションは **Application 層（UseCase）** で管理する
