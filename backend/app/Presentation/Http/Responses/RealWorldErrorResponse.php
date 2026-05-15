@@ -18,11 +18,17 @@ use Throwable;
 
 final class RealWorldErrorResponse
 {
+    /**
+     * API ルートの例外を RealWorld 互換 JSON として扱うか判定する。
+     */
     public static function shouldRenderFor(Request $request): bool
     {
         return $request->is('api/*');
     }
 
+    /**
+     * 例外を RealWorld 互換の `errors.body` レスポンスへ変換する。
+     */
     public static function fromThrowable(Throwable $exception): JsonResponse
     {
         [$status, $messages] = self::resolve($exception);
@@ -35,6 +41,8 @@ final class RealWorldErrorResponse
     }
 
     /**
+     * 例外ごとの HTTP status と公開可能な error message を解決する。
+     *
      * @return array{0: int, 1: list<string>}
      */
     private static function resolve(Throwable $exception): array
@@ -70,6 +78,8 @@ final class RealWorldErrorResponse
     }
 
     /**
+     * FormRequest の field 別 validation message を `errors.body` 用に平坦化する。
+     *
      * @return list<string>
      */
     private static function validationMessages(ValidationException $exception): array
@@ -89,6 +99,9 @@ final class RealWorldErrorResponse
             : $messages;
     }
 
+    /**
+     * 空の例外メッセージをクライアント向けの既定文言へ置き換える。
+     */
     private static function fallbackMessage(Throwable $exception, string $fallback): string
     {
         $message = trim($exception->getMessage());
@@ -96,6 +109,9 @@ final class RealWorldErrorResponse
         return $message === '' ? $fallback : $message;
     }
 
+    /**
+     * HTTP 例外をクライアントへ返してよい汎用メッセージへ変換する。
+     */
     private static function httpStatusMessage(int $status): string
     {
         return match ($status) {
