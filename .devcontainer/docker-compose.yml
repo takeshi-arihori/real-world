@@ -1,0 +1,30 @@
+services:
+  devcontainer:
+    build:
+      context: .devcontainer
+      dockerfile: Dockerfile
+      args:
+        TZ: "${TZ:-Asia/Tokyo}"
+        GIT_DELTA_VERSION: "0.18.2"
+        ZSH_IN_DOCKER_VERSION: "1.2.0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/workspace:cached
+      - devcontainer-bashhistory:/commandhistory
+      - pnpm-store:/home/node/.local/share/pnpm/store
+      - "${HOME}/.config/gh:/home/node/.config/gh"
+    environment:
+      NODE_OPTIONS: "--max-old-space-size=4096 --dns-result-order=ipv4first"
+      POWERLEVEL9K_DISABLE_GITSTATUS: "true"
+    command: sleep infinity
+    networks:
+      - app-network
+    depends_on:
+      - db
+      - backend-php
+      - backend-nginx
+      - frontend
+
+volumes:
+  devcontainer-bashhistory:
+  pnpm-store:
