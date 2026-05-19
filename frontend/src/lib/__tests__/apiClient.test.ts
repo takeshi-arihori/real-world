@@ -3,6 +3,9 @@ import { createApiClient } from '../apiClient';
 import { clearAuthToken, setAuthToken } from '../authToken';
 import { isApiError } from '../apiError';
 
+/**
+ * API clientが扱うJSONレスポンスをテスト用に生成する。
+ */
 function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
   const headers = new Headers(init.headers);
   headers.set('Content-Type', 'application/json');
@@ -13,10 +16,16 @@ function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
   });
 }
 
+/**
+ * fetch差し替え時にResponseを返すmockを生成する。
+ */
 function createFetchMock(response: Response): ReturnType<typeof vi.fn> {
   return vi.fn().mockResolvedValue(response);
 }
 
+/**
+ * fetchへ渡されたrequest optionsを検証用に取り出す。
+ */
 function getRequestOptions(fetchMock: ReturnType<typeof vi.fn>): RequestInit {
   const call = fetchMock.mock.calls.at(0);
 

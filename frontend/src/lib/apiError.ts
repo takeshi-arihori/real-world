@@ -13,6 +13,9 @@ interface ApiErrorDetails {
   status?: number;
 }
 
+/**
+ * API clientが返す失敗をHTTP statusや原因別に扱えるtyped errorとして表す。
+ */
 export class ApiError extends Error {
   readonly bodyErrors: string[];
   readonly kind: ApiErrorKind;
@@ -27,6 +30,9 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * unknown errorをApiErrorとして扱えるか判定する。
+ */
 export function isApiError(error: unknown): error is ApiError {
   return error instanceof ApiError;
 }

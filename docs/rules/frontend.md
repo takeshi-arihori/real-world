@@ -45,6 +45,12 @@ export default UserCard;
 | ファイル（フック） | camelCase.ts | `useAuth.ts` |
 | ファイル（ユーティリティ） | camelCase.ts | `formatDate.ts` |
 
+### JSDoc / コメント方針
+
+- export する関数には JSDoc を付け、処理内容ではなく関数が担う契約・意図を短く書く
+- 複雑な private helper には、呼び出し側から見えにくい判断理由を短いコメントで補足する
+- 単純な代入、型から明らかな処理、React / browser API 既定動作の説明だけのコメントは避ける
+
 ## ディレクトリ構成
 
 ```
