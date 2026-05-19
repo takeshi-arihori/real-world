@@ -21,19 +21,19 @@ function getRequestOptions(fetchMock: ReturnType<typeof vi.fn>): RequestInit {
   const call = fetchMock.mock.calls.at(0);
 
   if (call === undefined || call[1] === undefined) {
-    throw new Error('fetch was not called with request options');
+    throw new Error('fetchがrequest options付きで呼ばれていません');
   }
 
   return call[1] as RequestInit;
 }
 
-describe('apiClient', () => {
+describe('共通API client', () => {
   beforeEach(() => {
     clearAuthToken();
     vi.unstubAllGlobals();
   });
 
-  it('injects the RealWorld auth header when a token exists', async () => {
+  it('トークンが存在する場合はRealWorld形式の認証ヘッダーを付与する', async () => {
     const fetchMock = createFetchMock(jsonResponse({ user: { username: 'jake' } }));
     vi.stubGlobal('fetch', fetchMock);
     setAuthToken('secret-token');
@@ -52,7 +52,7 @@ describe('apiClient', () => {
     expect(headers.get('Authorization')).toBe('Token secret-token');
   });
 
-  it('normalizes unauthorized responses for invalid token handling', async () => {
+  it('invalid tokenを扱えるよう401レスポンスをunauthorized errorへ正規化する', async () => {
     vi.stubGlobal(
       'fetch',
       createFetchMock(jsonResponse({ errors: { body: ['Unauthorized'] } }, { status: 401 })),
@@ -61,7 +61,7 @@ describe('apiClient', () => {
 
     try {
       await client.get('/api/user');
-      throw new Error('Expected request to fail');
+      throw new Error('requestが失敗する想定です');
     } catch (error: unknown) {
       expect(isApiError(error)).toBe(true);
 
@@ -75,7 +75,7 @@ describe('apiClient', () => {
     }
   });
 
-  it('normalizes validation responses with RealWorld body errors', async () => {
+  it('RealWorld形式のbody errorsを持つ422レスポンスをvalidation errorへ正規化する', async () => {
     vi.stubGlobal(
       'fetch',
       createFetchMock(
@@ -94,7 +94,7 @@ describe('apiClient', () => {
           password: 'x',
         },
       });
-      throw new Error('Expected request to fail');
+      throw new Error('requestが失敗する想定です');
     } catch (error: unknown) {
       expect(isApiError(error)).toBe(true);
 
@@ -111,13 +111,13 @@ describe('apiClient', () => {
     }
   });
 
-  it('normalizes network failures', async () => {
+  it('network failureをnetwork errorへ正規化する', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
     const client = createApiClient();
 
     try {
       await client.get('/api/tags');
-      throw new Error('Expected request to fail');
+      throw new Error('requestが失敗する想定です');
     } catch (error: unknown) {
       expect(isApiError(error)).toBe(true);
 
@@ -131,7 +131,7 @@ describe('apiClient', () => {
     }
   });
 
-  it('normalizes JSON parse failures as unexpected errors', async () => {
+  it('JSON parse failureをunexpected errorへ正規化する', async () => {
     vi.stubGlobal(
       'fetch',
       createFetchMock(
@@ -147,7 +147,7 @@ describe('apiClient', () => {
 
     try {
       await client.get('/api/tags');
-      throw new Error('Expected request to fail');
+      throw new Error('requestが失敗する想定です');
     } catch (error: unknown) {
       expect(isApiError(error)).toBe(true);
 
