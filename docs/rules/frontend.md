@@ -382,6 +382,7 @@ features/user/components/
 
 - カバレッジ目標: 80%
 - コンポーネントテストはユーザー視点で書く（実装詳細に依存しない）
+- `describe` / `it` のテスト名は日本語で書き、仕様・振る舞いがレビュー時に読める表現にする
 - `getByRole`, `getByLabelText` を優先（`getByTestId` は最終手段）
 - テストファイル配置: `__tests__/<ComponentName>.test.tsx`
 
