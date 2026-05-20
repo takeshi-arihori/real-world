@@ -21,6 +21,7 @@
 - Functional Components + Hooks のみ（クラスコンポーネント禁止）
 - `React.FC` 不使用。Props を引数で直接型付けする
 - 名前付きエクスポート（`export default` 禁止）
+- React の設計判断は、設計・Plan・Review 時に公式の [Thinking in React](https://react.dev/learn/thinking-in-react) を参照する
 
 ```tsx
 // Good
@@ -33,6 +34,19 @@ export function UserCard({ name }: Props) { ... }
 const UserCard: React.FC<Props> = ({ name }) => { ... }
 export default UserCard;
 ```
+
+### React 設計原則
+
+React component は `Thinking in React` を基準に、関心の分離（separation of concerns）と単一責任の原則を守る。
+
+- UI を component hierarchy に分解し、component ごとの責務を1つに絞る
+- component が複数の関心を持ち始めたら、より小さい subcomponent / hook / utility へ分解する
+- data model と UI の情報構造を対応させ、props は親から子へ流す
+- まず props だけで静的に描画できる構造を考え、interactivity はその後に追加する
+- state は「時間で変化し、props や既存 state から計算できない最小集合」だけにする
+- state の所有者は、その state を使う component 群の最も近い共通親か、明確に state を保持するための component / Provider に置く
+- derived data（filter済み一覧、件数、表示用ラベルなど）を state に重複保持しない
+- component は表示、hook は状態・副作用、`features/*/api` は通信、`lib` は技術基盤に責務を分ける
 
 ### 命名規則
 
