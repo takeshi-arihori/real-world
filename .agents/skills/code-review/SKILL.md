@@ -18,6 +18,7 @@ description: >
 3. `docs/rules/security.md` を必ず読む。
 4. 変更範囲に応じて `docs/rules/frontend.md`、`docs/rules/backend.md`、`docs/rules/db.md` を読む。
    - Frontend 変更では `docs/rules/frontend.md` の React 設計原則を確認する。
+   - React component 設計の妥当性を見る場合は `references/react-thinking-in-react.md` を読む。
 5. テスト、アーキテクチャ、API/CRUD設計、セキュリティ、保守性の順に確認する。
 6. 実行系の検証が必要な場合は `verify-qa` skill を併用する。
 

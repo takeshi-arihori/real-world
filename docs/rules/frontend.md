@@ -21,7 +21,7 @@
 - Functional Components + Hooks のみ（クラスコンポーネント禁止）
 - `React.FC` 不使用。Props を引数で直接型付けする
 - 名前付きエクスポート（`export default` 禁止）
-- React の設計判断は、設計・Plan・Review 時に公式の [Thinking in React](https://react.dev/learn/thinking-in-react) を参照する
+- React の設計判断は、設計・Plan・Review 時に公式 `Thinking in React` の考え方を参照する
 
 ```tsx
 // Good
