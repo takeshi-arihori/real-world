@@ -33,6 +33,7 @@ function getRequestOptions(fetchMock: ReturnType<typeof vi.fn>): RequestInit {
     throw new Error('fetchがrequest options付きで呼ばれていません');
   }
 
+  // Vitestのmock call引数は広い型なので、以降の検証対象としてRequestInitへ絞る。
   return call[1] as RequestInit;
 }
 
