@@ -102,6 +102,21 @@ features/<feature>/
 └── index.ts
 ```
 
+### React 設計確認
+
+- Component hierarchy:
+  -
+- 関心の分離 / 単一責任:
+  -
+- 最小 state:
+  -
+- State 所有者:
+  -
+- Derived data を state にしていないか:
+  -
+- Props / data flow:
+  -
+
 ### コンポーネント分割
 
 | コンポーネント | 責務 | Props |

@@ -342,6 +342,7 @@ public function execute(CreateOrderDto $dto): Order
 
 - Feature テスト: HTTP リクエスト経由でエンドポイントをテスト
 - Unit テスト: Service クラスのロジックをテスト
+- Pest の `describe` / `it` / `test` のテスト名は日本語で書き、仕様・振る舞いがレビュー時に読める表現にする
 - テストデータは Factory + Faker で生成
 - テスト間の独立性: `RefreshDatabase` トレイト使用
 

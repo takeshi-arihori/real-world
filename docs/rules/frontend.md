@@ -21,6 +21,7 @@
 - Functional Components + Hooks のみ（クラスコンポーネント禁止）
 - `React.FC` 不使用。Props を引数で直接型付けする
 - 名前付きエクスポート（`export default` 禁止）
+- React の設計判断は、設計・Plan・Review 時に公式 `Thinking in React` の考え方を参照する
 
 ```tsx
 // Good
@@ -34,6 +35,19 @@ const UserCard: React.FC<Props> = ({ name }) => { ... }
 export default UserCard;
 ```
 
+### React 設計原則
+
+React component は `Thinking in React` を基準に、関心の分離（separation of concerns）と単一責任の原則を守る。
+
+- UI を component hierarchy に分解し、component ごとの責務を1つに絞る
+- component が複数の関心を持ち始めたら、より小さい subcomponent / hook / utility へ分解する
+- data model と UI の情報構造を対応させ、props は親から子へ流す
+- まず props だけで静的に描画できる構造を考え、interactivity はその後に追加する
+- state は「時間で変化し、props や既存 state から計算できない最小集合」だけにする
+- state の所有者は、その state を使う component 群の最も近い共通親か、明確に state を保持するための component / Provider に置く
+- derived data（filter済み一覧、件数、表示用ラベルなど）を state に重複保持しない
+- component は表示、hook は状態・副作用、`features/*/api` は通信、`lib` は技術基盤に責務を分ける
+
 ### 命名規則
 
 | 対象 | 規則 | 例 |
@@ -44,6 +58,12 @@ export default UserCard;
 | ファイル（コンポーネント） | PascalCase.tsx | `UserCard.tsx` |
 | ファイル（フック） | camelCase.ts | `useAuth.ts` |
 | ファイル（ユーティリティ） | camelCase.ts | `formatDate.ts` |
+
+### JSDoc / コメント方針
+
+- export する関数には JSDoc を付け、処理内容ではなく関数が担う契約・意図を短く書く
+- 複雑な private helper には、呼び出し側から見えにくい判断理由を短いコメントで補足する
+- 単純な代入、型から明らかな処理、React / browser API 既定動作の説明だけのコメントは避ける
 
 ## ディレクトリ構成
 
@@ -382,6 +402,7 @@ features/user/components/
 
 - カバレッジ目標: 80%
 - コンポーネントテストはユーザー視点で書く（実装詳細に依存しない）
+- `describe` / `it` のテスト名は日本語で書き、仕様・振る舞いがレビュー時に読める表現にする
 - `getByRole`, `getByLabelText` を優先（`getByTestId` は最終手段）
 - テストファイル配置: `__tests__/<ComponentName>.test.tsx`
 
