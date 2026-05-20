@@ -17,7 +17,7 @@ description: >
 2. AI ハーネス正本として `docs/ai/harness.md` を読む。
 3. `docs/rules/security.md` を必ず読む。
 4. 変更範囲に応じて `docs/rules/frontend.md`、`docs/rules/backend.md`、`docs/rules/db.md` を読む。
-   - Frontend 変更では `docs/rules/frontend.md` の React 設計原則を確認し、必要に応じて React 公式 `Thinking in React`（https://react.dev/learn/thinking-in-react）を参照する。
+   - Frontend 変更では `docs/rules/frontend.md` の React 設計原則を確認する。
 5. テスト、アーキテクチャ、API/CRUD設計、セキュリティ、保守性の順に確認する。
 6. 実行系の検証が必要な場合は `verify-qa` skill を併用する。
 

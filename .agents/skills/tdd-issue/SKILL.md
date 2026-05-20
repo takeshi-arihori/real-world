@@ -83,7 +83,7 @@ Issueのタイトル・本文・ラベルを読み取り、実装スコープを
 `docs/ai/harness.md` と `docs/rules/` ディレクトリ内の関連ルールファイルを確認する。
 対象技術スタック（frontend / backend）に応じて該当ファイルを読む。
 **`docs/rules/security.md` は必ず確認する。**
-フロントエンドを含む場合は `docs/rules/frontend.md` の React 設計原則を確認し、設計・Plan 時に React 公式の `Thinking in React`（https://react.dev/learn/thinking-in-react）を必要に応じて参照する。
+フロントエンドを含む場合は `docs/rules/frontend.md` の React 設計原則を確認し、設計・Plan 時に参照する。
 
 #### Step 3: 要件整理・設計ドキュメント作成
 
