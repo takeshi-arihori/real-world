@@ -59,7 +59,10 @@ test("default compose keeps backend Xdebug disabled and trigger-gated", () => {
 
   assert.equal(environment.XDEBUG_MODE, "off");
   assert.equal(environment.XDEBUG_START_WITH_REQUEST, "trigger");
-  assert.equal(environment.XDEBUG_CONFIG, "client_host=host.docker.internal client_port=9003");
+  assert.equal(
+    environment.XDEBUG_CONFIG,
+    "client_host=host.docker.internal client_port=9003",
+  );
 });
 
 test("devcontainer compose enables backend Xdebug only by trigger", () => {
@@ -72,7 +75,10 @@ test("devcontainer compose enables backend Xdebug only by trigger", () => {
 
   assert.equal(environment.XDEBUG_MODE, "develop,debug");
   assert.equal(environment.XDEBUG_START_WITH_REQUEST, "trigger");
-  assert.equal(environment.XDEBUG_CONFIG, "client_host=devcontainer client_port=9003");
+  assert.equal(
+    environment.XDEBUG_CONFIG,
+    "client_host=devcontainer client_port=9003",
+  );
 });
 
 test("PHP Xdebug ini defaults to trigger start", () => {
