@@ -14,6 +14,7 @@ use App\Domain\Identity\ValueObjects\Email;
 use App\Domain\Identity\ValueObjects\HashedPassword;
 use App\Domain\Identity\ValueObjects\Username;
 use DomainException;
+use Illuminate\Support\Facades\DB;
 
 final readonly class RegisterUserCommand
 {
@@ -45,11 +46,13 @@ final readonly class RegisterUserCommand
             passwordHash: new HashedPassword($this->passwords->make($dto->password)),
         );
 
-        $registeredUser = $this->users->save($user);
+        return DB::transaction(function () use ($user): AuthenticatedUserDto {
+            $registeredUser = $this->users->save($user);
 
-        return new AuthenticatedUserDto(
-            user: $registeredUser,
-            token: $this->tokens->issue($registeredUser),
-        );
+            return new AuthenticatedUserDto(
+                user: $registeredUser,
+                token: $this->tokens->issue($registeredUser),
+            );
+        });
     }
 }

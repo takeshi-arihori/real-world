@@ -45,6 +45,28 @@ describe('POST /api/users/login', function (): void {
         expect($response->json('user.token'))->toBeString()->not->toBe('');
     });
 
+    it('ログイン成功時に返したtokenをRealWorldのToken schemeで利用できる', function (): void {
+        User::factory()->create([
+            'username' => 'jake',
+            'email' => 'jake@example.com',
+            'password_hash' => Hash::make('secret'),
+        ]);
+
+        $response = $this->postJson('/api/users/login', [
+            'user' => [
+                'email' => 'jake@example.com',
+                'password' => 'secret',
+            ],
+        ])->assertOk();
+
+        $this->withHeaders([
+            'Authorization' => 'Token '.$response->json('user.token'),
+        ])
+            ->getJson('/api/user')
+            ->assertOk()
+            ->assertJsonFragment(['email' => 'jake@example.com']);
+    });
+
     it('誤ったcredentialsを422で拒否する', function (): void {
         User::factory()->create([
             'username' => 'jake',

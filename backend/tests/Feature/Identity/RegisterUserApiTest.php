@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Application\Identity\Services\AuthTokenIssuerInterface;
+use App\Domain\Identity\Entities\User as DomainUser;
 use App\Infrastructure\Persistence\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -38,6 +40,23 @@ describe('POST /api/users', function (): void {
         expect($response->json('user.token'))->toBeString()->not->toBe('');
     });
 
+    it('登録成功時に返したtokenをRealWorldのToken schemeで利用できる', function (): void {
+        $response = $this->postJson('/api/users', [
+            'user' => [
+                'username' => 'jake',
+                'email' => 'jake@example.com',
+                'password' => 'secret',
+            ],
+        ])->assertCreated();
+
+        $this->withHeaders([
+            'Authorization' => 'Token '.$response->json('user.token'),
+        ])
+            ->getJson('/api/user')
+            ->assertOk()
+            ->assertJsonFragment(['email' => 'jake@example.com']);
+    });
+
     it('passwordを平文保存せずpassword_hashに保存する', function (): void {
         $this->postJson('/api/users', [
             'user' => [
@@ -53,6 +72,26 @@ describe('POST /api/users', function (): void {
             ->toBeString()
             ->not->toBe('secret')
             ->and(Hash::check('secret', $user->password_hash))->toBeTrue();
+    });
+
+    it('token発行に失敗した場合は登録Userをrollbackする', function (): void {
+        $this->app->instance(AuthTokenIssuerInterface::class, new class implements AuthTokenIssuerInterface
+        {
+            public function issue(DomainUser $user): string
+            {
+                throw new RuntimeException('token issue failed');
+            }
+        });
+
+        $this->postJson('/api/users', [
+            'user' => [
+                'username' => 'jake',
+                'email' => 'jake@example.com',
+                'password' => 'secret',
+            ],
+        ])->assertInternalServerError();
+
+        expect(User::query()->where('email', 'jake@example.com')->exists())->toBeFalse();
     });
 
     it('重複emailを422で拒否する', function (): void {
