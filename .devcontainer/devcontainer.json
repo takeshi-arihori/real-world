@@ -10,7 +10,8 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "xdebug.php-debug"
       ],
       "settings": {
         "editor.formatOnSave": true,

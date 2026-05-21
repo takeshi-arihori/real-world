@@ -56,6 +56,32 @@ docker compose down
 | バックエンド API | http://localhost:8080 |
 | Mailpit | http://localhost:8025 |
 
+## バックエンドのデバッグ
+
+Xdebug は通常の Docker 起動では `XDEBUG_MODE=off` のため、リクエストへ介入しません。
+devcontainer では `XDEBUG_TRIGGER` を指定したときだけデバッグセッションを開始します。
+
+VS Code の devcontainer でデバッグする場合:
+
+1. VS Code の Run and Debug で `Listen for Xdebug (backend-php)` を開始する
+2. trigger 付きで backend API へリクエストする
+
+```bash
+curl -H 'XDEBUG_TRIGGER: 1' http://localhost:8080/api/health
+```
+
+CLI で artisan やテストをデバッグする場合:
+
+```bash
+docker compose exec -e XDEBUG_TRIGGER=1 backend-php php artisan test
+```
+
+devcontainer 外で Xdebug を有効にする場合は、明示的に `XDEBUG_MODE` を指定して起動します。
+
+```bash
+XDEBUG_MODE=develop,debug docker compose up -d backend-php backend-nginx
+```
+
 ## テスト・リント
 
 フロントエンド:

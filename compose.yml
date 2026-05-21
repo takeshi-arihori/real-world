@@ -25,6 +25,8 @@ services:
       - ./backend:/var/www/html
     environment:
       XDEBUG_MODE: "off"
+      XDEBUG_START_WITH_REQUEST: "trigger"
+      XDEBUG_CONFIG: "client_host=host.docker.internal client_port=9003"
     depends_on:
       - db
     extra_hosts:

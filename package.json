@@ -2,7 +2,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:infra": "node --test tests/*.test.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
