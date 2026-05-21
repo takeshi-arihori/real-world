@@ -12,6 +12,32 @@ const readJson = (path) =>
 
 const readText = (path) => readFileSync(resolve(repoRoot, path), "utf8");
 
+const composeConfig = (files) => {
+  const args = files.flatMap((file) => ["-f", file]);
+
+  return JSON.parse(
+    execFileSync(
+      "docker",
+      [
+        "compose",
+        ...args,
+        "config",
+        "--format",
+        "json",
+      ],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          XDEBUG_MODE: "",
+          XDEBUG_START_WITH_REQUEST: "",
+        },
+      },
+    ),
+  );
+};
+
 const normalizeEnvironment = (environment) => {
   if (Array.isArray(environment)) {
     return Object.fromEntries(
@@ -26,24 +52,21 @@ const normalizeEnvironment = (environment) => {
   return environment ?? {};
 };
 
-test("devcontainer compose enables backend Xdebug only by trigger", () => {
-  const resolvedConfig = JSON.parse(
-    execFileSync(
-      "docker",
-      [
-        "compose",
-        "-f",
-        "compose.yml",
-        "-f",
-        ".devcontainer/docker-compose.yml",
-        "config",
-        "--format",
-        "json",
-      ],
-      { cwd: repoRoot, encoding: "utf8" },
-    ),
-  );
+test("default compose keeps backend Xdebug disabled and trigger-gated", () => {
+  const resolvedConfig = composeConfig(["compose.yml"]);
+  const backendPhp = resolvedConfig.services["backend-php"];
+  const environment = normalizeEnvironment(backendPhp.environment);
 
+  assert.equal(environment.XDEBUG_MODE, "off");
+  assert.equal(environment.XDEBUG_START_WITH_REQUEST, "trigger");
+  assert.equal(environment.XDEBUG_CONFIG, "client_host=host.docker.internal client_port=9003");
+});
+
+test("devcontainer compose enables backend Xdebug only by trigger", () => {
+  const resolvedConfig = composeConfig([
+    "compose.yml",
+    ".devcontainer/docker-compose.yml",
+  ]);
   const backendPhp = resolvedConfig.services["backend-php"];
   const environment = normalizeEnvironment(backendPhp.environment);
 
