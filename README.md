@@ -67,7 +67,7 @@ VS Code の devcontainer でデバッグする場合:
 2. trigger 付きで backend API へリクエストする
 
 ```bash
-curl -H 'XDEBUG_TRIGGER: 1' http://localhost:8080/api/health
+curl -H 'XDEBUG_TRIGGER: 1' http://localhost:8080/api/user
 ```
 
 CLI で artisan やテストをデバッグする場合:
