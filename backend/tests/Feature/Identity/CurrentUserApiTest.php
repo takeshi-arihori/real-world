@@ -9,11 +9,6 @@ use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
-function realWorldTokenFor(User $user): string
-{
-    return $user->createToken('api')->plainTextToken;
-}
-
 describe('GET /api/user', function (): void {
     it('未認証リクエストを401で拒否する', function (): void {
         $this->getJson('/api/user')
@@ -28,9 +23,9 @@ describe('GET /api/user', function (): void {
             'bio' => 'I like APIs',
             'image' => 'https://example.com/avatar.png',
         ]);
-        $token = realWorldTokenFor($user);
+        $token = $this->issueRealWorldTokenFor($user);
 
-        $this->withHeaders(['Authorization' => 'Token '.$token])
+        $this->withRealWorldToken($token)
             ->getJson('/api/user')
             ->assertOk()
             ->assertExactJson([
@@ -64,9 +59,9 @@ describe('PUT /api/user', function (): void {
             'bio' => null,
             'image' => null,
         ]);
-        $token = realWorldTokenFor($user);
+        $token = $this->issueRealWorldTokenFor($user);
 
-        $this->withHeaders(['Authorization' => 'Token '.$token])
+        $this->withRealWorldToken($token)
             ->putJson('/api/user', [
                 'user' => [
                     'email' => 'new-jake@example.com',
@@ -104,9 +99,9 @@ describe('PUT /api/user', function (): void {
             'bio' => 'I like APIs',
             'image' => 'https://example.com/avatar.png',
         ]);
-        $token = realWorldTokenFor($user);
+        $token = $this->issueRealWorldTokenFor($user);
 
-        $this->withHeaders(['Authorization' => 'Token '.$token])
+        $this->withRealWorldToken($token)
             ->putJson('/api/user', [
                 'user' => [
                     'bio' => null,
@@ -131,9 +126,9 @@ describe('PUT /api/user', function (): void {
             'email' => 'jake@example.com',
             'bio' => null,
         ]);
-        $token = realWorldTokenFor($user);
+        $token = $this->issueRealWorldTokenFor($user);
 
-        $this->withHeaders(['Authorization' => 'Token '.$token])
+        $this->withRealWorldToken($token)
             ->putJson('/api/user', [
                 'user' => [
                     'email' => 'jake@example.com',
@@ -156,9 +151,9 @@ describe('PUT /api/user', function (): void {
             'username' => 'jake',
             'email' => 'jake@example.com',
         ]);
-        $token = realWorldTokenFor($user);
+        $token = $this->issueRealWorldTokenFor($user);
 
-        $response = $this->withHeaders(['Authorization' => 'Token '.$token])
+        $response = $this->withRealWorldToken($token)
             ->putJson('/api/user', [
                 'user' => [
                     'email' => 'existing@example.com',

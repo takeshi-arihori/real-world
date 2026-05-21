@@ -13,9 +13,20 @@ use App\Domain\Identity\ValueObjects\Image;
 use App\Domain\Identity\ValueObjects\UserId;
 use App\Domain\Identity\ValueObjects\Username;
 use App\Infrastructure\Persistence\Models\User as UserModel;
+use InvalidArgumentException;
 
 final class EloquentUserRepository implements UserRepositoryInterface
 {
+    /**
+     * ID に一致する User を取得する。
+     */
+    public function findById(UserId $id): ?User
+    {
+        $model = UserModel::query()->find($id->value);
+
+        return $model instanceof UserModel ? $this->toEntity($model) : null;
+    }
+
     /**
      * Email に一致する User を取得する。
      */
@@ -39,6 +50,17 @@ final class EloquentUserRepository implements UserRepositoryInterface
     }
 
     /**
+     * 指定 User を除き、Email が登録済みか確認する。
+     */
+    public function emailExistsExceptUser(Email $email, UserId $exceptUserId): bool
+    {
+        return UserModel::query()
+            ->where('email', $email->value)
+            ->whereKeyNot($exceptUserId->value)
+            ->exists();
+    }
+
+    /**
      * Username が登録済みか確認する。
      */
     public function usernameExists(Username $username): bool
@@ -49,11 +71,46 @@ final class EloquentUserRepository implements UserRepositoryInterface
     }
 
     /**
+     * 指定 User を除き、Username が登録済みか確認する。
+     */
+    public function usernameExistsExceptUser(Username $username, UserId $exceptUserId): bool
+    {
+        return UserModel::query()
+            ->where('username', $username->value)
+            ->whereKeyNot($exceptUserId->value)
+            ->exists();
+    }
+
+    /**
      * User を永続化し、採番済み ID を含む Entity を返す。
      */
     public function save(User $user): User
     {
         $model = new UserModel;
+        $model->fill([
+            'username' => $user->username()->value,
+            'email' => $user->email()->value,
+            'password_hash' => $user->passwordHash()->value,
+            'bio' => $user->bio()->value,
+            'image' => $user->image()->value,
+        ]);
+        $model->save();
+
+        return $this->toEntity($model);
+    }
+
+    /**
+     * 既存 User を更新し、更新後の Entity を返す。
+     */
+    public function update(User $user): User
+    {
+        $id = $user->id();
+
+        if ($id === null) {
+            throw new InvalidArgumentException('Cannot update an unsaved user.');
+        }
+
+        $model = UserModel::query()->findOrFail($id->value);
         $model->fill([
             'username' => $user->username()->value,
             'email' => $user->email()->value,

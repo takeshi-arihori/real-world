@@ -60,8 +60,9 @@ describe('API認証', function (): void {
 
     it('認証済みユーザーの情報を返す', function (): void {
         $user = User::factory()->create();
+        $token = $this->issueRealWorldTokenFor($user);
 
-        $this->actingAs($user, 'sanctum')
+        $this->withRealWorldToken($token)
             ->getJson('/api/user')
             ->assertOk()
             ->assertJsonFragment(['email' => $user->email]);
