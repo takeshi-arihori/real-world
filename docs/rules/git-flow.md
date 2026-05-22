@@ -223,6 +223,18 @@ git secrets --install
 `.github/workflows/ci.yml` の `secrets-scan` ジョブで全コミット履歴をスキャンする。
 push のたびに自動実行されるため、ローカルでも常に `git secrets --scan` を実行して確認すること。
 
+CI と同じ custom pattern は `.github/scripts/register-git-secrets-patterns.sh` で管理する。
+ローカルで再現する場合は、リポジトリ内で以下を実行する。
+
+```bash
+.github/scripts/register-git-secrets-patterns.sh
+.github/scripts/verify-git-secrets-patterns.sh
+git secrets --scan
+```
+
+`verify-git-secrets-patterns.sh` は検知対象の key-value 形式と、PHP / TypeScript の比較演算子・配列 arrow を一時ファイルで検証する。
+`scan-history` は履歴全体を検査するため、Red テスト作成時でも secret pattern に引っかかる文字列を commit 対象へ直書きしない。
+
 ## ブランチ保護設定（GitHub Settings 推奨設定）
 
 以下を GitHub リポジトリの **Settings > Branches** で設定する。
