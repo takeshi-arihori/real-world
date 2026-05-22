@@ -3,8 +3,33 @@ import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
+import type { AuthApi, AuthUser } from '../../../features/auth';
 import { AppProviders } from '../../providers/AppProviders';
 import { createAppRouter } from '../router';
+
+const DEMO_USER: AuthUser = {
+  bio: null,
+  email: 'demo@example.com',
+  image: '',
+  username: 'demo-user',
+};
+
+function createAuthApi(): AuthApi {
+  return {
+    getCurrentUser: async () => ({
+      token: 'fresh-token',
+      user: DEMO_USER,
+    }),
+    login: async () => ({
+      token: 'login-token',
+      user: DEMO_USER,
+    }),
+    register: async () => ({
+      token: 'register-token',
+      user: DEMO_USER,
+    }),
+  };
+}
 
 function renderRoute(
   initialPath: string,
@@ -12,14 +37,8 @@ function renderRoute(
 ): ReactElement {
   return (
     <AppProviders
-      initialUser={
-        isAuthenticated
-          ? {
-              image: '',
-              username: 'demo-user',
-            }
-          : null
-      }
+      authApi={createAuthApi()}
+      initialUser={isAuthenticated ? DEMO_USER : null}
     >
       <RouterProvider router={createAppRouter([initialPath])} />
     </AppProviders>
@@ -43,6 +62,8 @@ describe('app router', () => {
     const { render } = await import('@testing-library/react');
 
     render(renderRoute('/login?returnTo=/editor'));
+    await user.type(screen.getByLabelText('Email'), 'demo@example.com');
+    await user.type(screen.getByLabelText('Password'), 'secret');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(
@@ -58,6 +79,8 @@ describe('app router', () => {
     const { render } = await import('@testing-library/react');
 
     render(renderRoute(`/login?returnTo=${encodeURIComponent(returnTo)}`));
+    await user.type(screen.getByLabelText('Email'), 'demo@example.com');
+    await user.type(screen.getByLabelText('Password'), 'secret');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(
