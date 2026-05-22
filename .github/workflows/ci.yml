@@ -19,7 +19,7 @@ jobs:
   # シークレット漏洩スキャン
   # ---------------------------------------------------------------
   secrets-scan:
-    name: Secrets Scan (git-secrets)
+    name: Secrets Scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -31,16 +31,13 @@ jobs:
           git clone --branch 1.3.0 --depth 1 --single-branch https://github.com/awslabs/git-secrets.git /tmp/git-secrets
           cd /tmp/git-secrets && sudo make install
 
-      - name: Register AWS patterns
+      - name: Verify custom git-secrets patterns
         run: |
-          git secrets --register-aws --global
+          .github/scripts/verify-git-secrets-patterns.sh
 
-      - name: Add common secret patterns
+      - name: Register git-secrets patterns
         run: |
-          git secrets --add --global 'password\s*=\s*\S+'
-          git secrets --add --global 'secret\s*=\s*\S+'
-          git secrets --add --global 'api_key\s*=\s*\S+'
-          git secrets --add --global 'private_key\s*=\s*\S+'
+          .github/scripts/register-git-secrets-patterns.sh
 
       - name: Scan repository for secrets
         run: |
@@ -50,7 +47,7 @@ jobs:
   # フロントエンド
   # ---------------------------------------------------------------
   frontend:
-    name: Frontend (Type Check / Lint / Test)
+    name: Frontend
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -85,7 +82,7 @@ jobs:
   # バックエンド
   # ---------------------------------------------------------------
   backend:
-    name: Backend (Test / Lint / Static Analysis)
+    name: Backend
     runs-on: ubuntu-latest
     defaults:
       run:
