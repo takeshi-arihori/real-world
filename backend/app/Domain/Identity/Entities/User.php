@@ -52,6 +52,26 @@ final readonly class User
         );
     }
 
+    /**
+     * 更新後の Identity 情報と profile fields を持つ User として複製する。
+     */
+    public function withUpdatedIdentity(
+        Username $username,
+        Email $email,
+        HashedPassword $passwordHash,
+        Bio $bio,
+        Image $image,
+    ): self {
+        return new self(
+            id: $this->id,
+            username: $username,
+            email: $email,
+            passwordHash: $passwordHash,
+            bio: $bio,
+            image: $image,
+        );
+    }
+
     public function id(): ?UserId
     {
         return $this->id;
