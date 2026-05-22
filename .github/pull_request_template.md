@@ -1,32 +1,45 @@
-## 概要
+<!--
+Title: [Issue Number]: タイトル
+例: [#123]: ユーザー登録APIを追加
+-->
 
-- <変更内容を箇条書き>
+# 概要
 
-## 関連 Issue
+- <今回の変更概要>
+
+# 関連Issue
 
 Closes #<issue番号>
 
-## Labels
+Epic: #<epic番号>
+<!-- Epic がない場合は Epic 行を削除する -->
 
-このPRに関連するLabelは [Label運用ガイド](docs/labels.md) を確認してください。
+# 修正ファイルの説明
 
-- type:
-- area:
-- priority:
-- status:
+<!--
+PR #118 の「修正ファイルの説明」のように、レイヤーや用途ごとに分類して書く。
+各ファイルには「何を変えたか」と「なぜ変えたか」を記載する。
+-->
 
-## テスト計画
+## <Layer / Area>
 
-- [ ] フロントエンド: `pnpm vitest run` / `pnpm eslint .` / `pnpm tsc -b --noEmit`
-- [ ] バックエンド: `php artisan test` / `./vendor/bin/pint --test` / `./vendor/bin/phpstan analyse`
-- [ ] ドキュメント: `git diff --check` と参照確認
-- [ ] 対象外の検証がある場合は理由を記載
+- `<path/to/file>`
+  - <変更または作成した内容>
+  - <変更または作成した理由>
 
-## レビューチェックリスト
+# テスト
 
-- [ ] コードが `docs/rules/` の規約に準拠している
-- [ ] テストが追加・更新されている
-- [ ] 型安全性が確保されている（`any`, 不要な `as` がない）
-- [ ] N+1 クエリが発生していない
-- [ ] セキュリティ上の問題がない（`docs/rules/security.md` 参照）
-- [ ] 不要なファイル（`.env`, ログ, デバッグコード）が含まれていない
+| 条件 | 実施する検証 | コマンド・確認内容 | 期待結果 | 結果 |
+| ---- | ------------ | ------------------ | -------- | ---- |
+| フロントエンド変更あり | フロントエンドのテスト・lint・型チェック | `pnpm -C frontend vitest run` / `pnpm -C frontend eslint .` / `pnpm -C frontend tsc -b --noEmit` | すべて成功する | <未実施/成功/失敗> |
+| バックエンド変更あり | バックエンドのテスト・format確認・静的解析 | Docker コンテナ内で `php artisan test` / `./vendor/bin/pint --test` / `./vendor/bin/phpstan analyse` | すべて成功する | <未実施/成功/失敗> |
+| DB・マイグレーション変更あり | migrate / rollback 確認 | Docker コンテナ内で migrate / rollback を実行する | migrate / rollback が成功する | <未実施/成功/失敗> |
+| ドキュメントのみ変更 | Markdown と参照確認 | `git diff --check` と参照リンク確認 | 空白エラーがなく、参照先が正しい | <未実施/成功/失敗> |
+| 対象外の検証あり | 未検証範囲の明示 | 対象外にした理由を記載する | レビュー時に未検証範囲を判断できる | <理由> |
+
+# マージもしくはレビュー時の注意点
+
+- build が必要: <あり/なし。ありの場合は手順>
+- migrate が必要: <あり/なし。ありの場合は手順>
+- 環境変数・設定変更: <あり/なし。ありの場合は内容。ただし `.env` はコミットしない>
+- レビュー時に重点確認してほしい点: <内容>
