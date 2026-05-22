@@ -1,14 +1,17 @@
 import { createContext } from 'react';
-
-export interface AuthUser {
-  image: string;
-  username: string;
-}
+import type {
+  AuthUser,
+  LoginCredentials,
+  RegisterCredentials,
+} from '../../features/auth';
 
 export interface AuthContextValue {
   isAuthenticated: boolean;
-  signIn: () => void;
-  signOut: () => void;
+  isRefreshing: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  refresh: () => Promise<void>;
+  register: (credentials: RegisterCredentials) => Promise<void>;
   user: AuthUser | null;
 }
 

@@ -2,8 +2,9 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import type { AuthApi, AuthUser } from '../../../features/auth';
+import { clearAuthToken } from '../../../lib/authToken';
 import { AppProviders } from '../../providers/AppProviders';
 import { createAppRouter } from '../router';
 
@@ -46,6 +47,10 @@ function renderRoute(
 }
 
 describe('app router', () => {
+  beforeEach(() => {
+    clearAuthToken();
+  });
+
   it('redirects guests from required routes to login with return path', async () => {
     const { render } = await import('@testing-library/react');
 
@@ -67,7 +72,7 @@ describe('app router', () => {
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(
-      screen.getByRole('heading', { name: 'New Article' }),
+      await screen.findByRole('heading', { name: 'New Article' }),
     ).toBeInTheDocument();
   });
 
@@ -84,7 +89,7 @@ describe('app router', () => {
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(
-      screen.getByRole('heading', { name: 'Global Feed' }),
+      await screen.findByRole('heading', { name: 'Global Feed' }),
     ).toBeInTheDocument();
   });
 

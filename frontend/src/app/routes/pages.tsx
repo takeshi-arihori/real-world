@@ -1,5 +1,6 @@
-import type { FormEvent, ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { LoginForm, RegisterForm } from '../../features/auth';
 import { useAuth } from '../providers/useAuth';
 import { getSafeReturnTo } from './returnTo';
 
@@ -102,14 +103,12 @@ export function HomePage(): ReactElement {
 }
 
 export function LoginPage(): ReactElement {
-  const { signIn } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnTo = getSafeReturnTo(searchParams.get('returnTo'));
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-    signIn();
+  function handleSuccess(): void {
     navigate(returnTo, { replace: true });
   }
 
@@ -119,19 +118,17 @@ export function LoginPage(): ReactElement {
       alternateText="Need an account?"
       heading="Sign in"
       returnTo={returnTo}
-      submitLabel="Sign in"
-      onSubmit={handleSubmit}
-    />
+    >
+      <LoginForm onSubmit={login} onSuccess={handleSuccess} />
+    </AuthPage>
   );
 }
 
 export function RegisterPage(): ReactElement {
-  const { signIn } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-    signIn();
+  function handleSuccess(): void {
     navigate('/', { replace: true });
   }
 
@@ -140,31 +137,26 @@ export function RegisterPage(): ReactElement {
       alternateHref="/login"
       alternateText="Have an account?"
       heading="Sign up"
-      submitLabel="Sign up"
-      variant="register"
-      onSubmit={handleSubmit}
-    />
+    >
+      <RegisterForm onSubmit={register} onSuccess={handleSuccess} />
+    </AuthPage>
   );
 }
 
 interface AuthPageProps {
   alternateHref: string;
   alternateText: string;
+  children: ReactNode;
   heading: string;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   returnTo?: string;
-  submitLabel: string;
-  variant?: 'login' | 'register';
 }
 
 function AuthPage({
   alternateHref,
   alternateText,
+  children,
   heading,
-  onSubmit,
   returnTo,
-  submitLabel,
-  variant = 'login',
 }: AuthPageProps): ReactElement {
   return (
     <main className="page page--centered">
@@ -178,40 +170,18 @@ function AuthPage({
             Sign in to continue to <strong>{returnTo}</strong>
           </p>
         ) : null}
-        <form className="form-stack" onSubmit={onSubmit}>
-          {variant === 'register' ? (
-            <label>
-              <span>Username</span>
-              <input autoComplete="username" placeholder="Username" type="text" />
-            </label>
-          ) : null}
-          <label>
-            <span>Email</span>
-            <input autoComplete="email" placeholder="Email" type="email" />
-          </label>
-          <label>
-            <span>Password</span>
-            <input
-              autoComplete={variant === 'register' ? 'new-password' : 'current-password'}
-              placeholder="Password"
-              type="password"
-            />
-          </label>
-          <button className="primary-action" type="submit">
-            {submitLabel}
-          </button>
-        </form>
+        {children}
       </section>
     </main>
   );
 }
 
 export function SettingsPage(): ReactElement {
-  const { signOut, user } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout(): void {
-    signOut();
+    logout();
     navigate('/', { replace: true });
   }
 

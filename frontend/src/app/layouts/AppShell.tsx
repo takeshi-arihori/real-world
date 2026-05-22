@@ -7,11 +7,11 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps): ReactElement {
-  const { isAuthenticated, signOut, user } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
 
   function handleSignOut(): void {
-    signOut();
+    logout();
     navigate('/', { replace: true });
   }
 
