@@ -3,7 +3,7 @@ import type {
   AuthUser,
   LoginCredentials,
   RegisterCredentials,
-} from '../../features/auth';
+} from '@/features/auth';
 
 export interface AuthContextValue {
   isAuthenticated: boolean;

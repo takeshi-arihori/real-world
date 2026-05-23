@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { LoginForm, RegisterForm } from '../../features/auth';
-import { useAuth } from '../providers/useAuth';
+import { useAuth } from '@/app/providers/useAuth';
+import { LoginForm, RegisterForm } from '@/features/auth';
 import { getSafeReturnTo } from './returnTo';
 
 const SAMPLE_ARTICLES = [

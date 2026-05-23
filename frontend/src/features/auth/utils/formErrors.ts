@@ -1,4 +1,4 @@
-import { isApiError } from '../../../lib/apiError';
+import { isApiError } from '@/lib/apiError';
 
 /**
  * form componentがunknown errorをユーザー表示用の文字列配列へ変換する。

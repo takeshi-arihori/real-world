@@ -1,11 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError } from '../../../lib/apiError';
+import { ApiError } from '@/lib/apiError';
 import { LoginForm, RegisterForm } from '../index';
 
-describe('auth forms', () => {
-  it('submits login credentials and shows the pending state', async () => {
+describe('認証フォーム', () => {
+  it('ログイン認証情報を送信し送信中状態を表示する', async () => {
     const user = userEvent.setup();
     let resolveSubmit: (() => void) | undefined;
     const submitPromise = new Promise<void>((resolve) => {
@@ -33,7 +33,7 @@ describe('auth forms', () => {
     });
   });
 
-  it('keeps login input values when API validation fails', async () => {
+  it('ログインAPI validationが失敗しても入力値を保持する', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn().mockRejectedValue(
       new ApiError('email is invalid', {
@@ -54,7 +54,7 @@ describe('auth forms', () => {
     expect(screen.getByLabelText('Password')).toHaveValue('secret');
   });
 
-  it('submits register credentials and keeps input values when the API rejects', async () => {
+  it('登録認証情報を送信しAPI拒否時も入力値を保持する', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn().mockRejectedValue(
       new ApiError('username has already been taken', {

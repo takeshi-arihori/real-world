@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { ApiClient } from '../../../lib/apiClient';
+import type { ApiClient } from '@/lib/apiClient';
 import { getCurrentUser, loginUser, registerUser } from '../api/authApi';
 
+/**
+ * auth API関数がHTTP clientへ渡すpath/body/optionsを検証するためのclient stubを作る。
+ */
 function createClient(): ApiClient {
   return {
     delete: vi.fn(),
@@ -12,8 +15,8 @@ function createClient(): ApiClient {
   };
 }
 
-describe('auth API', () => {
-  it('login sends RealWorld credentials and maps the returned session', async () => {
+describe('認証API', () => {
+  it('loginはRealWorld形式の認証情報を未認証リクエストとして送りsessionへ変換する', async () => {
     const client = createClient();
     vi.mocked(client.post).mockResolvedValue({
       user: {
@@ -33,12 +36,16 @@ describe('auth API', () => {
       client,
     );
 
-    expect(client.post).toHaveBeenCalledWith('/api/users/login', {
-      user: {
-        email: 'jake@example.com',
-        password: 'secret',
+    expect(client.post).toHaveBeenCalledWith(
+      '/api/users/login',
+      {
+        user: {
+          email: 'jake@example.com',
+          password: 'secret',
+        },
       },
-    });
+      { auth: false },
+    );
     expect(session).toEqual({
       token: 'login-token',
       user: {
@@ -50,7 +57,7 @@ describe('auth API', () => {
     });
   });
 
-  it('register sends RealWorld user payload and maps the returned session', async () => {
+  it('registerはRealWorld形式のユーザー情報を未認証リクエストとして送りsessionへ変換する', async () => {
     const client = createClient();
     vi.mocked(client.post).mockResolvedValue({
       user: {
@@ -71,18 +78,22 @@ describe('auth API', () => {
       client,
     );
 
-    expect(client.post).toHaveBeenCalledWith('/api/users', {
-      user: {
-        email: 'jane@example.com',
-        password: 'secret',
-        username: 'jane',
+    expect(client.post).toHaveBeenCalledWith(
+      '/api/users',
+      {
+        user: {
+          email: 'jane@example.com',
+          password: 'secret',
+          username: 'jane',
+        },
       },
-    });
+      { auth: false },
+    );
     expect(session.token).toBe('register-token');
     expect(session.user.username).toBe('jane');
   });
 
-  it('current user reads the authenticated RealWorld user endpoint', async () => {
+  it('current userは認証済みRealWorld user endpointを読みsessionへ変換する', async () => {
     const client = createClient();
     vi.mocked(client.get).mockResolvedValue({
       user: {

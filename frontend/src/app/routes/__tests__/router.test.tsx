@@ -2,10 +2,10 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { RouterProvider } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
-import type { AuthApi, AuthUser } from '../../../features/auth';
-import { clearAuthToken } from '../../../lib/authToken';
-import { AppProviders } from '../../providers/AppProviders';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AppProviders } from '@/app/providers/AppProviders';
+import type { AuthApi, AuthSession, AuthUser } from '@/features/auth';
+import { clearAuthToken, setAuthToken } from '@/lib/authToken';
 import { createAppRouter } from '../router';
 
 const DEMO_USER: AuthUser = {
@@ -15,7 +15,10 @@ const DEMO_USER: AuthUser = {
   username: 'demo-user',
 };
 
-function createAuthApi(): AuthApi {
+/**
+ * route integration testがfetchへ依存せず認証結果を制御するためのAPI stubを作る。
+ */
+function createAuthApi(overrides: Partial<AuthApi> = {}): AuthApi {
   return {
     getCurrentUser: async () => ({
       token: 'fresh-token',
@@ -29,32 +32,38 @@ function createAuthApi(): AuthApi {
       token: 'register-token',
       user: DEMO_USER,
     }),
+    ...overrides,
   };
 }
 
-function renderRoute(
-  initialPath: string,
-  isAuthenticated = false,
-): ReactElement {
+/**
+ * AppProvidersとmemory routerを組み合わせ、指定pathのルート挙動を検証可能にする。
+ */
+function renderRoute({
+  authApi = createAuthApi(),
+  initialPath,
+  initialUser = null,
+}: {
+  authApi?: AuthApi;
+  initialPath: string;
+  initialUser?: AuthUser | null;
+}): ReactElement {
   return (
-    <AppProviders
-      authApi={createAuthApi()}
-      initialUser={isAuthenticated ? DEMO_USER : null}
-    >
+    <AppProviders authApi={authApi} initialUser={initialUser}>
       <RouterProvider router={createAppRouter([initialPath])} />
     </AppProviders>
   );
 }
 
-describe('app router', () => {
+describe('アプリルーター', () => {
   beforeEach(() => {
     clearAuthToken();
   });
 
-  it('redirects guests from required routes to login with return path', async () => {
+  it('未認証ユーザーを必須ルートからreturn path付きログインへ遷移する', async () => {
     const { render } = await import('@testing-library/react');
 
-    render(renderRoute('/settings'));
+    render(renderRoute({ initialPath: '/settings' }));
 
     expect(
       screen.getByRole('heading', { name: 'Sign in' }),
@@ -62,11 +71,11 @@ describe('app router', () => {
     expect(screen.getByText('/settings')).toBeInTheDocument();
   });
 
-  it('restores the return path after signing in', async () => {
+  it('ログイン後にreturn pathへ復帰する', async () => {
     const user = userEvent.setup();
     const { render } = await import('@testing-library/react');
 
-    render(renderRoute('/login?returnTo=/editor'));
+    render(renderRoute({ initialPath: '/login?returnTo=/editor' }));
     await user.type(screen.getByLabelText('Email'), 'demo@example.com');
     await user.type(screen.getByLabelText('Password'), 'secret');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
@@ -77,13 +86,13 @@ describe('app router', () => {
   });
 
   it.each([
-    ['protocol-relative return path', '//evil.example'],
-    ['backslash return path', '/\\\\evil.example'],
-  ])('falls back to home for unsafe %s', async (_caseName, returnTo) => {
+    ['protocol-relativeなreturn path', '//evil.example'],
+    ['backslashを含むreturn path', '/\\\\evil.example'],
+  ])('危険な%sはホームへ戻す', async (_caseName, returnTo) => {
     const user = userEvent.setup();
     const { render } = await import('@testing-library/react');
 
-    render(renderRoute(`/login?returnTo=${encodeURIComponent(returnTo)}`));
+    render(renderRoute({ initialPath: `/login?returnTo=${encodeURIComponent(returnTo)}` }));
     await user.type(screen.getByLabelText('Email'), 'demo@example.com');
     await user.type(screen.getByLabelText('Password'), 'secret');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
@@ -93,23 +102,50 @@ describe('app router', () => {
     ).toBeInTheDocument();
   });
 
-  it('redirects authenticated users away from guest routes', async () => {
+  it('認証済みユーザーをゲスト専用ルートからリダイレクトする', async () => {
     const { render } = await import('@testing-library/react');
 
-    render(renderRoute('/login', true));
+    render(renderRoute({ initialPath: '/login', initialUser: DEMO_USER }));
 
     expect(
       screen.getByRole('heading', { name: 'Global Feed' }),
     ).toBeInTheDocument();
   });
 
-  it('renders not found for unknown routes', async () => {
+  it('未知のルートではnot foundを表示する', async () => {
     const { render } = await import('@testing-library/react');
 
-    render(renderRoute('/missing-page'));
+    render(renderRoute({ initialPath: '/missing-page' }));
 
     expect(
       screen.getByRole('heading', { name: 'Page not found' }),
+    ).toBeInTheDocument();
+  });
+
+  it('保存済みtokenの確認中は必須ルートからログインへ早期遷移しない', async () => {
+    const { render } = await import('@testing-library/react');
+    let resolveRefresh: (session: AuthSession) => void = () => {};
+    const refreshPromise = new Promise<AuthSession>((resolve) => {
+      resolveRefresh = resolve;
+    });
+    const authApi = createAuthApi({
+      getCurrentUser: vi.fn().mockReturnValue(refreshPromise),
+    });
+    setAuthToken('active-token');
+
+    render(renderRoute({ authApi, initialPath: '/settings' }));
+
+    expect(
+      screen.queryByRole('heading', { name: 'Sign in' }),
+    ).not.toBeInTheDocument();
+
+    resolveRefresh({
+      token: 'fresh-token',
+      user: DEMO_USER,
+    });
+
+    expect(
+      await screen.findByRole('heading', { name: 'Settings' }),
     ).toBeInTheDocument();
   });
 });

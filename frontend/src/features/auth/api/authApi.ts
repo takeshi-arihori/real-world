@@ -1,4 +1,4 @@
-import { apiClient, type ApiClient } from '../../../lib/apiClient';
+import { apiClient, type ApiClient } from '@/lib/apiClient';
 import type {
   AuthApi,
   AuthSession,
@@ -24,9 +24,13 @@ export async function loginUser(
   credentials: LoginCredentials,
   client: ApiClient = apiClient,
 ): Promise<AuthSession> {
-  const response = await client.post<AuthUserResponse>('/api/users/login', {
-    user: credentials,
-  });
+  const response = await client.post<AuthUserResponse>(
+    '/api/users/login',
+    {
+      user: credentials,
+    },
+    { auth: false },
+  );
 
   return mapAuthSession(response);
 }
@@ -38,9 +42,13 @@ export async function registerUser(
   credentials: RegisterCredentials,
   client: ApiClient = apiClient,
 ): Promise<AuthSession> {
-  const response = await client.post<AuthUserResponse>('/api/users', {
-    user: credentials,
-  });
+  const response = await client.post<AuthUserResponse>(
+    '/api/users',
+    {
+      user: credentials,
+    },
+    { auth: false },
+  );
 
   return mapAuthSession(response);
 }
