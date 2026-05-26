@@ -230,7 +230,7 @@ public function execute(CreateOrderDto $dto): Order
 
 ### 認証・認可方針
 
-- 認証: API の JWT 発行・検証は Presentation / Infrastructure 境界の middleware / guard で実装し、[`security.md`](security.md) の token contract と secret 管理方針に従う
+- 認証: Public API の JWT 発行・検証と first-party frontend 用 browser session guard は Presentation / Infrastructure 境界で分離し、[`security.md`](security.md) の token / cookie / CSRF 方針に従う
 - 認可: Policy クラスで制御する。Controller の `authorize()` または FormRequest の `authorize()` で呼び出す
 - Domain 層に認証・認可ロジックを含めない
 

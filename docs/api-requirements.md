@@ -14,9 +14,10 @@ References:
 ## Baseline Decisions
 
 - Backend は Laravel 13 + JSON Web Token (JWT) を使って API request を認証する。
-- 外部 API 契約は RealWorld 互換を優先し、認証ヘッダーは `Authorization: Token <token>` として扱う。
-- JWT は `user.token` に格納する不透明な token 値として外部公開し、client は claim に依存しない。
-- Request body と response wrapper は RealWorld 形式に合わせる。
+- Public API の外部契約は RealWorld 互換を優先し、認証ヘッダーは `Authorization: Token <token>` として扱う。
+- Public API は JWT を `user.token` に格納する不透明な token 値として返し、external client は claim に依存しない。
+- First-party React frontend は browser session adapter を利用し、JWT を JavaScript に渡さず、保存も送信もしない。
+- Public API の request body と response wrapper は RealWorld 形式に合わせる。Browser session endpoint は JWT を露出しない専用 response を定義する。
 - 入力検証はすべて FormRequest で行う。
 - 認可は Policy / Gate、または FormRequest の `authorize()` から呼び出す。
 - Controller は薄く保ち、Application 層の Command / Query に委譲する。
@@ -36,9 +37,9 @@ Domain Entity に HTTP token や JWT payload を渡さない。
 Optional endpoint は header がない場合のみゲストとして扱う。
 token が送信されたにもかかわらず署名検証に失敗した場合、形式が不正な場合、または期限切れの場合は、ゲストに降格せず `401 Unauthorized` を返す。
 
-## JWT Authentication Policy
+## Public JWT API Policy
 
-JWT は Backend の認証実装であり、外部 API contract の `Token` scheme や response wrapper を変更しない。
+Public API の JWT は Backend の認証実装であり、RealWorld API contract の `Token` scheme や response wrapper を変更しない。
 
 | Item | Decision |
 | --- | --- |
@@ -48,18 +49,50 @@ JWT は Backend の認証実装であり、外部 API contract の `Token` schem
 | Signing secret | `APP_KEY` とは別の十分にランダムな secret を runtime secret management から注入し、Laravel の `config/*` 経由で参照する。実値を `.env`、git 管理ファイル、ログへ記録しない |
 | Required claims | `sub` (User identifier)、`iat` (issued at)、`exp` (expiry) を必須とする |
 | TTL | 発行時点から `60` 分 |
-| Token issuance | Register と Login の成功時に新しい JWT を発行する |
-| Authenticated user response | Current User と Update User は request で受理した JWT を返し、暗黙に再発行または有効期限延長をしない |
+| Token issuance | Public Register と Public Login の成功時に新しい JWT を発行する |
+| Authenticated user response | Public Current User と Public Update User は request で受理した JWT を返し、暗黙に再発行または有効期限延長をしない |
 | Invalid token | 署名不正、形式不正、または期限切れの JWT は `401 Unauthorized` とする |
 
-### Session Lifecycle
+### Public Token Lifecycle
 
-- Logout は Frontend が保存した JWT と current User state を破棄する操作とする。今回の API に logout endpoint は追加しない。
-- Stateless JWT の server-side revocation list は今回導入しない。logout 前に漏洩した JWT は期限まで使用できるため、短い TTL でリスクを限定する。
+- Public API は logout endpoint を追加しない。external client が保持する JWT を破棄することで使用を終了する。
+- Public API の stateless JWT に server-side revocation list は今回導入しない。漏洩した JWT は期限まで使用できるため、短い TTL でリスクを限定する。
 - Refresh token、refresh endpoint、silent refresh は対象外とする。期限切れ後はユーザーが再度 login する。
-- Frontend は JWT payload を認証状態や期限判定の正本にせず、token を保存・送信し、`401 Unauthorized` を受けた場合に破棄する。
+
+## Browser Session Adapter Policy
+
+First-party React frontend は public JWT client として動作させない。Laravel Backend に browser 用の session adapter を設け、browser は JWT ではなく server-side session を識別する opaque cookie のみを送信する。
+
+### Browser Endpoint Contract
+
+Browser session endpoints は first-party UI 専用であり、RealWorld の public API contract には含めない。`user` object は表示に必要な field を返すが、`token` field を含めない。
+
+| Method | Path | Purpose | Response |
+| --- | --- | --- | --- |
+| `POST` | `/api/browser/session/register` | User を登録し browser session を開始する | `user` without `token` |
+| `POST` | `/api/browser/session/login` | credential を検証し browser session を開始する | `user` without `token` |
+| `GET` | `/api/browser/session` | cookie session から current User を復元する | `user` without `token` |
+| `DELETE` | `/api/browser/session` | server-side session を失効し cookie を削除する | `204 No Content` |
+
+認証が必要な Article、Comment、Profile、Favorite、Feed 操作について、first-party frontend の request は同じ browser session guard で認証できるようにする。`/api/user` のように public response が JWT を含む endpoint は frontend から呼ばず、browser endpoint を使用する。
+
+### Browser Session Security
+
+| Item | Decision |
+| --- | --- |
+| Browser credential | 推測困難な opaque session identifier。JWT を cookie または response body に含めない |
+| Cookie | Production では `__Host-conduit_session`; `Path=/; HttpOnly; Secure; SameSite=Lax` を必須とする |
+| Session expiry | server-side session と cookie は開始から最大 `60` 分で期限切れとし、期限切れ後は再 login を要求する |
+| Login / register | 認証成功時に session identifier を再生成して fixation を防止する |
+| Logout | server-side session を失効させ、browser の session cookie を削除する |
+| Frontend storage | JWT、session identifier、refresh token を `localStorage`、`sessionStorage`、React state に保存しない |
+| Request transport | Frontend API client は credentialed request を用い、cookie の読取りや `Authorization` header の生成を行わない |
+| CSRF | Cookie が自動送信される mutating request は Laravel の CSRF 検証を必須とし、CSRF token 用 cookie/header は認証 credential と分離する |
+| CORS | 許可した frontend origin のみで credentialed request を許可し、wildcard origin を使用しない |
 
 ## API Endpoint List
+
+以下は Public API の RealWorld 互換 endpoint 一覧である。First-party frontend の session endpoint は `Browser Endpoint Contract` に定義する。
 
 | Area | Method | Path | Auth | Type | Response | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -434,9 +467,10 @@ Queries read state and may use optimized read models or Eloquent queries in Appl
 - `.env` and secrets are never committed.
 - Password is validated on input and stored only as a hash.
 - JWT signing secret is separate from `APP_KEY`, supplied through runtime secret management, and never written as a concrete value to `.env`, source files, documentation examples, or logs.
-- JWT values are issued only after successful Register or Login and are never hard-coded or logged.
+- JWT values are issued only from Public Register or Public Login and are never hard-coded or logged.
 - Invalid or expired supplied JWTs return `401 Unauthorized`, including on Optional endpoints.
-- Logout clears the client-held JWT; server-side revocation and refresh tokens are outside this migration scope.
+- First-party frontend never receives JWT values; it uses an `HttpOnly`, `Secure`, `SameSite` browser session cookie with server-side logout invalidation and CSRF protection.
+- Public API token revocation and refresh tokens are outside this migration scope.
 - SQL string concatenation is prohibited; use Eloquent, Query Builder, or Repository implementations.
 - Public Profile responses never expose email, password hash, token, or internal IDs.
 - All mutating endpoints require authentication unless explicitly listed otherwise.

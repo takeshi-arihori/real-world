@@ -29,7 +29,7 @@
 
 - Guest: 認証済みユーザーは login/register から別画面へ遷移させる。
 - Required: 未認証ユーザーは return path 付きで `/login` へ遷移させる。
-- Optional: ゲストでも表示し、token がある場合だけ `following` / `favorited` の判定に使う。
+- Optional: ゲストでも表示し、有効な browser session がある場合だけ `following` / `favorited` の判定に使う。
 
 ## 画面遷移図
 
@@ -92,7 +92,8 @@ frontend/src/
 │   └── utils/
 └── lib/
     ├── apiClient.ts
-    ├── authToken.ts
+    ├── browserSession.ts
+    ├── csrf.ts
     └── apiError.ts
 ```
 
@@ -102,7 +103,7 @@ Pages in `app/routes/` compose feature components only. They do not own API call
 
 | Feature | Responsibility | Owns | Does not own |
 | --- | --- | --- | --- |
-| `auth` | Login, register, current User, settings update | auth API, auth forms, token lifecycle hooks | Profile following, Article list |
+| `auth` | Login, register, current User, settings update | browser session API, auth forms, session lifecycle hooks | Profile following, Article list |
 | `article` | Article list, detail, create, update, delete | Article API, editor form, article cards | Favorite mutation internals |
 | `comment` | List, create, delete comments | Comment API, comment form/list | Article ownership calculation |
 | `profile` | Profile display and profile tabs | Profile API, follow button composition | Auth credential management |
@@ -139,8 +140,8 @@ Components:
 Primary workflow:
 
 - Validate input for immediate UI feedback.
-- Submit to Auth API.
-- Persist token through `lib/authToken`.
+- Submit to the browser session API.
+- Let the Backend establish an `HttpOnly` browser session cookie; JavaScript does not receive an auth token.
 - Refresh current User state.
 - Redirect to return path or Home.
 
@@ -159,7 +160,7 @@ Primary workflow:
 - Load current User.
 - Update email, username, password, bio, image.
 - Reflect validation errors.
-- Logout clears token and redirects Home.
+- Logout invalidates the browser session through the Backend and redirects Home.
 
 ### Editor
 
@@ -194,8 +195,8 @@ Primary workflow:
 
 | Form | Fields | Success | Main errors |
 | --- | --- | --- | --- |
-| Login | email, password | token saved, redirect | invalid credentials, validation |
-| Register | username, email, password | token saved, redirect | duplicate username/email, validation |
+| Login | email, password | browser session established, redirect | invalid credentials, validation |
+| Register | username, email, password | browser session established, redirect | duplicate username/email, validation |
 | Settings | image, username, bio, email, password | current User updated | duplicate username/email, validation |
 | Article Editor | title, description, body, tagList | navigate to Article Detail | validation, forbidden on edit |
 | Comment | body | append or refetch comments | unauthenticated, validation |
@@ -214,7 +215,7 @@ Form behavior:
 
 | Error | Handling |
 | --- | --- |
-| `401 Unauthorized` | Clear invalid token and redirect to `/login` for required routes |
+| `401 Unauthorized` | Clear current User state and redirect to `/login` for required routes |
 | `403 Forbidden` | Show permission error state and hide forbidden commands |
 | `404 Not Found` | Render not found page for Article/Profile routes |
 | `422 Unprocessable Entity` | Map API validation errors to form/global errors |
@@ -227,7 +228,7 @@ Form behavior:
 
 | State | Owner | Approach |
 | --- | --- | --- |
-| Auth token | `lib/authToken` | storage abstraction |
+| Browser session | Backend + `HttpOnly` cookie | Frontend JavaScript does not read or retain credentials |
 | Current User | `app/providers/AuthProvider` | context + refresh action |
 | Form input | feature form component | local state or form hook |
 | Server data | feature hooks | query hooks; cache library can be introduced in a dedicated implementation Issue |
@@ -253,10 +254,10 @@ Example responsibilities:
 Shared HTTP concerns live in `lib/`:
 
 - base URL
-- auth header injection
+- credentialed browser requests
+- CSRF header handling for mutating requests
 - response parsing
 - API error normalization
-- token persistence
 
 ## Test Strategy
 
@@ -286,5 +287,6 @@ Test examples:
 
 - Do not store secrets or API keys in frontend source.
 - Do not use `innerHTML` or `dangerouslySetInnerHTML` for Article body in MVP.
-- Token storage and auth header injection are centralized in `lib/`.
+- Do not store JWT, session identifiers, or refresh tokens in `localStorage`, `sessionStorage`, or React state.
+- Browser authentication uses Backend-managed `HttpOnly` session cookies; `lib/` sends credentialed requests and CSRF proof without reading the auth cookie.
 - Backend authorization remains required even when frontend hides buttons.

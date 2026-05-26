@@ -10,7 +10,7 @@ Backend の Domain / Application / Infrastructure / Presentation 分割、Fronte
 
 | Context | 責務 | 主要概念 | 主な API 領域 |
 | --- | --- | --- | --- |
-| Identity | ユーザー登録、ログイン、認証済みユーザー情報の管理 | User, Email, Username, Password, Token | Auth, User |
+| Identity | ユーザー登録、ログイン、認証済みユーザー情報の管理 | User, Email, Username, Password, Token, BrowserSession | Auth, User |
 | Publishing | 記事、コメント、タグのライフサイクル管理 | Article, Slug, Comment, Tag, Author | Article, Comment, Tag |
 | Social | 公開プロフィール、フォロー、お気に入り、フィード生成条件の管理 | Profile, Follow, Favorite, Feed | Profile, Follow, Favorite, Feed |
 
@@ -22,7 +22,7 @@ Identity Context は、システム利用者の本人性と認証状態を管理
 
 - email、username、password による User 登録
 - email と password によるログイン
-- 認証トークンの発行、失効、現在ユーザーの特定
+- Public API token の発行・検証と、first-party frontend 用 BrowserSession の開始・失効・現在ユーザーの特定
 - email、username、password、bio、image の更新
 - email と username の一意性維持
 

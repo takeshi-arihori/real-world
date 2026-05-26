@@ -65,7 +65,7 @@ This order avoids building UI workflows before API contracts and authentication 
 | --- | --- | --- | --- | --- |
 | 1 | chore: React Router と App Shell を導入する | `type: chore`, `area: frontend` | routing, layout, route guards baseline | starter UI removed, routes render |
 | 2 | feat: API client と error normalization を実装する | `type: feature`, `area: frontend`, `area: api` | `lib/apiClient`, typed errors, auth header | 401/422 mapping tests pass |
-| 3 | feat: Auth Provider と認証フォームを実装する | `type: feature`, `area: frontend`, `area: auth` | login, register, current user, logout | token lifecycle and form error tests pass |
+| 3 | feat: Auth Provider と認証フォームを実装する | `type: feature`, `area: frontend`, `area: auth` | login, register, current user, logout | browser session lifecycle and form error tests pass |
 | 4 | feat: Settings画面を実装する | `type: feature`, `area: frontend`, `area: auth`, `area: profile` | current user settings update | submit, validation, logout tests pass |
 | 5 | feat: Home / Feed / Tag filtering を実装する | `type: feature`, `area: frontend`, `area: article` | global feed, your feed, tags, pagination | guest/auth tab behavior tests pass |
 | 6 | feat: Article Detail と Favorite UI を実装する | `type: feature`, `area: frontend`, `area: article`, `area: social` | detail, favorite, author actions | optional auth and button state tests pass |

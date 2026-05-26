@@ -18,7 +18,8 @@ RealWorld（Conduit）仕様に基づく、プロジェクト全体で統一し�
 | **Password** | ユーザーの認証パスワード。システム内では常にハッシュ化して保持する | `pass`, `pwd` は使わない |
 | **Bio** | ユーザーの自己紹介テキスト | `biography`, `description`, `about` は使わない |
 | **Image** | ユーザーのアバター画像 URL | `avatar`, `photo`, `picture` は使わない |
-| **Token** | 認証トークン（JWT）。ログイン・登録時に発行される | `session`, `authKey` は使わない |
+| **Token** | Public RealWorld API の認証トークン（JWT）。Public ログイン・登録時に発行される | `authKey` は使わない |
+| **BrowserSession** | First-party frontend 用の server-side session。JWT を browser に公開せず opaque cookie で識別する | `browserToken` は使わない |
 
 ### Publishing Context
 

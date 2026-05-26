@@ -22,7 +22,8 @@
 | Email | User のメールアドレス。ログイン識別子として使う | ValueObject, validation field | Mail, EmailAddress |
 | Username | User の公開識別子。プロフィール URL でも使う | ValueObject, route parameter | Name, DisplayName, Handle |
 | Password | User の認証に使う秘密情報。保存時は必ずハッシュ化する | ValueObject, credential input | Pass, Pwd |
-| Token | 認証済み User を API で識別するためのトークン | API response field, auth storage | SessionKey, AuthKey |
+| Token | Public RealWorld API が発行する JWT。external client が `Authorization: Token <token>` で送信する | Public API response/header | AuthKey |
+| BrowserSession | First-party frontend を認証する server-side session。opaque cookie で識別し JWT を browser に公開しない | Browser session adapter, AuthProvider refresh | BrowserToken |
 | Bio | User の自己紹介文。Profile に表示する公開情報 | User setting, Profile field | Biography, About |
 | Image | User のアバター画像 URL。Profile に表示する公開情報 | User setting, Profile field | Avatar, Photo, Picture |
 
@@ -56,7 +57,7 @@
 
 ### User vs Profile
 
-User は Identity Context の認証主体であり、email、password、token など非公開情報を含む。
+User は Identity Context の認証主体であり、email、password、Public API token など非公開情報を含む。
 Profile は Social Context の公開表示であり、username、bio、image、following だけを扱う。
 
 実装上の判断:
@@ -137,7 +138,7 @@ Category のような階層分類は MVP 対象外である。
 
 | Feature | Responsibility | Main terms |
 | --- | --- | --- |
-| `auth` | Login, Register, current User, settings update | User, Email, Password, Token |
+| `auth` | Login, Register, current User, settings update | User, Email, Password, BrowserSession |
 | `article` | Article list, detail, editor | Article, Slug, Author, TagList |
 | `comment` | Comment list, create, delete | Comment, Author |
 | `profile` | Profile view and profile favorites page | Profile, Following |
@@ -161,7 +162,8 @@ Category のような階層分類は MVP 対象外である。
 ## Security Notes
 
 - Password は平文で保存しない。ログ、API response、他 Context へ出さない。
-- Token はクライアント保存方針と API 認証方式を決めてから実装し、ハードコードしない。
+- Token は Public API の external client 向け契約に限定し、ハードコードやログ出力をしない。
+- First-party frontend は BrowserSession を利用し、JWT、session identifier、refresh token を JavaScript から読める storage / state に保存しない。
 - User の email は Profile には含めない。
 - Frontend のバリデーションは UI フィードバック目的であり、Backend の FormRequest を正にする。
 - Article / Comment の Author 判定、Follow / Favorite の認証チェックは Backend で必ず行う。
