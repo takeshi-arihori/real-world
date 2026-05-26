@@ -1,17 +1,17 @@
 import type { ReactElement, ReactNode } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../providers/useAuth';
+import { useAuth } from '@/app/providers/useAuth';
 
 interface AppShellProps {
   children?: ReactNode;
 }
 
 export function AppShell({ children }: AppShellProps): ReactElement {
-  const { isAuthenticated, signOut, user } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
 
   function handleSignOut(): void {
-    signOut();
+    logout();
     navigate('/', { replace: true });
   }
 
