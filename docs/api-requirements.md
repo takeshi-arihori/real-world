@@ -13,29 +13,32 @@ References:
 
 ## Baseline Decisions
 
-- Backend は Laravel 13 + JSON Web Token (JWT) を使って API request を認証する。
+- Public API Backend は Laravel 13 + JSON Web Token (JWT) を使って API request を認証する。
 - Public API の外部契約は RealWorld 互換を優先し、認証ヘッダーは `Authorization: Token <token>` として扱う。
 - Public API は JWT を `user.token` に格納する不透明な token 値として返し、external client は claim に依存しない。
-- First-party React frontend は browser session adapter を利用し、JWT を JavaScript に渡さず、保存も送信もしない。
-- Public API の request body と response wrapper は RealWorld 形式に合わせる。Browser session endpoint は JWT を露出しない専用 response を定義する。
+- First-party React frontend は frontend と同一 origin の Backend For Frontend (BFF) のみを呼び、Public API を browser から直接呼ばない。
+- BFF は JWT を server-side BrowserSession に関連付け、browser へ JWT を渡さず、保存も送信もさせない。
+- Public API の request body と response wrapper は RealWorld 形式に合わせる。BFF endpoint は JWT を露出しない browser 専用 response を定義する。
 - 入力検証はすべて FormRequest で行う。
 - 認可は Policy / Gate、または FormRequest の `authorize()` から呼び出す。
 - Controller は薄く保ち、Application 層の Command / Query に委譲する。
 - Domain 層は Laravel、HTTP、Eloquent、JWT の発行・検証実装に依存しない。
 
-## Authentication Semantics
+## Public API Authentication Semantics
 
-| 認証区分 | 意味 | 未認証時 |
+以下の認証区分は Public API の JWT header contract に対して適用する。BFF は BrowserSession を検証した後、認証済み browser request に対応する Public API request へ JWT header を付与する。
+
+| 認証区分 | Public API での意味 | 未認証時 |
 | --- | --- | --- |
-| Required | 有効なトークンが必須 | `401 Unauthorized` |
-| Optional | トークンがあれば現在 User 視点の `following` / `favorited` を計算する | ゲストとして扱い、状態値は `false` |
-| None | トークンを使わない | 認証状態に依存しない |
+| Required | 有効な JWT header が必須 | `401 Unauthorized` |
+| Optional | JWT header があれば現在 User 視点の `following` / `favorited` を計算する | header がなければゲストとして扱い、状態値は `false` |
+| None | JWT header を使わない | 認証状態に依存しない |
 
 認証済み User の識別子は Application 層へ DTO として渡す。
 Domain Entity に HTTP token や JWT payload を渡さない。
 
-Optional endpoint は header がない場合のみゲストとして扱う。
-token が送信されたにもかかわらず署名検証に失敗した場合、形式が不正な場合、または期限切れの場合は、ゲストに降格せず `401 Unauthorized` を返す。
+Public Optional endpoint は header がない場合のみゲストとして扱う。
+JWT header が送信されたにもかかわらず署名検証に失敗した場合、形式が不正な場合、または期限切れの場合は、ゲストに降格せず `401 Unauthorized` を返す。BFF がこの `401` を受け取った場合は対応する BrowserSession を失効させ、browser に再 login を要求する。
 
 ## Public JWT API Policy
 
@@ -59,40 +62,57 @@ Public API の JWT は Backend の認証実装であり、RealWorld API contract
 - Public API の stateless JWT に server-side revocation list は今回導入しない。漏洩した JWT は期限まで使用できるため、短い TTL でリスクを限定する。
 - Refresh token、refresh endpoint、silent refresh は対象外とする。期限切れ後はユーザーが再度 login する。
 
-## Browser Session Adapter Policy
+## Backend For Frontend / BrowserSession Policy
 
-First-party React frontend は public JWT client として動作させない。Laravel Backend に browser 用の session adapter を設け、browser は JWT ではなく server-side session を識別する opaque cookie のみを送信する。
+First-party React frontend は public JWT client として動作させない。frontend と同一 origin で公開する BFF が browser 用 session adapter を担い、browser は JWT ではなく BFF の server-side session を識別する opaque cookie のみを送信する。BFF は server-side に保持した JWT を付けて Public API へ request を転送し、Public response の `user.token` を browser response から除去する。
 
-### Browser Endpoint Contract
+### Browser-Facing BFF Endpoint Contract
 
-Browser session endpoints は first-party UI 専用であり、RealWorld の public API contract には含めない。`user` object は表示に必要な field を返すが、`token` field を含めない。
+以下の BFF endpoints は first-party UI 専用であり、RealWorld の Public API contract には含めない。`user` object は表示に必要な field を返すが、`token` field を含めない。
 
-| Method | Path | Purpose | Response |
-| --- | --- | --- | --- |
-| `POST` | `/api/browser/session/register` | User を登録し browser session を開始する | `user` without `token` |
-| `POST` | `/api/browser/session/login` | credential を検証し browser session を開始する | `user` without `token` |
-| `GET` | `/api/browser/session` | cookie session から current User を復元する | `user` without `token` |
-| `DELETE` | `/api/browser/session` | server-side session を失効し cookie を削除する | `204 No Content` |
+| Method | Browser-facing BFF Path | Public API call | Purpose | Browser Response |
+| --- | --- | --- | --- | --- |
+| `GET` | `/api/session/csrf` | none | pre-session と CSRF proof を準備 / 再取得する | `{ "csrfToken": "<opaque-proof>" }` |
+| `POST` | `/api/session/register` | `POST /api/users` | User を登録し BrowserSession を開始する | `user` without `token` |
+| `POST` | `/api/session/login` | `POST /api/users/login` | credential を検証し BrowserSession を開始する | `user` without `token` |
+| `GET` | `/api/session` | `GET /api/user` | session に対応する JWT で current User を復元する | `user` without `token` |
+| `PUT` | `/api/session/user` | `PUT /api/user` | Settings から current User を更新する | `user` without `token` |
+| `DELETE` | `/api/session` | none | server-side session と保持 JWT を失効し cookie を削除する | `204 No Content` |
 
-認証が必要な Article、Comment、Profile、Favorite、Feed 操作について、first-party frontend の request は同じ browser session guard で認証できるようにする。`/api/user` のように public response が JWT を含む endpoint は frontend から呼ばず、browser endpoint を使用する。
+Article、Comment、Profile、Favorite、Feed、Tag の browser request は BFF に Public API と同じ resource path で送る。BFF は有効な BrowserSession がある request だけ Public API の `Authorization: Token <jwt>` を付与し、session がない Optional request は JWT header なしで転送する。Browser は Public API origin を直接呼ばない。
 
-### Browser Session Security
+### BFF Session Security
 
 | Item | Decision |
 | --- | --- |
-| Browser credential | 推測困難な opaque session identifier。JWT を cookie または response body に含めない |
-| Cookie | Production では `__Host-conduit_session`; `Path=/; HttpOnly; Secure; SameSite=Lax` を必須とする |
-| Session expiry | server-side session と cookie は開始から最大 `60` 分で期限切れとし、期限切れ後は再 login を要求する |
+| Browser credential | BFF が管理する推測困難な opaque session identifier。JWT を cookie または browser response body に含めない |
+| Cookie | BFF origin から `__Host-conduit_session`; `Path=/; HttpOnly; Secure; SameSite=Lax` を発行し、`Domain` attribute を設定しない |
+| Deployment boundary | Browser は frontend/BFF の同一 origin のみを呼ぶ。Public API が異なる site に配置されても browser credential を cross-site 送信しない |
+| Session expiry | BFF session、cookie、保持 JWT は開始から最大 `60` 分で期限切れとし、期限切れ後は再 login を要求する |
 | Login / register | 認証成功時に session identifier を再生成して fixation を防止する |
-| Logout | server-side session を失効させ、browser の session cookie を削除する |
+| Logout | BFF が server-side session と保持 JWT を破棄し、browser の session cookie を削除する |
 | Frontend storage | JWT、session identifier、refresh token を `localStorage`、`sessionStorage`、React state に保存しない |
-| Request transport | Frontend API client は credentialed request を用い、cookie の読取りや `Authorization` header の生成を行わない |
-| CSRF | Cookie が自動送信される mutating request は Laravel の CSRF 検証を必須とし、CSRF token 用 cookie/header は認証 credential と分離する |
-| CORS | 許可した frontend origin のみで credentialed request を許可し、wildcard origin を使用しない |
+| Request transport | Frontend API client は同一 origin の BFF に credentialed request を送り、cookie の読取りや `Authorization` header の生成を行わない |
+| CSRF bootstrap | BFF の `GET /api/session/csrf` が login/register 前の pre-session と JS-readable な CSRF proof を提供する |
+| CSRF validation | BFF cookie が送信される `POST` / `PUT` / `PATCH` / `DELETE` は login、register、logout を含め `X-CSRF-TOKEN` を検証する。missing / invalid proof は `419 CSRF Token Mismatch` とし、認証 cookie と CSRF proof は分離する |
+| CORS | Browser と BFF は同一 origin とし credentialed CORS に依存しない。Public API への authenticated browser CORS access は許可しない |
+| API technology | Browser-facing BFF は REST endpoint を基本とし、GraphQL 導入は今回の認証移行スコープ外とする |
+
+### Deployment / Docker Topology
+
+Production では frontend static assets と BFF endpoint を同じ public origin で提供し、Public API は BFF からのみ認証付きで呼び出す。
+
+| Boundary | Example | Role |
+| --- | --- | --- |
+| Browser origin | `https://app.example.com` | React assets と BFF `/api/*` を同一 origin で公開する |
+| Public API origin | `https://api.example.net` | RealWorld-compatible JWT API。browser の認証付き direct access を提供しない |
+| BFF to Public API | server-to-server | BFF が保持 JWT を `Authorization: Token <jwt>` として送信する |
+
+Docker development environment では BFF service を追加し、browser が利用する frontend origin の `/api/*` を BFF へ到達させる。BFF は private Docker network 上で `backend-nginx` に接続する。`compose.yml`、BFF runtime/container、frontend 側 proxy または gateway、環境変数例の実装変更は BFF 実装 Issue で扱う。
 
 ## API Endpoint List
 
-以下は Public API の RealWorld 互換 endpoint 一覧である。First-party frontend の session endpoint は `Browser Endpoint Contract` に定義する。
+以下は Public API の RealWorld 互換 endpoint 一覧である。Browser は直接呼ばず、first-party BFF が必要な JWT header を付与して呼び出す。BFF の session endpoint は `Browser-Facing BFF Endpoint Contract` に定義する。
 
 | Area | Method | Path | Auth | Type | Response | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -269,6 +289,8 @@ Validation:
 }
 ```
 
+BFF が browser へ返す `user` response は同じ表示 field を持つが、`token` field を含めない。
+
 ### Profile
 
 ```json
@@ -421,6 +443,7 @@ Missing `username`, `slug`, `article`, or `comment` returns `404`.
 | `401 Unauthorized` | Authentication required, malformed JWT, invalid JWT, or expired JWT |
 | `403 Forbidden` | Authenticated but not allowed |
 | `404 Not Found` | Resource not found |
+| `419 CSRF Token Mismatch` | BFF browser mutation の CSRF proof が missing / invalid / expired |
 | `422 Unprocessable Entity` | Validation or domain rule violation |
 | `500 Internal Server Error` | Unexpected server error |
 
@@ -469,7 +492,9 @@ Queries read state and may use optimized read models or Eloquent queries in Appl
 - JWT signing secret is separate from `APP_KEY`, supplied through runtime secret management, and never written as a concrete value to `.env`, source files, documentation examples, or logs.
 - JWT values are issued only from Public Register or Public Login and are never hard-coded or logged.
 - Invalid or expired supplied JWTs return `401 Unauthorized`, including on Optional endpoints.
-- First-party frontend never receives JWT values; it uses an `HttpOnly`, `Secure`, `SameSite` browser session cookie with server-side logout invalidation and CSRF protection.
+- First-party frontend never receives JWT values; it communicates only with a same-origin BFF that uses an `HttpOnly`, `Secure`, `SameSite` browser session cookie without a `Domain` attribute, server-side logout invalidation, and CSRF protection.
+- BFF stores the Public JWT server-side and sends it to the Public API only in server-to-server requests. Browser-originated authenticated CORS requests to the Public API are not part of this design.
+- Login and Register are CSRF-protected browser mutations after a pre-session CSRF bootstrap.
 - Public API token revocation and refresh tokens are outside this migration scope.
 - SQL string concatenation is prohibited; use Eloquent, Query Builder, or Repository implementations.
 - Public Profile responses never expose email, password hash, token, or internal IDs.

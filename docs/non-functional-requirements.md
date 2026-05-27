@@ -14,6 +14,7 @@
 | Maintainability | Backend は DDD 4層、Frontend は `app/`, `features/`, `shared/`, `lib/` の境界を守る |
 | Type safety | TypeScript strict と PHPStan で静的に検出できる問題をCI前に潰す |
 | Security | `.env`、シークレット、危険な動的実行、SQL文字列結合を禁止する |
+| Browser auth boundary | First-party browser は same-origin BFF のみを呼び、Public API JWT を保持または直接送信しない |
 | Reproducibility | Docker Compose と lockfile により、ローカルで同じ構成を再現できる |
 | Reviewability | Issue、spec、PR、テスト計画を紐付け、レビューで判断しやすくする |
 
@@ -178,6 +179,8 @@ Required:
 - Use FormRequest for all backend input validation.
 - Use Policy / Gate for authorization.
 - Keep frontend validation as UI feedback only.
+- Keep Public API JWT in the BFF server-side session and never expose it to browser-readable storage or responses.
+- Serve browser-facing BFF endpoints from the same origin as frontend assets; do not rely on cross-site authentication cookies.
 
 Audit commands:
 
@@ -222,6 +225,19 @@ docker compose exec backend-php php artisan key:generate
 docker compose exec backend-php php artisan migrate
 docker compose exec frontend pnpm install
 ```
+
+Authentication migration 後の Docker topology:
+
+```text
+Browser -> frontend origin (:3005) /api/* -> bff -> backend-nginx (private Docker network)
+```
+
+- Target service として `bff` を追加し、BrowserSession、CSRF、Public API forwarding を担わせる。
+- Browser が利用する origin は React assets と BFF API を同一 origin として提供する。
+- Local development では frontend dev proxy または frontend-facing gateway が `/api/*` を `bff` service へ転送する。
+- `backend-nginx:8080` は Public API contract の直接検証用に利用できるが、first-party frontend の認証付き通信先にはしない。
+- BFF は `backend-nginx` へ server-to-server request を行い、server-side に保持した JWT だけを `Authorization: Token <jwt>` として送る。
+- `compose.yml`、BFF runtime/container、proxy 設定、`.env.example` の追加変数は BFF 実装 Issue で変更する。
 
 `.env` handling:
 

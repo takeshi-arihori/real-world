@@ -29,7 +29,7 @@
 
 - Guest: 認証済みユーザーは login/register から別画面へ遷移させる。
 - Required: 未認証ユーザーは return path 付きで `/login` へ遷移させる。
-- Optional: ゲストでも表示し、有効な browser session がある場合だけ `following` / `favorited` の判定に使う。
+- Optional: ゲストでも表示し、有効な BFF BrowserSession がある場合だけ `following` / `favorited` の判定に使う。
 
 ## 画面遷移図
 
@@ -92,7 +92,7 @@ frontend/src/
 │   └── utils/
 └── lib/
     ├── apiClient.ts
-    ├── browserSession.ts
+    ├── bffSession.ts
     ├── csrf.ts
     └── apiError.ts
 ```
@@ -103,7 +103,7 @@ Pages in `app/routes/` compose feature components only. They do not own API call
 
 | Feature | Responsibility | Owns | Does not own |
 | --- | --- | --- | --- |
-| `auth` | Login, register, current User, settings update | browser session API, auth forms, session lifecycle hooks | Profile following, Article list |
+| `auth` | Login, register, current User, settings update | BFF session API, auth forms, session lifecycle hooks | Profile following, Article list |
 | `article` | Article list, detail, create, update, delete | Article API, editor form, article cards | Favorite mutation internals |
 | `comment` | List, create, delete comments | Comment API, comment form/list | Article ownership calculation |
 | `profile` | Profile display and profile tabs | Profile API, follow button composition | Auth credential management |
@@ -140,8 +140,9 @@ Components:
 Primary workflow:
 
 - Validate input for immediate UI feedback.
-- Submit to the browser session API.
-- Let the Backend establish an `HttpOnly` browser session cookie; JavaScript does not receive an auth token.
+- Request a CSRF proof from the same-origin BFF before a mutating auth request.
+- Submit to the BFF session API.
+- Let the BFF establish an `HttpOnly` BrowserSession cookie; JavaScript does not receive an auth token.
 - Refresh current User state.
 - Redirect to return path or Home.
 
@@ -158,9 +159,9 @@ Components:
 Primary workflow:
 
 - Load current User.
-- Update email, username, password, bio, image.
+- Update email, username, password, bio, image through `PUT /api/session/user` on the BFF.
 - Reflect validation errors.
-- Logout invalidates the browser session through the Backend and redirects Home.
+- Logout invalidates the BrowserSession and its server-side JWT through the BFF and redirects Home.
 
 ### Editor
 
@@ -218,6 +219,7 @@ Form behavior:
 | `401 Unauthorized` | Clear current User state and redirect to `/login` for required routes |
 | `403 Forbidden` | Show permission error state and hide forbidden commands |
 | `404 Not Found` | Render not found page for Article/Profile routes |
+| `419 CSRF Token Mismatch` | BFF から CSRF proof を再取得し、ユーザー操作を再実行できる状態にする |
 | `422 Unprocessable Entity` | Map API validation errors to form/global errors |
 | Network failure | Show retryable error state |
 | Unexpected error | App-level Error Boundary with generic message |
@@ -228,7 +230,7 @@ Form behavior:
 
 | State | Owner | Approach |
 | --- | --- | --- |
-| Browser session | Backend + `HttpOnly` cookie | Frontend JavaScript does not read or retain credentials |
+| Browser session | BFF + `HttpOnly` cookie | Frontend JavaScript does not read or retain credentials |
 | Current User | `app/providers/AuthProvider` | context + refresh action |
 | Form input | feature form component | local state or form hook |
 | Server data | feature hooks | query hooks; cache library can be introduced in a dedicated implementation Issue |
@@ -239,7 +241,7 @@ Server state must not be copied into broad global UI state.
 ## API Layer
 
 Feature API functions live under `features/<feature>/api/`.
-They convert RealWorld API response fields into frontend camelCase types where appropriate.
+They call only the same-origin BFF and convert its browser-facing response fields into frontend camelCase types where appropriate. The Browser does not call the Public API origin directly.
 
 Example responsibilities:
 
@@ -254,7 +256,8 @@ Example responsibilities:
 Shared HTTP concerns live in `lib/`:
 
 - base URL
-- credentialed browser requests
+- same-origin BFF requests with browser credentials
+- CSRF bootstrap before login/register and other mutating requests
 - CSRF header handling for mutating requests
 - response parsing
 - API error normalization
@@ -288,5 +291,6 @@ Test examples:
 - Do not store secrets or API keys in frontend source.
 - Do not use `innerHTML` or `dangerouslySetInnerHTML` for Article body in MVP.
 - Do not store JWT, session identifiers, or refresh tokens in `localStorage`, `sessionStorage`, or React state.
-- Browser authentication uses Backend-managed `HttpOnly` session cookies; `lib/` sends credentialed requests and CSRF proof without reading the auth cookie.
+- Browser authentication uses BFF-managed `HttpOnly` session cookies; `lib/` sends same-origin credentialed requests and CSRF proof without reading the auth cookie.
+- `VITE_API_BASE_URL` targets the frontend/BFF origin or uses relative `/api`; it does not target the Public API origin for authenticated browser operations.
 - Backend authorization remains required even when frontend hides buttons.

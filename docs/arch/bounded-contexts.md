@@ -19,7 +19,7 @@ RealWorld（Conduit）仕様に基づくドメインの Bounded Context を定�
 ユーザーのアイデンティティに関する一切を管理する。
 
 - ユーザー登録（Registration）
-- ログイン・認証トークン発行（Authentication）
+- Public API ログイン・JWT 発行および検証（Authentication）
 - ユーザー情報の更新（email, username, password, bio, image）
 - 現在のユーザー情報の取得
 
@@ -47,6 +47,14 @@ RealWorld（Conduit）仕様に基づくドメインの Bounded Context を定�
 | `POST /api/users/login` | ログイン |
 | `GET /api/user` | 現在のユーザー取得 |
 | `PUT /api/user` | ユーザー情報更新 |
+
+### BFF 境界
+
+BrowserSession は Identity Domain の entity ではなく、first-party frontend と同一 origin の BFF が管理する adapter state とする。
+
+- Browser は BFF endpoint のみを呼び、Public API token を受け取らない。
+- BFF は BrowserSession に対応する Public API JWT を server-side に保持し、Identity API 呼び出し時に `Authorization: Token <jwt>` を付与する。
+- Login、Register、Current User、Update User、Logout の browser-facing response は JWT を含めない。
 
 ---
 
