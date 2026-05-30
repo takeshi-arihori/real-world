@@ -99,6 +99,7 @@ cd frontend && pnpm tsc -b --noEmit
 BFF:
 
 ```bash
+pnpm -C bff type-check
 pnpm -C bff test
 ```
 

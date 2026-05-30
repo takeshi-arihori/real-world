@@ -1,5 +1,6 @@
 import { once } from 'node:events';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
@@ -46,11 +47,14 @@ test('CSRF bootstrap は pre-session cookie と CSRF proof を返す', async () 
   try {
     const response = await fetch(`${bff.url}/api/session/csrf`);
     const body = await response.json() as { csrfToken?: unknown };
+    const csrfToken = body.csrfToken;
     const setCookie = getFirstSetCookie(response);
 
     assert.equal(response.status, 200);
-    assert.equal(typeof body.csrfToken, 'string');
-    assert.ok(body.csrfToken.length >= 32);
+    if (typeof csrfToken !== 'string') {
+      throw new TypeError('csrfToken must be a string');
+    }
+    assert.ok(csrfToken.length >= 32);
     assert.match(setCookie, /^__Host-conduit_session=[^;]+;/);
     assert.match(setCookie, /Path=\//);
     assert.match(setCookie, /HttpOnly/);
@@ -404,8 +408,9 @@ function serverUrl(server: Server): string {
 
   assert.notEqual(address, null);
   assert.equal(typeof address, 'object');
+  const addressInfo = address as AddressInfo;
 
-  return `http://127.0.0.1:${address.port}`;
+  return `http://127.0.0.1:${addressInfo.port}`;
 }
 
 function writeJson(response: ServerResponse, statusCode: number, body: unknown): void {
