@@ -53,8 +53,12 @@ docker compose down
 | サービス | URL |
 | --- | --- |
 | フロントエンド | http://localhost:3005 |
+| BFF | http://localhost:3006 |
 | バックエンド API | http://localhost:8080 |
 | Mailpit | http://localhost:8025 |
+
+Docker 環境では、frontend の Vite dev server が same-origin の `/api/*` request を BFF へ proxy します。
+BFF は private network 上の `backend-nginx` へ server-to-server request を行い、BrowserSession に保持した Public API JWT だけを `Authorization: Token <jwt>` として送信します。
 
 ## バックエンドのデバッグ
 
@@ -90,6 +94,12 @@ XDEBUG_MODE=develop,debug docker compose up -d backend-php backend-nginx
 cd frontend && pnpm vitest run
 cd frontend && pnpm eslint .
 cd frontend && pnpm tsc -b --noEmit
+```
+
+BFF:
+
+```bash
+pnpm -C bff test
 ```
 
 バックエンド:
