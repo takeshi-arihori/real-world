@@ -2,6 +2,7 @@
   "name": "@real-world/bff",
   "private": true,
   "version": "0.0.0",
+  "packageManager": "pnpm@10.15.1",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",

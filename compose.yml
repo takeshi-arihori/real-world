@@ -55,6 +55,7 @@ services:
       - "3006:3006"
     volumes:
       - ./bff:/app
+      - bff-node-modules:/app/node_modules
     environment:
       PORT: "3006"
       PUBLIC_API_BASE_URL: "http://backend-nginx"
@@ -92,6 +93,7 @@ services:
 volumes:
   db-data:
   frontend-node-modules:
+  bff-node-modules:
 
 networks:
   app-network:

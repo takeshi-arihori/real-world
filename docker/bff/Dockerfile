@@ -4,4 +4,4 @@ RUN corepack enable
 
 WORKDIR /app
 
-CMD ["pnpm", "start"]
+CMD ["sh", "-c", "pnpm install --frozen-lockfile --force && pnpm start"]
