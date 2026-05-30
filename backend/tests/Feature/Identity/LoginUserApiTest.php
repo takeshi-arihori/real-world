@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Infrastructure\Persistence\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -11,7 +12,7 @@ uses(TestCase::class, RefreshDatabase::class);
 
 describe('POST /api/users/login', function (): void {
     it('ログイン成功時に200とRealWorld user wrapperを返す', function (): void {
-        User::factory()->create([
+        $user = User::factory()->create([
             'username' => 'jake',
             'email' => 'jake@example.com',
             'password_hash' => Hash::make('secret'),
@@ -42,7 +43,11 @@ describe('POST /api/users/login', function (): void {
             ->assertJsonPath('user.bio', 'I like APIs')
             ->assertJsonPath('user.image', 'https://example.com/avatar.png');
 
-        expect($response->json('user.token'))->toBeString()->not->toBe('');
+        $token = $response->json('user.token');
+
+        expect($token)->toBeString()->not->toBe('');
+        $this->assertRealWorldJwtForUser($token, $user);
+        expect(DB::table('personal_access_tokens')->count())->toBe(0);
     });
 
     it('ログイン成功時に返したtokenをRealWorldのToken schemeで利用できる', function (): void {
