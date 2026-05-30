@@ -1,9 +1,43 @@
 import { once } from 'node:events';
-import { createServer } from 'node:http';
-import { test } from 'node:test';
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import assert from 'node:assert/strict';
+import { test } from 'node:test';
 
 import { createBffServer } from '../src/server.js';
+
+interface StartedServer {
+  close: () => Promise<void>;
+  url: string;
+}
+
+interface StartedUpstreamServer extends StartedServer {
+  requests: UpstreamRequest[];
+}
+
+interface UpstreamRequest {
+  body: string;
+  headers: IncomingMessage['headers'];
+  method?: string;
+  url?: string;
+}
+
+interface UpstreamHandlerContext {
+  body: string;
+  request: IncomingMessage;
+  response: ServerResponse;
+}
+
+type UpstreamHandler = (context: UpstreamHandlerContext) => void;
+
+interface AuthenticatedBffSession {
+  cookie: string;
+  csrfToken: string;
+}
+
+interface CsrfBootstrap {
+  cookie: string;
+  token: string;
+}
 
 test('CSRF bootstrap は pre-session cookie と CSRF proof を返す', async () => {
   const upstream = await startUpstreamServer();
@@ -11,7 +45,7 @@ test('CSRF bootstrap は pre-session cookie と CSRF proof を返す', async () 
 
   try {
     const response = await fetch(`${bff.url}/api/session/csrf`);
-    const body = await response.json();
+    const body = await response.json() as { csrfToken?: unknown };
     const setCookie = getFirstSetCookie(response);
 
     assert.equal(response.status, 200);
@@ -143,7 +177,7 @@ test('current user と resource forwarding は session JWT を Token scheme で�
     const currentResponse = await fetch(`${bff.url}/api/session`, {
       headers: { Cookie: authenticated.cookie },
     });
-    const currentBody = await currentResponse.json();
+    const currentBody = await currentResponse.json() as { user: { token?: unknown } };
 
     assert.equal(currentResponse.status, 200);
     assert.equal(currentBody.user.token, undefined);
@@ -274,7 +308,7 @@ test('Public API が 401 を返した session は BFF 側でも失効する', as
   }
 });
 
-async function loginThroughBff(baseUrl) {
+async function loginThroughBff(baseUrl: string): Promise<AuthenticatedBffSession> {
   const csrf = await bootstrapCsrf(baseUrl);
   const response = await fetch(`${baseUrl}/api/session/login`, {
     body: JSON.stringify({ user: { email: 'jake@example.com', password: 'secret' } }),
@@ -294,9 +328,9 @@ async function loginThroughBff(baseUrl) {
   };
 }
 
-async function bootstrapCsrf(baseUrl) {
+async function bootstrapCsrf(baseUrl: string): Promise<CsrfBootstrap> {
   const response = await fetch(`${baseUrl}/api/session/csrf`);
-  const body = await response.json();
+  const body = await response.json() as { csrfToken: string };
 
   assert.equal(response.status, 200);
 
@@ -306,7 +340,7 @@ async function bootstrapCsrf(baseUrl) {
   };
 }
 
-async function startBffServer(publicApiBaseUrl) {
+async function startBffServer(publicApiBaseUrl: string): Promise<StartedServer> {
   const server = createBffServer({
     publicApiBaseUrl,
     sessionTtlSeconds: 3600,
@@ -320,10 +354,10 @@ async function startBffServer(publicApiBaseUrl) {
   };
 }
 
-async function startUpstreamServer(handler = ({ response }) => {
+async function startUpstreamServer(handler: UpstreamHandler = ({ response }) => {
   writeJson(response, 500, { errors: { body: ['unexpected upstream request'] } });
-}) {
-  const requests = [];
+}): Promise<StartedUpstreamServer> {
+  const requests: UpstreamRequest[] = [];
   const server = createServer(async (request, response) => {
     const body = await readRequestBody(request);
     requests.push({
@@ -345,27 +379,27 @@ async function startUpstreamServer(handler = ({ response }) => {
   };
 }
 
-async function readRequestBody(request) {
-  const chunks = [];
+async function readRequestBody(request: IncomingMessage): Promise<string> {
+  const chunks: Buffer[] = [];
 
   for await (const chunk of request) {
-    chunks.push(chunk);
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   }
 
   return Buffer.concat(chunks).toString('utf8');
 }
 
-async function listen(server) {
+async function listen(server: Server): Promise<void> {
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
 }
 
-async function close(server) {
+async function close(server: Server): Promise<void> {
   server.close();
   await once(server, 'close');
 }
 
-function serverUrl(server) {
+function serverUrl(server: Server): string {
   const address = server.address();
 
   assert.notEqual(address, null);
@@ -374,12 +408,12 @@ function serverUrl(server) {
   return `http://127.0.0.1:${address.port}`;
 }
 
-function writeJson(response, statusCode, body) {
+function writeJson(response: ServerResponse, statusCode: number, body: unknown): void {
   response.writeHead(statusCode, { 'Content-Type': 'application/json' });
   response.end(JSON.stringify(body));
 }
 
-function getFirstSetCookie(response) {
+function getFirstSetCookie(response: Response): string {
   const getSetCookie = response.headers.getSetCookie;
 
   if (typeof getSetCookie === 'function') {
@@ -389,6 +423,6 @@ function getFirstSetCookie(response) {
   return response.headers.get('set-cookie') ?? '';
 }
 
-function getCookiePair(setCookie) {
-  return setCookie.split(';')[0];
+function getCookiePair(setCookie: string): string {
+  return setCookie.split(';')[0] ?? '';
 }
