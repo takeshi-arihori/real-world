@@ -8,7 +8,7 @@ use App\Application\Identity\Services\AuthTokenIssuerInterface;
 use App\Application\Identity\Services\PasswordHasherInterface;
 use App\Domain\Identity\Repositories\UserRepositoryInterface;
 use App\Infrastructure\Identity\HashPasswordHasher;
-use App\Infrastructure\Identity\SanctumAuthTokenIssuer;
+use App\Infrastructure\Identity\JwtAuthTokenIssuer;
 use App\Infrastructure\Persistence\Repositories\EloquentUserRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,6 +18,6 @@ final class RepositoryServiceProvider extends ServiceProvider
     {
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
         $this->app->bind(PasswordHasherInterface::class, HashPasswordHasher::class);
-        $this->app->bind(AuthTokenIssuerInterface::class, SanctumAuthTokenIssuer::class);
+        $this->app->bind(AuthTokenIssuerInterface::class, JwtAuthTokenIssuer::class);
     }
 }

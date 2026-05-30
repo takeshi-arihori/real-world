@@ -42,6 +42,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'api' => [
+            'driver' => 'realworld-jwt',
+            'provider' => 'users',
+        ],
     ],
 
     /*
