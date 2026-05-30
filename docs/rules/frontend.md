@@ -96,7 +96,7 @@ frontend/src/
 | ディレクトリ | 役割 | 例 |
 |-------------|------|-----|
 | `shared/` | UI寄りの共有部品 | `Button`, `useDisclosure`, `formatDate` |
-| `lib/` | 技術基盤・インフラ | APIクライアント設定, トークン管理, 環境変数定数 |
+| `lib/` | 技術基盤・インフラ | BFF APIクライアント設定, BrowserSession / CSRF 通信, 環境変数定数 |
 
 ### 依存方向の制約
 
@@ -214,10 +214,12 @@ export async function getUser(id: number): Promise<User> {
 }
 ```
 
-### 認証トークン管理
+### BFF BrowserSession 管理
 
-- トークン管理は `lib/` に集約する
-- 各 feature の API 関数は認証を意識しない（APIクライアントのインターセプターで処理）
+- First-party frontend は JWT、session identifier、refresh token を `localStorage` / `sessionStorage` / React state に保存しない
+- Frontend は Public API origin を直接呼ばず、同一 origin で公開された BFF endpoint のみを呼ぶ
+- BFF が発行する `HttpOnly` BrowserSession cookie は JavaScript から読まず、`lib/` の API client が same-origin credentialed request、CSRF bootstrap、CSRF header を共通処理する
+- 各 feature の API 関数は cookie や CSRF 処理を直接扱わない
 
 ## 状態管理ルール
 

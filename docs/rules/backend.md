@@ -230,7 +230,7 @@ public function execute(CreateOrderDto $dto): Order
 
 ### 認証・認可方針
 
-- 認証: Laravel 標準の認証機構（Sanctum 等）を使用する
+- 認証: Laravel Public API は JWT 発行・検証に責務を限定する。first-party frontend 用 BrowserSession、CSRF、JWT の server-side 保持と Public API への転送は同一 origin BFF の境界で扱い、[`security.md`](security.md) に従う
 - 認可: Policy クラスで制御する。Controller の `authorize()` または FormRequest の `authorize()` で呼び出す
 - Domain 層に認証・認可ロジックを含めない
 

@@ -22,7 +22,7 @@ Identity Context は、システム利用者の本人性と認証状態を管理
 
 - email、username、password による User 登録
 - email と password によるログイン
-- 認証トークンの発行、失効、現在ユーザーの特定
+- Public API token の発行・検証と現在ユーザーの特定
 - email、username、password、bio、image の更新
 - email と username の一意性維持
 
@@ -36,6 +36,8 @@ Identity Context は、システム利用者の本人性と認証状態を管理
 
 - Backend: `Domain/Identity`, `Application/Identity`, `Presentation/Http/*/Identity`
 - Frontend: `features/auth`
+
+First-party frontend の BrowserSession は Identity Domain の entity ではなく、frontend と同一 origin で公開する BFF の認証 adapter state として扱う。BFF は session に関連付けた Public API token を用いて Identity の API を呼び、JWT を browser へ公開しない。
 - 他 Context へ渡す情報は User の識別子と公開可能な表示情報に限定する。
 
 ## Publishing Context
