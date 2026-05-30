@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Infrastructure\Persistence\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
@@ -68,23 +67,12 @@ describe('API認証', function (): void {
             ->assertJsonFragment(['email' => $user->email]);
     });
 
-    it('移動前のUser morph typeで保存された既存トークンを認証できる', function (): void {
+    it('Bearer schemeではPublic API認証を通さない', function (): void {
         $user = User::factory()->create();
-        $plainTextToken = 'legacy-token';
+        $token = $this->issueRealWorldTokenFor($user);
 
-        $tokenId = DB::table('personal_access_tokens')->insertGetId([
-            'tokenable_type' => 'App\\Models\\User',
-            'tokenable_id' => $user->getKey(),
-            'name' => 'legacy token',
-            'token' => hash('sha256', $plainTextToken),
-            'abilities' => json_encode(['*'], JSON_THROW_ON_ERROR),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $this->withToken($tokenId.'|'.$plainTextToken)
+        $this->withToken($token)
             ->getJson('/api/user')
-            ->assertOk()
-            ->assertJsonFragment(['email' => $user->email]);
+            ->assertUnauthorized();
     });
 });

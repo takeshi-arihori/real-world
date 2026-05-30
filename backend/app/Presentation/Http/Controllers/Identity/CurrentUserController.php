@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class CurrentUserController extends Controller
 {
+    private const TOKEN_ATTRIBUTE = 'realworld_token';
+
     /**
      * 現在 User を RealWorld user wrapper で返す。
      */
@@ -55,13 +57,13 @@ final class CurrentUserController extends Controller
     }
 
     /**
-     * 現在の bearer token を含む RealWorld user response を生成する。
+     * 現在の JWT を含む RealWorld user response を生成する。
      */
     private function userResponse(Request $request, User $user): JsonResponse
     {
-        $token = $request->bearerToken();
+        $token = $request->attributes->get(self::TOKEN_ATTRIBUTE);
 
-        if ($token === null || $token === '') {
+        if (! is_string($token) || $token === '') {
             throw new AuthenticationException;
         }
 

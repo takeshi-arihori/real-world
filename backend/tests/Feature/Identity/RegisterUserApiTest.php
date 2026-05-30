@@ -6,6 +6,7 @@ use App\Application\Identity\Services\AuthTokenIssuerInterface;
 use App\Domain\Identity\Entities\User as DomainUser;
 use App\Infrastructure\Persistence\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -37,7 +38,12 @@ describe('POST /api/users', function (): void {
             ->assertJsonPath('user.bio', null)
             ->assertJsonPath('user.image', null);
 
-        expect($response->json('user.token'))->toBeString()->not->toBe('');
+        $user = User::query()->where('email', 'jake@example.com')->firstOrFail();
+        $token = $response->json('user.token');
+
+        expect($token)->toBeString()->not->toBe('');
+        $this->assertRealWorldJwtForUser($token, $user);
+        expect(DB::table('personal_access_tokens')->count())->toBe(0);
     });
 
     it('登録成功時に返したtokenをRealWorldのToken schemeで利用できる', function (): void {

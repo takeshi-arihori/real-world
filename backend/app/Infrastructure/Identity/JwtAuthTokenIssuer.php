@@ -6,13 +6,14 @@ namespace App\Infrastructure\Identity;
 
 use App\Application\Identity\Services\AuthTokenIssuerInterface;
 use App\Domain\Identity\Entities\User;
-use App\Infrastructure\Persistence\Models\User as UserModel;
 use RuntimeException;
 
-final class SanctumAuthTokenIssuer implements AuthTokenIssuerInterface
+final readonly class JwtAuthTokenIssuer implements AuthTokenIssuerInterface
 {
+    public function __construct(private JwtTokenCodec $tokens) {}
+
     /**
-     * Sanctum personal access token を発行する。
+     * User に対する Public API JWT を発行する。
      */
     public function issue(User $user): string
     {
@@ -22,8 +23,6 @@ final class SanctumAuthTokenIssuer implements AuthTokenIssuerInterface
             throw new RuntimeException('Cannot issue token for unsaved user.');
         }
 
-        $model = UserModel::query()->findOrFail($id->value);
-
-        return $model->createToken('api')->plainTextToken;
+        return $this->tokens->issueForUserId($id->value);
     }
 }

@@ -38,6 +38,37 @@ describe('GET /api/user', function (): void {
                 ],
             ]);
     });
+
+    it('形式不正なJWTを401で拒否する', function (): void {
+        $this->withRealWorldToken('not-a-jwt')
+            ->getJson('/api/user')
+            ->assertUnauthorized()
+            ->assertJsonStructure(['errors' => ['body']]);
+    });
+
+    it('署名不正なJWTを401で拒否する', function (): void {
+        $user = User::factory()->create();
+        $token = $this->tamperJwtSignature($this->issueRealWorldTokenFor($user));
+
+        $this->withRealWorldToken($token)
+            ->getJson('/api/user')
+            ->assertUnauthorized()
+            ->assertJsonStructure(['errors' => ['body']]);
+    });
+
+    it('期限切れJWTを401で拒否する', function (): void {
+        $user = User::factory()->create();
+        $token = $this->issueRealWorldTokenFor(
+            user: $user,
+            issuedAt: time() - 7200,
+            expiresAt: time() - 3600,
+        );
+
+        $this->withRealWorldToken($token)
+            ->getJson('/api/user')
+            ->assertUnauthorized()
+            ->assertJsonStructure(['errors' => ['body']]);
+    });
 });
 
 describe('PUT /api/user', function (): void {
