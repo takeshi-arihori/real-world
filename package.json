@@ -2,7 +2,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "qa:auth": "node scripts/qa/auth-integration-qa.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
