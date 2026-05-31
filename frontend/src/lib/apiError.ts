@@ -1,4 +1,5 @@
 export type ApiErrorKind =
+  | 'csrf'
   | 'forbidden'
   | 'network'
   | 'not_found'

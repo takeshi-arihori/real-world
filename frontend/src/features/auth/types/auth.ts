@@ -5,11 +5,6 @@ export interface AuthUser {
   username: string;
 }
 
-export interface AuthSession {
-  token: string;
-  user: AuthUser;
-}
-
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -19,8 +14,18 @@ export interface RegisterCredentials extends LoginCredentials {
   username: string;
 }
 
+export interface UpdateUserInput {
+  bio?: string | null;
+  email?: string;
+  image?: string | null;
+  password?: string;
+  username?: string;
+}
+
 export interface AuthApi {
-  getCurrentUser: () => Promise<AuthSession>;
-  login: (credentials: LoginCredentials) => Promise<AuthSession>;
-  register: (credentials: RegisterCredentials) => Promise<AuthSession>;
+  getCurrentUser: () => Promise<AuthUser>;
+  login: (credentials: LoginCredentials) => Promise<AuthUser>;
+  logout: () => Promise<void>;
+  register: (credentials: RegisterCredentials) => Promise<AuthUser>;
+  updateCurrentUser: (input: UpdateUserInput) => Promise<AuthUser>;
 }

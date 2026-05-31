@@ -77,6 +77,10 @@ function getErrorKind(status: number): ApiErrorKind {
     return 'validation';
   }
 
+  if (status === 419) {
+    return 'csrf';
+  }
+
   return 'unexpected';
 }
 

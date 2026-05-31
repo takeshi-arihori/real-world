@@ -1,10 +1,10 @@
 import { apiClient, type ApiClient } from '@/lib/apiClient';
 import type {
   AuthApi,
-  AuthSession,
   AuthUser,
   LoginCredentials,
   RegisterCredentials,
+  UpdateUserInput,
 } from '../types/auth';
 
 interface AuthUserResponse {
@@ -12,70 +12,83 @@ interface AuthUserResponse {
     bio: string | null;
     email: string;
     image: string | null;
-    token: string;
     username: string;
   };
 }
 
 /**
- * RealWorld login endpointへ認証情報を送り、UI向けのAuthSessionへ変換する。
+ * BFF login endpointへ認証情報を送り、tokenを含まないcurrent Userへ変換する。
  */
 export async function loginUser(
   credentials: LoginCredentials,
   client: ApiClient = apiClient,
-): Promise<AuthSession> {
+): Promise<AuthUser> {
   const response = await client.post<AuthUserResponse>(
-    '/api/users/login',
+    '/api/session/login',
     {
       user: credentials,
     },
-    { auth: false },
   );
 
-  return mapAuthSession(response);
+  return mapAuthUser(response);
 }
 
 /**
- * RealWorld register endpointへ登録情報を送り、UI向けのAuthSessionへ変換する。
+ * BFF register endpointへ登録情報を送り、tokenを含まないcurrent Userへ変換する。
  */
 export async function registerUser(
   credentials: RegisterCredentials,
   client: ApiClient = apiClient,
-): Promise<AuthSession> {
+): Promise<AuthUser> {
   const response = await client.post<AuthUserResponse>(
-    '/api/users',
+    '/api/session/register',
     {
       user: credentials,
     },
-    { auth: false },
   );
 
-  return mapAuthSession(response);
+  return mapAuthUser(response);
 }
 
 /**
- * 保存済みtokenでcurrent Userを取得し、Providerが扱うAuthSessionへ変換する。
+ * BrowserSession cookieからcurrent Userを復元する。
  */
 export async function getCurrentUser(
   client: ApiClient = apiClient,
-): Promise<AuthSession> {
-  const response = await client.get<AuthUserResponse>('/api/user');
+): Promise<AuthUser> {
+  const response = await client.get<AuthUserResponse>('/api/session');
 
-  return mapAuthSession(response);
+  return mapAuthUser(response);
+}
+
+/**
+ * Settings画面の入力値をBFF update user endpointへ送る。
+ */
+export async function updateCurrentUser(
+  input: UpdateUserInput,
+  client: ApiClient = apiClient,
+): Promise<AuthUser> {
+  const response = await client.put<AuthUserResponse>('/api/session/user', {
+    user: removeUndefinedFields(input),
+  });
+
+  return mapAuthUser(response);
+}
+
+/**
+ * BFF BrowserSessionを破棄する。
+ */
+export async function logoutUser(client: ApiClient = apiClient): Promise<void> {
+  await client.delete<null>('/api/session');
 }
 
 export const authApi: AuthApi = {
   getCurrentUser,
   login: loginUser,
+  logout: logoutUser,
   register: registerUser,
+  updateCurrentUser,
 };
-
-function mapAuthSession(response: AuthUserResponse): AuthSession {
-  return {
-    token: response.user.token,
-    user: mapAuthUser(response),
-  };
-}
 
 function mapAuthUser(response: AuthUserResponse): AuthUser {
   return {
@@ -84,4 +97,30 @@ function mapAuthUser(response: AuthUserResponse): AuthUser {
     image: response.user.image,
     username: response.user.username,
   };
+}
+
+function removeUndefinedFields(input: UpdateUserInput): UpdateUserInput {
+  const payload: UpdateUserInput = {};
+
+  if (input.bio !== undefined) {
+    payload.bio = input.bio;
+  }
+
+  if (input.email !== undefined) {
+    payload.email = input.email;
+  }
+
+  if (input.image !== undefined) {
+    payload.image = input.image;
+  }
+
+  if (input.password !== undefined && input.password !== '') {
+    payload['password'] = input.password;
+  }
+
+  if (input.username !== undefined) {
+    payload.username = input.username;
+  }
+
+  return payload;
 }

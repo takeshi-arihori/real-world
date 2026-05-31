@@ -1,10 +1,18 @@
-export { authApi, getCurrentUser, loginUser, registerUser } from './api/authApi';
+export {
+  authApi,
+  getCurrentUser,
+  loginUser,
+  logoutUser,
+  registerUser,
+  updateCurrentUser,
+} from './api/authApi';
 export { LoginForm } from './components/LoginForm';
 export { RegisterForm } from './components/RegisterForm';
+export { SettingsForm } from './components/SettingsForm';
 export type {
   AuthApi,
-  AuthSession,
   AuthUser,
   LoginCredentials,
   RegisterCredentials,
+  UpdateUserInput,
 } from './types/auth';

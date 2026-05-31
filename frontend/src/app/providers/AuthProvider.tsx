@@ -3,19 +3,20 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  type MutableRefObject,
   type ReactNode,
 } from 'react';
 import {
   authApi as defaultAuthApi,
   type AuthApi,
-  type AuthSession,
   type AuthUser,
   type LoginCredentials,
   type RegisterCredentials,
+  type UpdateUserInput,
 } from '@/features/auth';
 import { isApiError } from '@/lib/apiError';
-import { clearAuthToken, getAuthToken, setAuthToken } from '@/lib/authToken';
 import { AuthContext, type AuthContextValue } from './authContext';
 
 interface AuthProviderProps {
@@ -25,7 +26,7 @@ interface AuthProviderProps {
 }
 
 /**
- * 認証APIとtoken storageをAuthContextへ接続し、アプリ全体のcurrent User状態を所有する。
+ * BFF BrowserSession APIをAuthContextへ接続し、アプリ全体のcurrent User状態を所有する。
  */
 export function AuthProvider({
   authApi = defaultAuthApi,
@@ -33,93 +34,118 @@ export function AuthProvider({
   initialUser = null,
 }: AuthProviderProps): ReactElement {
   const [user, setUser] = useState<AuthUser | null>(initialUser);
-  const [isRefreshing, setIsRefreshing] = useState(
-    () => initialUser === null && hasStoredAuthToken(),
-  );
+  const [isRefreshing, setIsRefreshing] = useState(() => initialUser === null);
+  const operationIdRef = useRef(0);
 
-  const applySession = useCallback((session: AuthSession): void => {
-    setAuthToken(session.token);
-    setUser(session.user);
+  const applyUser = useCallback((currentUser: AuthUser): void => {
+    setUser(currentUser);
   }, []);
 
   const login = useCallback(
     async (credentials: LoginCredentials): Promise<void> => {
-      applySession(await authApi.login(credentials));
+      const operationId = nextOperationId(operationIdRef);
+      const currentUser = await authApi.login(credentials);
+
+      if (isCurrentOperation(operationIdRef, operationId)) {
+        applyUser(currentUser);
+        setIsRefreshing(false);
+      }
     },
-    [applySession, authApi],
+    [applyUser, authApi],
   );
 
   const register = useCallback(
     async (credentials: RegisterCredentials): Promise<void> => {
-      applySession(await authApi.register(credentials));
+      const operationId = nextOperationId(operationIdRef);
+      const currentUser = await authApi.register(credentials);
+
+      if (isCurrentOperation(operationIdRef, operationId)) {
+        applyUser(currentUser);
+        setIsRefreshing(false);
+      }
     },
-    [applySession, authApi],
+    [applyUser, authApi],
   );
 
-  const logout = useCallback((): void => {
-    clearAuthToken();
-    setUser(null);
-  }, []);
+  const updateCurrentUser = useCallback(
+    async (input: UpdateUserInput): Promise<void> => {
+      const operationId = nextOperationId(operationIdRef);
+      const currentUser = await authApi.updateCurrentUser(input);
+
+      if (isCurrentOperation(operationIdRef, operationId)) {
+        applyUser(currentUser);
+      }
+    },
+    [applyUser, authApi],
+  );
+
+  const logout = useCallback(async (): Promise<void> => {
+    const operationId = nextOperationId(operationIdRef);
+
+    try {
+      await authApi.logout();
+    } finally {
+      if (isCurrentOperation(operationIdRef, operationId)) {
+        setUser(null);
+        setIsRefreshing(false);
+      }
+    }
+  }, [authApi]);
 
   const handleRefreshFailure = useCallback(
     (error: unknown): void => {
       if (isApiError(error) && error.kind === 'unauthorized') {
-        logout();
+        setUser(null);
         return;
       }
 
       setUser(null);
     },
-    [logout],
+    [],
   );
 
   const refresh = useCallback(async (): Promise<void> => {
-    const token = getAuthToken();
-
-    if (token === null || token === '') {
-      setUser(null);
-      setIsRefreshing(false);
-      return;
-    }
-
+    const operationId = nextOperationId(operationIdRef);
     setIsRefreshing(true);
 
     try {
-      const session = await authApi.getCurrentUser();
+      const currentUser = await authApi.getCurrentUser();
 
-      if (getAuthToken() === token) {
-        applySession(session);
+      if (isCurrentOperation(operationIdRef, operationId)) {
+        applyUser(currentUser);
       }
     } catch (error: unknown) {
-      handleRefreshFailure(error);
+      if (isCurrentOperation(operationIdRef, operationId)) {
+        handleRefreshFailure(error);
+      }
     } finally {
-      setIsRefreshing(false);
+      if (isCurrentOperation(operationIdRef, operationId)) {
+        setIsRefreshing(false);
+      }
     }
-  }, [applySession, authApi, handleRefreshFailure]);
+  }, [applyUser, authApi, handleRefreshFailure]);
 
   useEffect(() => {
-    const token = getAuthToken();
-
-    if (token === null || token === '') {
-      void Promise.resolve().then(() => setIsRefreshing(false));
+    if (initialUser !== null) {
       return;
     }
 
     let isCurrent = true;
+    const operationId = nextOperationId(operationIdRef);
 
     async function restoreCurrentUser(): Promise<void> {
       try {
-        const session = await authApi.getCurrentUser();
+        const currentUser = await authApi.getCurrentUser();
 
-        if (isCurrent && getAuthToken() === token) {
-          applySession(session);
+        if (isCurrent && isCurrentOperation(operationIdRef, operationId)) {
+          applyUser(currentUser);
         }
       } catch (error: unknown) {
-        if (isCurrent) {
+        if (isCurrent && isCurrentOperation(operationIdRef, operationId)) {
           handleRefreshFailure(error);
         }
       } finally {
-        if (isCurrent) {
+        if (isCurrent && isCurrentOperation(operationIdRef, operationId)) {
           setIsRefreshing(false);
         }
       }
@@ -130,7 +156,7 @@ export function AuthProvider({
     return () => {
       isCurrent = false;
     };
-  }, [applySession, authApi, handleRefreshFailure]);
+  }, [applyUser, authApi, handleRefreshFailure, initialUser]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -140,19 +166,24 @@ export function AuthProvider({
       logout,
       refresh,
       register,
+      updateCurrentUser,
       user,
     }),
-    [isRefreshing, login, logout, refresh, register, user],
+    [isRefreshing, login, logout, refresh, register, updateCurrentUser, user],
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;
 }
 
-/**
- * 保存済みtokenがcurrent User復元を試すべき値かを判定する。
- */
-function hasStoredAuthToken(): boolean {
-  const token = getAuthToken();
+function nextOperationId(ref: MutableRefObject<number>): number {
+  ref.current += 1;
 
-  return token !== null && token !== '';
+  return ref.current;
+}
+
+function isCurrentOperation(
+  ref: MutableRefObject<number>,
+  operationId: number,
+): boolean {
+  return ref.current === operationId;
 }

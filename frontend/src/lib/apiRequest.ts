@@ -1,8 +1,6 @@
 import { ApiError } from './apiError';
-import { getAuthToken } from './authToken';
 
 export interface ApiRequestOptions {
-  auth?: boolean;
   body?: unknown;
   headers?: HeadersInit;
   signal?: AbortSignal;
@@ -43,15 +41,15 @@ export async function fetchResponse(
 }
 
 /**
- * JSON APIとして必要な共通ヘッダーとRealWorld形式の認証ヘッダーを組み立てる。
+ * JSON APIとして必要な共通ヘッダーとBFF向けCSRF proof headerを組み立てる。
  */
 export function createHeaders({
-  auth,
   body,
+  csrfToken,
   headers,
 }: {
-  auth: boolean;
   body: unknown;
+  csrfToken?: string | null;
   headers?: HeadersInit;
 }): Headers {
   const requestHeaders = new Headers(headers);
@@ -64,10 +62,13 @@ export function createHeaders({
     requestHeaders.set('Content-Type', 'application/json');
   }
 
-  const token = getAuthToken();
-
-  if (auth && token !== null && token !== '' && !requestHeaders.has('Authorization')) {
-    requestHeaders.set('Authorization', `Token ${token}`);
+  if (
+    csrfToken !== undefined &&
+    csrfToken !== null &&
+    csrfToken !== '' &&
+    !requestHeaders.has('X-CSRF-TOKEN')
+  ) {
+    requestHeaders.set('X-CSRF-TOKEN', csrfToken);
   }
 
   return requestHeaders;
