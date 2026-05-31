@@ -4,4 +4,8 @@ RUN corepack enable
 
 WORKDIR /app
 
-CMD ["sh", "-c", "pnpm install --frozen-lockfile --force && pnpm start"]
+COPY entrypoint.sh /usr/local/bin/bff-entrypoint
+
+RUN chmod +x /usr/local/bin/bff-entrypoint
+
+CMD ["bff-entrypoint"]

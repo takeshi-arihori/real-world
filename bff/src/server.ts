@@ -147,6 +147,10 @@ function createBffApp(options: BffServerOptions = {}): Hono {
     return context.body(null, 204);
   });
 
+  app.all('/api/session', () => {
+    return jsonResponse(404, { errors: { body: ['Not Found'] } });
+  });
+
   app.all('/api/session/*', () => {
     return jsonResponse(404, { errors: { body: ['Not Found'] } });
   });
@@ -162,6 +166,8 @@ function createBffApp(options: BffServerOptions = {}): Hono {
   return app;
 }
 
+// TODO: 本番運用や複数 instance 構成では Redis などの共有 store に置き換える。
+// TODO: 長時間起動する場合は定期 cleanup または session 数の上限を追加する。
 class MemorySessionStore implements BrowserSessionStore {
   private readonly sessions = new Map<string, BrowserSession>();
 
@@ -313,7 +319,7 @@ async function handlePublicApiForwarding(
 ): Promise<Response> {
   const requestUrl = new URL(context.req.url);
 
-  if (BLOCKED_PUBLIC_IDENTITY_PATHS.has(requestUrl.pathname)) {
+  if (isBlockedPublicIdentityPath(requestUrl.pathname)) {
     return jsonResponse(404, { errors: { body: ['Use the BFF session endpoints'] } });
   }
 
@@ -427,6 +433,12 @@ function hasValidCsrf(context: Context, session: BrowserSession | null): boolean
 
 function isMutatingMethod(request: Request): boolean {
   return MUTATING_METHODS.has(request.method);
+}
+
+function isBlockedPublicIdentityPath(pathname: string): boolean {
+  const normalizedPathname = pathname.replace(/\/+$/, '');
+
+  return BLOCKED_PUBLIC_IDENTITY_PATHS.has(normalizedPathname);
 }
 
 function setSessionCookie(context: Context, config: BffConfig, sessionId: string): void {

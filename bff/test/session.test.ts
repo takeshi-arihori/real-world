@@ -86,6 +86,50 @@ test('mutating session request は CSRF proof なしでは Public API へ転送�
   }
 });
 
+test('/api/session の未定義 method は Public API へ転送しない', async () => {
+  const upstream = await startUpstreamServer();
+  const bff = await startBffServer(upstream.url);
+
+  try {
+    const csrf = await bootstrapCsrf(bff.url);
+    const response = await fetch(`${bff.url}/api/session`, {
+      body: JSON.stringify({ unexpected: true }),
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: csrf.cookie,
+        'X-CSRF-TOKEN': csrf.token,
+      },
+      method: 'POST',
+    });
+
+    assert.equal(response.status, 404);
+    assert.equal(upstream.requests.length, 0);
+  } finally {
+    await bff.close();
+    await upstream.close();
+  }
+});
+
+test('identity endpoint の trailing slash variants は Public API へ転送しない', async () => {
+  const upstream = await startUpstreamServer();
+  const bff = await startBffServer(upstream.url);
+
+  try {
+    const paths = ['/api/user/', '/api/users/', '/api/users/login/'];
+
+    for (const path of paths) {
+      const response = await fetch(`${bff.url}${path}`);
+
+      assert.equal(response.status, 404);
+    }
+
+    assert.equal(upstream.requests.length, 0);
+  } finally {
+    await bff.close();
+    await upstream.close();
+  }
+});
+
 test('login は Public JWT を Browser response から除去して server-side session に保持する', async () => {
   const upstream = await startUpstreamServer(({ request, response }) => {
     assert.equal(request.method, 'POST');
