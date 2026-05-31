@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.2](https://github.com/takeshi-arihori/real-world/compare/v0.1.1...v0.1.2) (2026-05-31)
+
+
+### Features
+
+* API client と error normalization を実装 ([#64](https://github.com/takeshi-arihori/real-world/issues/64)) ([#114](https://github.com/takeshi-arihori/real-world/issues/114)) ([e0dfdcd](https://github.com/takeshi-arihori/real-world/commit/e0dfdcd28d2a47cd8f18c81c376560d6a386d443))
+* Identity登録・ログインAPIを実装 ([#65](https://github.com/takeshi-arihori/real-world/issues/65)) ([#110](https://github.com/takeshi-arihori/real-world/issues/110)) ([587f238](https://github.com/takeshi-arihori/real-world/commit/587f2387aa686dca6d7e937eb9918bb61541c867))
+* 現在ユーザー取得・更新APIを実装 ([#66](https://github.com/takeshi-arihori/real-world/issues/66)) ([#118](https://github.com/takeshi-arihori/real-world/issues/118)) ([6cad30e](https://github.com/takeshi-arihori/real-world/commit/6cad30ea16dc3aa26eee3e7498a8b3072df79132))
+
 ## [0.1.1](https://github.com/takeshi-arihori/real-world/compare/v0.1.0...v0.1.1) (2026-05-15)
 
 
