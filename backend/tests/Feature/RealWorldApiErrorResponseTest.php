@@ -51,6 +51,14 @@ describe('RealWorld API error response', function (): void {
         );
     });
 
+    it('Accept headerがない未認証APIリクエストも401とerrors.bodyを返す', function (): void {
+        assertRealWorldApiError(
+            $this->get('/api/user'),
+            401,
+            ['Unauthenticated.'],
+        );
+    });
+
     it('権限なしリクエストに403とerrors.bodyを返す', function (): void {
         assertRealWorldApiError(
             $this->getJson('/api/__test-forbidden'),

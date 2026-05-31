@@ -103,6 +103,12 @@ pnpm -C bff type-check
 pnpm -C bff test
 ```
 
+認証統合 QA（Docker 起動済み環境）:
+
+```bash
+pnpm qa:auth
+```
+
 バックエンド:
 
 ```bash
