@@ -232,12 +232,12 @@ Authentication migration 後の Docker topology:
 Browser -> frontend origin (:3005) /api/* -> bff -> backend-nginx (private Docker network)
 ```
 
-- Target service として `bff` を追加し、BrowserSession、CSRF、Public API forwarding を担わせる。
+- Target service として Hono + TypeScript の `bff` を追加し、BrowserSession、CSRF、Public API forwarding を担わせる。
 - Browser が利用する origin は React assets と BFF API を同一 origin として提供する。
 - Local development では frontend dev proxy または frontend-facing gateway が `/api/*` を `bff` service へ転送する。
 - `backend-nginx:8080` は Public API contract の直接検証用に利用できるが、first-party frontend の認証付き通信先にはしない。
 - BFF は `backend-nginx` へ server-to-server request を行い、server-side に保持した JWT だけを `Authorization: Token <jwt>` として送る。
-- `compose.yml`、BFF runtime/container、proxy 設定、`.env.example` の追加変数は BFF 実装 Issue で変更する。
+- `compose.yml`、Hono + TypeScript BFF runtime/container、proxy 設定、`.env.example` の追加変数は BFF 実装 Issue で変更する。
 
 `.env` handling:
 

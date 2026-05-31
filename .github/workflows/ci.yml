@@ -79,6 +79,38 @@ jobs:
         run: pnpm test
 
   # ---------------------------------------------------------------
+  # BFF
+  # ---------------------------------------------------------------
+  bff:
+    name: BFF
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bff
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: bff/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Test
+        run: pnpm test
+
+  # ---------------------------------------------------------------
   # バックエンド
   # ---------------------------------------------------------------
   backend:

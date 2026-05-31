@@ -96,7 +96,7 @@ Article、Comment、Profile、Favorite、Feed、Tag の browser request は BFF 
 | CSRF bootstrap | BFF の `GET /api/session/csrf` が login/register 前の pre-session と JS-readable な CSRF proof を提供する |
 | CSRF validation | BFF cookie が送信される `POST` / `PUT` / `PATCH` / `DELETE` は login、register、logout を含め `X-CSRF-TOKEN` を検証する。missing / invalid proof は `419 CSRF Token Mismatch` とし、認証 cookie と CSRF proof は分離する |
 | CORS | Browser と BFF は同一 origin とし credentialed CORS に依存しない。Public API への authenticated browser CORS access は許可しない |
-| API technology | Browser-facing BFF は REST endpoint を基本とし、GraphQL 導入は今回の認証移行スコープ外とする |
+| API technology | Browser-facing BFF は REST endpoint を基本とし、Hono + TypeScript で実装する。GraphQL 導入は今回の認証移行スコープ外とする |
 
 ### Deployment / Docker Topology
 
@@ -108,7 +108,7 @@ Production では frontend static assets と BFF endpoint を同じ public origi
 | Public API origin | `https://api.example.net` | RealWorld-compatible JWT API。browser の認証付き direct access を提供しない |
 | BFF to Public API | server-to-server | BFF が保持 JWT を `Authorization: Token <jwt>` として送信する |
 
-Docker development environment では BFF service を追加し、browser が利用する frontend origin の `/api/*` を BFF へ到達させる。BFF は private Docker network 上で `backend-nginx` に接続する。`compose.yml`、BFF runtime/container、frontend 側 proxy または gateway、環境変数例の実装変更は BFF 実装 Issue で扱う。
+Docker development environment では Hono + TypeScript BFF service を追加し、browser が利用する frontend origin の `/api/*` を BFF へ到達させる。BFF は private Docker network 上で `backend-nginx` に接続する。`compose.yml`、BFF runtime/container、frontend 側 proxy または gateway、環境変数例の実装変更は BFF 実装 Issue で扱う。
 
 ## API Endpoint List
 

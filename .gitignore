@@ -3,3 +3,4 @@
 !/specs/_template-feature-spec.md
 .pnpm-store
 node_modules/
+bff/dist/

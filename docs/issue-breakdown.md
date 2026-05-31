@@ -38,7 +38,7 @@ This order avoids building UI workflows before API contracts and authentication 
 | --- | --- | --- | --- |
 | Backend Foundation | Laravel Public API の DDD 構成、共通 error response、JWT 認証基盤を用意する | #35, #37, #124 | Public API 実装 Issue が共通構造に乗る |
 | Frontend Foundation | React Router、BFF client、Auth Provider、App Shell を用意する | #36, #37, #124 | 画面実装 Issue が共通構造に乗る |
-| Browser BFF | same-origin BFF、BrowserSession、CSRF、Public API forwarding、Docker 経路を用意する | #124, Backend Foundation | frontend が JWT を受け取らず Public API 機能を利用できる |
+| Browser BFF | Hono + TypeScript の same-origin BFF、BrowserSession、CSRF、Public API forwarding、Docker 経路を用意する | #124, Backend Foundation | frontend が JWT を受け取らず Public API 機能を利用できる |
 | Identity Context | Register / Login / Current User / Settings API と画面を実装する | Backend/Foundation, Frontend/Foundation | 認証状態を使う後続機能が実装可能 |
 | Publishing Context | Article / Comment / Tag の API と画面を実装する | Identity | 記事作成から詳細閲覧、コメントまで動く |
 | Social Context | Profile / Follow / Favorite / Feed を実装する | Identity, Publishing | RealWorld の social workflow が動く |
@@ -91,11 +91,11 @@ This order avoids building UI workflows before API contracts and authentication 
 | --- | --- | --- | --- |
 | 1 | #124 | Public JWT API、BFF、BrowserSession、CSRF、Docker topology の設計方針 | 後続実装の前提として先にマージ |
 | 2-a | #126 | Laravel Public API の JWT 発行・検証 | #124 後。#131 と並行可能 |
-| 2-b | #131 | same-origin BFF、BrowserSession、CSRF、Public API forwarding、Docker service/proxy/env example | #124 後。#126 と並行可能 |
+| 2-b | #131 | Hono + TypeScript の same-origin BFF、BrowserSession、CSRF、Public API forwarding、Docker service/proxy/env example | #124 後。#126 と並行可能 |
 | 3 | #125 | Frontend を BFF client へ移行し browser-readable token handling を削除 | #131 の browser-facing API が利用可能になってからマージ |
 | 4 | #127 | Public JWT と BFF BrowserSession の統合 QA | #125、#126、#131 の完了後 |
 
-Browser-facing BFF は REST proxy / 必要最小限の aggregation endpoint を基本とする。GraphQL 導入は認証移行の対象外とし、必要性が生じた場合に独立した設計 Issue として扱う。
+Browser-facing BFF は Hono + TypeScript による REST proxy / 必要最小限の aggregation endpoint を基本とする。GraphQL 導入は認証移行の対象外とし、必要性が生じた場合に独立した設計 Issue として扱う。
 
 ## Suggested Milestones
 

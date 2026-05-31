@@ -47,6 +47,25 @@ services:
     networks:
       - app-network
 
+  bff:
+    build:
+      context: ./docker/bff
+      dockerfile: Dockerfile
+    ports:
+      - "3006:3006"
+    volumes:
+      - ./bff:/app
+      - bff-node-modules:/app/node_modules
+    environment:
+      PORT: "3006"
+      PUBLIC_API_BASE_URL: "http://backend-nginx"
+      BFF_SESSION_COOKIE_NAME: "__Host-conduit_session"
+      BFF_SESSION_TTL_SECONDS: "${BFF_SESSION_TTL_SECONDS:-3600}"
+    depends_on:
+      - backend-nginx
+    networks:
+      - app-network
+
   mailpit:
     image: axllent/mailpit:latest
     ports:
@@ -64,12 +83,17 @@ services:
     volumes:
       - ./frontend:/app
       - frontend-node-modules:/app/node_modules
+    environment:
+      BFF_PROXY_TARGET: "http://bff:3006"
+    depends_on:
+      - bff
     networks:
       - app-network
 
 volumes:
   db-data:
   frontend-node-modules:
+  bff-node-modules:
 
 networks:
   app-network:
