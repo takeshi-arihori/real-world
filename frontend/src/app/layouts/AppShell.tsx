@@ -11,7 +11,7 @@ export function AppShell({ children }: AppShellProps): ReactElement {
   const navigate = useNavigate();
 
   function handleSignOut(): void {
-    logout();
+    void logout();
     navigate('/', { replace: true });
   }
 

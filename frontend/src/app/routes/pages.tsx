@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/app/providers/useAuth';
-import { LoginForm, RegisterForm } from '@/features/auth';
+import { LoginForm, RegisterForm, SettingsForm } from '@/features/auth';
 import { getSafeReturnTo } from './returnTo';
 
 const SAMPLE_ARTICLES = [
@@ -177,48 +177,33 @@ function AuthPage({
 }
 
 export function SettingsPage(): ReactElement {
-  const { logout, user } = useAuth();
+  const { logout, updateCurrentUser, user } = useAuth();
   const navigate = useNavigate();
 
-  function handleLogout(): void {
-    logout();
+  async function handleLogout(): Promise<void> {
+    await logout();
     navigate('/', { replace: true });
+  }
+
+  if (user === null) {
+    return (
+      <main className="page page--narrow">
+        <section className="editorial-panel" aria-labelledby="settings-title">
+          <h1 id="settings-title">Settings</h1>
+        </section>
+      </main>
+    );
   }
 
   return (
     <main className="page page--narrow">
       <section className="editorial-panel" aria-labelledby="settings-title">
         <h1 id="settings-title">Settings</h1>
-        <form className="form-stack">
-          <label>
-            <span>Profile image URL</span>
-            <input placeholder="URL of profile picture" type="url" />
-          </label>
-          <label>
-            <span>Username</span>
-            <input defaultValue={user?.username ?? ''} type="text" />
-          </label>
-          <label>
-            <span>Bio</span>
-            <textarea placeholder="Short bio" rows={5} />
-          </label>
-          <label>
-            <span>Email</span>
-            <input placeholder="Email" type="email" />
-          </label>
-          <label>
-            <span>Password</span>
-            <input placeholder="New password" type="password" />
-          </label>
-          <div className="form-actions">
-            <button className="primary-action" type="button">
-              Update Settings
-            </button>
-            <button className="danger-action" onClick={handleLogout} type="button">
-              Sign out
-            </button>
-          </div>
-        </form>
+        <SettingsForm
+          onLogout={handleLogout}
+          onSubmit={updateCurrentUser}
+          user={user}
+        />
       </section>
     </main>
   );

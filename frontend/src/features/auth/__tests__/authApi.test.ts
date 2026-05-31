@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ApiClient } from '@/lib/apiClient';
-import { getCurrentUser, loginUser, registerUser } from '../api/authApi';
+import {
+  getCurrentUser,
+  loginUser,
+  logoutUser,
+  registerUser,
+  updateCurrentUser,
+} from '../api/authApi';
 
 /**
  * auth API関数がHTTP clientへ渡すpath/body/optionsを検証するためのclient stubを作る。
@@ -16,19 +22,18 @@ function createClient(): ApiClient {
 }
 
 describe('認証API', () => {
-  it('loginはRealWorld形式の認証情報を未認証リクエストとして送りsessionへ変換する', async () => {
+  it('loginはBFF session endpointへ認証情報を送りtokenなしcurrent userへ変換する', async () => {
     const client = createClient();
     vi.mocked(client.post).mockResolvedValue({
       user: {
         bio: null,
         email: 'jake@example.com',
         image: null,
-        token: 'login-token',
         username: 'jake',
       },
     });
 
-    const session = await loginUser(
+    const user = await loginUser(
       {
         email: 'jake@example.com',
         password: 'secret',
@@ -37,39 +42,34 @@ describe('認証API', () => {
     );
 
     expect(client.post).toHaveBeenCalledWith(
-      '/api/users/login',
+      '/api/session/login',
       {
         user: {
           email: 'jake@example.com',
           password: 'secret',
         },
       },
-      { auth: false },
     );
-    expect(session).toEqual({
-      token: 'login-token',
-      user: {
-        bio: null,
-        email: 'jake@example.com',
-        image: null,
-        username: 'jake',
-      },
+    expect(user).toEqual({
+      bio: null,
+      email: 'jake@example.com',
+      image: null,
+      username: 'jake',
     });
   });
 
-  it('registerはRealWorld形式のユーザー情報を未認証リクエストとして送りsessionへ変換する', async () => {
+  it('registerはBFF session endpointへユーザー情報を送りtokenなしcurrent userへ変換する', async () => {
     const client = createClient();
     vi.mocked(client.post).mockResolvedValue({
       user: {
         bio: '',
         email: 'jane@example.com',
         image: '',
-        token: 'register-token',
         username: 'jane',
       },
     });
 
-    const session = await registerUser(
+    const user = await registerUser(
       {
         email: 'jane@example.com',
         password: 'secret',
@@ -79,7 +79,7 @@ describe('認証API', () => {
     );
 
     expect(client.post).toHaveBeenCalledWith(
-      '/api/users',
+      '/api/session/register',
       {
         user: {
           email: 'jane@example.com',
@@ -87,35 +87,71 @@ describe('認証API', () => {
           username: 'jane',
         },
       },
-      { auth: false },
     );
-    expect(session.token).toBe('register-token');
-    expect(session.user.username).toBe('jane');
+    expect(user.username).toBe('jane');
   });
 
-  it('current userは認証済みRealWorld user endpointを読みsessionへ変換する', async () => {
+  it('current userはBFF BrowserSessionからtokenなしcurrent userを復元する', async () => {
     const client = createClient();
     vi.mocked(client.get).mockResolvedValue({
       user: {
         bio: 'API learner',
         email: 'jake@example.com',
         image: 'https://example.com/avatar.png',
-        token: 'fresh-token',
         username: 'jake',
       },
     });
 
-    const session = await getCurrentUser(client);
+    const user = await getCurrentUser(client);
 
-    expect(client.get).toHaveBeenCalledWith('/api/user');
-    expect(session).toEqual({
-      token: 'fresh-token',
+    expect(client.get).toHaveBeenCalledWith('/api/session');
+    expect(user).toEqual({
+      bio: 'API learner',
+      email: 'jake@example.com',
+      image: 'https://example.com/avatar.png',
+      username: 'jake',
+    });
+  });
+
+  it('settings updateはPUT /api/session/userへ空でない値だけを送る', async () => {
+    const client = createClient();
+    vi.mocked(client.put).mockResolvedValue({
       user: {
         bio: 'API learner',
         email: 'jake@example.com',
-        image: 'https://example.com/avatar.png',
+        image: null,
         username: 'jake',
       },
     });
+
+    const user = await updateCurrentUser(
+      {
+        bio: 'API learner',
+        email: 'jake@example.com',
+        image: null,
+        password: undefined,
+        username: 'jake',
+      },
+      client,
+    );
+
+    expect(client.put).toHaveBeenCalledWith('/api/session/user', {
+      user: {
+        bio: 'API learner',
+        email: 'jake@example.com',
+        image: null,
+        username: 'jake',
+      },
+    });
+    expect(user.bio).toBe('API learner');
+  });
+
+  it('logoutはBFF session logout endpointを呼ぶ', async () => {
+    const client = createClient();
+    vi.mocked(client.delete).mockResolvedValue(null);
+
+    await logoutUser(client);
+
+    expect(client.delete).toHaveBeenCalledWith('/api/session');
   });
 });

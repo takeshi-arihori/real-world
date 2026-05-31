@@ -4,8 +4,8 @@ import type { ReactElement } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '@/app/providers/AppProviders';
-import type { AuthApi, AuthSession, AuthUser } from '@/features/auth';
-import { clearAuthToken, setAuthToken } from '@/lib/authToken';
+import type { AuthApi, AuthUser } from '@/features/auth';
+import { ApiError } from '@/lib/apiError';
 import { createAppRouter } from '../router';
 
 const DEMO_USER: AuthUser = {
@@ -20,18 +20,17 @@ const DEMO_USER: AuthUser = {
  */
 function createAuthApi(overrides: Partial<AuthApi> = {}): AuthApi {
   return {
-    getCurrentUser: async () => ({
-      token: 'fresh-token',
-      user: DEMO_USER,
-    }),
-    login: async () => ({
-      token: 'login-token',
-      user: DEMO_USER,
-    }),
-    register: async () => ({
-      token: 'register-token',
-      user: DEMO_USER,
-    }),
+    getCurrentUser: vi.fn().mockRejectedValue(
+      new ApiError('Unauthorized', {
+        bodyErrors: ['Unauthorized'],
+        kind: 'unauthorized',
+        status: 401,
+      }),
+    ),
+    login: vi.fn().mockResolvedValue(DEMO_USER),
+    logout: vi.fn().mockResolvedValue(undefined),
+    register: vi.fn().mockResolvedValue(DEMO_USER),
+    updateCurrentUser: vi.fn().mockResolvedValue(DEMO_USER),
     ...overrides,
   };
 }
@@ -57,7 +56,7 @@ function renderRoute({
 
 describe('アプリルーター', () => {
   beforeEach(() => {
-    clearAuthToken();
+    window.localStorage.clear();
   });
 
   it('未認証ユーザーを必須ルートからreturn path付きログインへ遷移する', async () => {
@@ -66,7 +65,7 @@ describe('アプリルーター', () => {
     render(renderRoute({ initialPath: '/settings' }));
 
     expect(
-      screen.getByRole('heading', { name: 'Sign in' }),
+      await screen.findByRole('heading', { name: 'Sign in' }),
     ).toBeInTheDocument();
     expect(screen.getByText('/settings')).toBeInTheDocument();
   });
@@ -76,6 +75,9 @@ describe('アプリルーター', () => {
     const { render } = await import('@testing-library/react');
 
     render(renderRoute({ initialPath: '/login?returnTo=/editor' }));
+    expect(
+      await screen.findByRole('heading', { name: 'Sign in' }),
+    ).toBeInTheDocument();
     await user.type(screen.getByLabelText('Email'), 'demo@example.com');
     await user.type(screen.getByLabelText('Password'), 'secret');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
@@ -93,6 +95,9 @@ describe('アプリルーター', () => {
     const { render } = await import('@testing-library/react');
 
     render(renderRoute({ initialPath: `/login?returnTo=${encodeURIComponent(returnTo)}` }));
+    expect(
+      await screen.findByRole('heading', { name: 'Sign in' }),
+    ).toBeInTheDocument();
     await user.type(screen.getByLabelText('Email'), 'demo@example.com');
     await user.type(screen.getByLabelText('Password'), 'secret');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
@@ -118,20 +123,19 @@ describe('アプリルーター', () => {
     render(renderRoute({ initialPath: '/missing-page' }));
 
     expect(
-      screen.getByRole('heading', { name: 'Page not found' }),
+      await screen.findByRole('heading', { name: 'Page not found' }),
     ).toBeInTheDocument();
   });
 
-  it('保存済みtokenの確認中は必須ルートからログインへ早期遷移しない', async () => {
+  it('BrowserSession確認中は必須ルートからログインへ早期遷移しない', async () => {
     const { render } = await import('@testing-library/react');
-    let resolveRefresh: (session: AuthSession) => void = () => {};
-    const refreshPromise = new Promise<AuthSession>((resolve) => {
+    let resolveRefresh: (user: AuthUser) => void = () => {};
+    const refreshPromise = new Promise<AuthUser>((resolve) => {
       resolveRefresh = resolve;
     });
     const authApi = createAuthApi({
       getCurrentUser: vi.fn().mockReturnValue(refreshPromise),
     });
-    setAuthToken('active-token');
 
     render(renderRoute({ authApi, initialPath: '/settings' }));
 
@@ -139,10 +143,7 @@ describe('アプリルーター', () => {
       screen.queryByRole('heading', { name: 'Sign in' }),
     ).not.toBeInTheDocument();
 
-    resolveRefresh({
-      token: 'fresh-token',
-      user: DEMO_USER,
-    });
+    resolveRefresh(DEMO_USER);
 
     expect(
       await screen.findByRole('heading', { name: 'Settings' }),
