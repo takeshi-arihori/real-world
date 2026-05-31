@@ -2,9 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AuthApi, AuthSession, AuthUser } from '@/features/auth';
+import type { AuthApi, AuthUser } from '@/features/auth';
 import { ApiError } from '@/lib/apiError';
-import { clearAuthToken, getAuthToken, setAuthToken } from '@/lib/authToken';
 import { AuthProvider } from '../AuthProvider';
 import { useAuth } from '../useAuth';
 
@@ -23,22 +22,15 @@ const JANE: AuthUser = {
 };
 
 /**
- * AuthProviderがAuthApiの結果をcontext状態とtoken storageへ反映することを検証するstubを作る。
+ * AuthProviderがBrowserSession APIの結果だけをcontext状態へ反映することを検証するstubを作る。
  */
 function createAuthApi(overrides: Partial<AuthApi> = {}): AuthApi {
   return {
-    getCurrentUser: vi.fn().mockResolvedValue({
-      token: 'fresh-token',
-      user: JAKE,
-    }),
-    login: vi.fn().mockResolvedValue({
-      token: 'login-token',
-      user: JAKE,
-    }),
-    register: vi.fn().mockResolvedValue({
-      token: 'register-token',
-      user: JANE,
-    }),
+    getCurrentUser: vi.fn().mockResolvedValue(JAKE),
+    login: vi.fn().mockResolvedValue(JAKE),
+    logout: vi.fn().mockResolvedValue(undefined),
+    register: vi.fn().mockResolvedValue(JANE),
+    updateCurrentUser: vi.fn().mockResolvedValue(JANE),
     ...overrides,
   };
 }
@@ -80,12 +72,30 @@ function AuthProbe(): ReactElement {
       <button
         type="button"
         onClick={() => {
+          void auth.updateCurrentUser({
+            bio: 'Writer',
+            email: 'jane@example.com',
+            image: 'https://example.com/jane.png',
+            username: 'jane',
+          });
+        }}
+      >
+        update
+      </button>
+      <button
+        type="button"
+        onClick={() => {
           void auth.refresh();
         }}
       >
         refresh
       </button>
-      <button type="button" onClick={auth.logout}>
+      <button
+        type="button"
+        onClick={() => {
+          void auth.logout();
+        }}
+      >
         logout
       </button>
     </div>
@@ -94,64 +104,11 @@ function AuthProbe(): ReactElement {
 
 describe('認証Provider', () => {
   beforeEach(() => {
-    clearAuthToken();
+    window.localStorage.clear();
   });
 
-  it('login後にtokenを保存してcurrent userを更新する', async () => {
-    const user = userEvent.setup();
+  it('mount時にBrowserSessionからcurrent userを復元しtoken storageへ保存しない', async () => {
     const authApi = createAuthApi();
-
-    render(
-      <AuthProvider authApi={authApi}>
-        <AuthProbe />
-      </AuthProvider>,
-    );
-
-    await user.click(screen.getByRole('button', { name: 'login' }));
-
-    expect(await screen.findByText('jake')).toBeInTheDocument();
-    expect(screen.getByText('authenticated')).toBeInTheDocument();
-    expect(getAuthToken()).toBe('login-token');
-  });
-
-  it('register後にtokenを保存してcurrent userを更新する', async () => {
-    const user = userEvent.setup();
-    const authApi = createAuthApi();
-
-    render(
-      <AuthProvider authApi={authApi}>
-        <AuthProbe />
-      </AuthProvider>,
-    );
-
-    await user.click(screen.getByRole('button', { name: 'register' }));
-
-    expect(await screen.findByText('jane')).toBeInTheDocument();
-    expect(getAuthToken()).toBe('register-token');
-  });
-
-  it('tokenがないrefreshではcurrent userをクリアしてAPIを呼ばない', async () => {
-    const user = userEvent.setup();
-    const authApi = createAuthApi();
-
-    render(
-      <AuthProvider authApi={authApi} initialUser={JAKE}>
-        <AuthProbe />
-      </AuthProvider>,
-    );
-
-    expect(screen.getByText('authenticated')).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'refresh' }));
-
-    expect(await screen.findByText('guest')).toBeInTheDocument();
-    expect(screen.getByText('no-user')).toBeInTheDocument();
-    expect(authApi.getCurrentUser).not.toHaveBeenCalled();
-  });
-
-  it('保存済みtokenがある場合はmount時にcurrent userを復元する', async () => {
-    const authApi = createAuthApi();
-    setAuthToken('active-token');
 
     render(
       <AuthProvider authApi={authApi}>
@@ -163,11 +120,12 @@ describe('認証Provider', () => {
     expect(await screen.findByText('jake')).toBeInTheDocument();
     expect(screen.getByText('authenticated')).toBeInTheDocument();
     expect(screen.getByText('idle')).toBeInTheDocument();
-    expect(getAuthToken()).toBe('fresh-token');
+    expect(window.localStorage.getItem('realworld.authToken')).toBeNull();
     expect(authApi.getCurrentUser).toHaveBeenCalledOnce();
   });
 
-  it('current user APIがunauthorizedを返した場合はtokenとcurrent userをクリアする', async () => {
+  it('login後にcurrent userを更新しtoken storageへ保存しない', async () => {
+    const user = userEvent.setup();
     const authApi = createAuthApi({
       getCurrentUser: vi.fn().mockRejectedValue(
         new ApiError('Unauthorized', {
@@ -177,7 +135,6 @@ describe('認証Provider', () => {
         }),
       ),
     });
-    setAuthToken('expired-token');
 
     render(
       <AuthProvider authApi={authApi}>
@@ -185,23 +142,42 @@ describe('認証Provider', () => {
       </AuthProvider>,
     );
 
-    await waitFor(() => {
-      expect(getAuthToken()).toBeNull();
-      expect(screen.getByText('idle')).toBeInTheDocument();
-    });
-    expect(screen.getByText('guest')).toBeInTheDocument();
+    await screen.findByText('guest');
+    await user.click(screen.getByRole('button', { name: 'login' }));
+
+    expect(await screen.findByText('jake')).toBeInTheDocument();
+    expect(screen.getByText('authenticated')).toBeInTheDocument();
+    expect(window.localStorage.getItem('realworld.authToken')).toBeNull();
   });
 
-  it('current user APIがunauthorized以外で失敗した場合は未認証扱いにして例外を漏らさない', async () => {
+  it('register後にcurrent userを更新する', async () => {
+    const user = userEvent.setup();
     const authApi = createAuthApi({
       getCurrentUser: vi.fn().mockRejectedValue(
-        new ApiError('Network request failed', {
-          bodyErrors: [],
-          kind: 'network',
+        new ApiError('Unauthorized', {
+          bodyErrors: ['Unauthorized'],
+          kind: 'unauthorized',
+          status: 401,
         }),
       ),
     });
-    setAuthToken('active-token');
+
+    render(
+      <AuthProvider authApi={authApi}>
+        <AuthProbe />
+      </AuthProvider>,
+    );
+
+    await screen.findByText('guest');
+    await user.click(screen.getByRole('button', { name: 'register' }));
+
+    expect(await screen.findByText('jane')).toBeInTheDocument();
+    expect(screen.getByText('authenticated')).toBeInTheDocument();
+  });
+
+  it('settings update後にcurrent userを更新する', async () => {
+    const user = userEvent.setup();
+    const authApi = createAuthApi();
 
     render(
       <AuthProvider authApi={authApi} initialUser={JAKE}>
@@ -209,23 +185,71 @@ describe('認証Provider', () => {
       </AuthProvider>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('guest')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'update' }));
+
+    expect(await screen.findByText('jane')).toBeInTheDocument();
+    expect(authApi.updateCurrentUser).toHaveBeenCalledWith({
+      bio: 'Writer',
+      email: 'jane@example.com',
+      image: 'https://example.com/jane.png',
+      username: 'jane',
     });
-    expect(screen.getByText('idle')).toBeInTheDocument();
-    expect(getAuthToken()).toBe('active-token');
+  });
+
+  it('refreshはtoken storageに依存せずcurrent userを再取得する', async () => {
+    const user = userEvent.setup();
+    const authApi = createAuthApi({
+      getCurrentUser: vi.fn().mockResolvedValue(JANE),
+    });
+
+    render(
+      <AuthProvider authApi={authApi} initialUser={JAKE}>
+        <AuthProbe />
+      </AuthProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'refresh' }));
+
+    expect(await screen.findByText('jane')).toBeInTheDocument();
+    expect(authApi.getCurrentUser).toHaveBeenCalledOnce();
+  });
+
+  it('current user APIがunauthorizedを返した場合はcurrent userをクリアする', async () => {
+    const user = userEvent.setup();
+    const authApi = createAuthApi({
+      getCurrentUser: vi.fn().mockRejectedValue(
+        new ApiError('Unauthorized', {
+          bodyErrors: ['Unauthorized'],
+          kind: 'unauthorized',
+          status: 401,
+        }),
+      ),
+    });
+
+    render(
+      <AuthProvider authApi={authApi} initialUser={JAKE}>
+        <AuthProbe />
+      </AuthProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'refresh' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('idle')).toBeInTheDocument();
+    });
+    expect(screen.getByText('guest')).toBeInTheDocument();
+    expect(screen.getByText('no-user')).toBeInTheDocument();
   });
 
   it('refresh中にlogoutした場合は古いcurrent userを再適用しない', async () => {
     const user = userEvent.setup();
-    let resolveRefresh: (session: AuthSession) => void = () => {};
-    const refreshPromise = new Promise<AuthSession>((resolve) => {
+    let resolveRefresh: (user: AuthUser) => void = () => {};
+    const refreshPromise = new Promise<AuthUser>((resolve) => {
       resolveRefresh = resolve;
     });
     const authApi = createAuthApi({
       getCurrentUser: vi.fn().mockReturnValue(refreshPromise),
     });
-    setAuthToken('active-token');
 
     render(
       <AuthProvider authApi={authApi}>
@@ -235,22 +259,17 @@ describe('認証Provider', () => {
 
     expect(screen.getByText('refreshing')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'logout' }));
-    expect(getAuthToken()).toBeNull();
 
-    resolveRefresh({
-      token: 'fresh-token',
-      user: JAKE,
-    });
+    resolveRefresh(JAKE);
 
     await waitFor(() => {
       expect(screen.getByText('idle')).toBeInTheDocument();
     });
     expect(screen.getByText('guest')).toBeInTheDocument();
     expect(screen.getByText('no-user')).toBeInTheDocument();
-    expect(getAuthToken()).toBeNull();
   });
 
-  it('logoutでtokenとcurrent userをクリアする', async () => {
+  it('logoutでBFF sessionを破棄してcurrent userをクリアする', async () => {
     const user = userEvent.setup();
     const authApi = createAuthApi();
 
@@ -259,12 +278,11 @@ describe('認証Provider', () => {
         <AuthProbe />
       </AuthProvider>,
     );
-    setAuthToken('active-token');
 
     await user.click(screen.getByRole('button', { name: 'logout' }));
 
+    expect(authApi.logout).toHaveBeenCalledOnce();
     expect(screen.getByText('guest')).toBeInTheDocument();
     expect(screen.getByText('no-user')).toBeInTheDocument();
-    expect(getAuthToken()).toBeNull();
   });
 });

@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApiClient } from '../apiClient';
-import { clearAuthToken, setAuthToken } from '../authToken';
 import { isApiError } from '../apiError';
 
 /**
@@ -19,8 +18,14 @@ function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
 /**
  * fetch差し替え時にResponseを返すmockを生成する。
  */
-function createFetchMock(response: Response): ReturnType<typeof vi.fn> {
-  return vi.fn().mockResolvedValue(response);
+function createFetchMock(...responses: Response[]): ReturnType<typeof vi.fn> {
+  const fetchMock = vi.fn();
+
+  for (const response of responses) {
+    fetchMock.mockResolvedValueOnce(response);
+  }
+
+  return fetchMock;
 }
 
 /**
@@ -39,27 +44,103 @@ function getRequestOptions(fetchMock: ReturnType<typeof vi.fn>): RequestInit {
 
 describe('共通API client', () => {
   beforeEach(() => {
-    clearAuthToken();
     vi.unstubAllGlobals();
+    window.localStorage.clear();
   });
 
-  it('トークンが存在する場合はRealWorld形式の認証ヘッダーを付与する', async () => {
+  it('BFFへsame-origin credentials付きでrequestしAuthorization headerを付与しない', async () => {
     const fetchMock = createFetchMock(jsonResponse({ user: { username: 'jake' } }));
     vi.stubGlobal('fetch', fetchMock);
-    setAuthToken('secret-token');
 
-    const client = createApiClient({ baseUrl: 'https://api.example.test' });
+    const client = createApiClient({ baseUrl: 'https://app.example.test' });
 
-    await client.get('/api/user');
+    await client.get('/api/session');
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://api.example.test/api/user',
+      'https://app.example.test/api/session',
       expect.any(Object),
     );
 
     const requestOptions = getRequestOptions(fetchMock);
     const headers = new Headers(requestOptions.headers);
-    expect(headers.get('Authorization')).toBe('Token secret-token');
+    expect(requestOptions.credentials).toBe('same-origin');
+    expect(headers.get('Authorization')).toBeNull();
+    expect(window.localStorage.getItem('realworld.authToken')).toBeNull();
+  });
+
+  it('mutating request前にCSRF proofを取得してX-CSRF-TOKEN headerを付与する', async () => {
+    const fetchMock = createFetchMock(
+      jsonResponse({ csrfToken: 'csrf-proof-1' }),
+      jsonResponse({ user: { username: 'jake' } }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const client = createApiClient({ baseUrl: 'https://app.example.test' });
+
+    await client.post('/api/session/login', {
+      user: {
+        email: 'jake@example.com',
+        password: 'secret',
+      },
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      'https://app.example.test/api/session/csrf',
+      expect.objectContaining({
+        credentials: 'same-origin',
+        method: 'GET',
+      }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      'https://app.example.test/api/session/login',
+      expect.objectContaining({
+        body: JSON.stringify({
+          user: {
+            email: 'jake@example.com',
+            password: 'secret',
+          },
+        }),
+        credentials: 'same-origin',
+        method: 'POST',
+      }),
+    );
+
+    const requestOptions = fetchMock.mock.calls.at(1)?.[1] as RequestInit;
+    const headers = new Headers(requestOptions.headers);
+    expect(headers.get('X-CSRF-TOKEN')).toBe('csrf-proof-1');
+    expect(headers.get('Authorization')).toBeNull();
+  });
+
+  it('419 CSRF Token MismatchではCSRF proofを再取得して一度だけ再実行する', async () => {
+    const fetchMock = createFetchMock(
+      jsonResponse({ csrfToken: 'stale-proof' }),
+      jsonResponse({ errors: { body: ['CSRF Token Mismatch'] } }, { status: 419 }),
+      jsonResponse({ csrfToken: 'fresh-proof' }),
+      jsonResponse({ user: { username: 'jane' } }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const client = createApiClient({ baseUrl: 'https://app.example.test' });
+
+    await client.put('/api/session/user', {
+      user: {
+        username: 'jane',
+      },
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(fetchMock.mock.calls.at(2)?.[0]).toBe(
+      'https://app.example.test/api/session/csrf',
+    );
+
+    const firstMutation = fetchMock.mock.calls.at(1)?.[1] as RequestInit;
+    const retriedMutation = fetchMock.mock.calls.at(3)?.[1] as RequestInit;
+    expect(new Headers(firstMutation.headers).get('X-CSRF-TOKEN')).toBe(
+      'stale-proof',
+    );
+    expect(new Headers(retriedMutation.headers).get('X-CSRF-TOKEN')).toBe(
+      'fresh-proof',
+    );
   });
 
   it('invalid tokenを扱えるよう401レスポンスをunauthorized errorへ正規化する', async () => {
@@ -82,6 +163,40 @@ describe('共通API client', () => {
       expect(error.kind).toBe('unauthorized');
       expect(error.status).toBe(401);
       expect(error.bodyErrors).toEqual(['Unauthorized']);
+    }
+  });
+
+  it('再取得後も419の場合はcsrf errorへ正規化する', async () => {
+    vi.stubGlobal(
+      'fetch',
+      createFetchMock(
+        jsonResponse({ csrfToken: 'csrf-proof' }),
+        jsonResponse(
+          { errors: { body: ['CSRF Token Mismatch'] } },
+          { status: 419 },
+        ),
+        jsonResponse({ csrfToken: 'csrf-proof-2' }),
+        jsonResponse(
+          { errors: { body: ['CSRF Token Mismatch'] } },
+          { status: 419 },
+        ),
+      ),
+    );
+    const client = createApiClient();
+
+    try {
+      await client.delete('/api/session');
+      throw new Error('requestが失敗する想定です');
+    } catch (error: unknown) {
+      expect(isApiError(error)).toBe(true);
+
+      if (!isApiError(error)) {
+        throw error;
+      }
+
+      expect(error.kind).toBe('csrf');
+      expect(error.status).toBe(419);
+      expect(error.bodyErrors).toEqual(['CSRF Token Mismatch']);
     }
   });
 
