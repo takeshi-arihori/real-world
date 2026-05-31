@@ -2,6 +2,12 @@ import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
+/**
+ * ローカル Docker の認証トポロジを、JWT をログに出さずに smoke test する。
+ *
+ * 想定経路:
+ * Browser 相当 request -> frontend origin /api/* -> BFF -> backend-nginx.
+ */
 const DEFAULT_PUBLIC_API_BASE_URL = 'http://localhost:8080';
 const DEFAULT_FRONTEND_ORIGIN = 'http://localhost:3005';
 const SESSION_COOKIE_NAME = '__Host-conduit_session';
@@ -19,6 +25,9 @@ const frontendOrigin = trimTrailingSlash(
 const runId = createRunId();
 const credential = createCredential(runId);
 
+/**
+ * service 未起動と認証契約の破綻を切り分けるため、先に readiness を確認する。
+ */
 async function main() {
   console.log('auth integration QA');
   console.log(`- Public API: ${publicApiBaseUrl}`);
@@ -51,6 +60,9 @@ async function main() {
   console.log('auth integration QA passed');
 }
 
+/**
+ * Laravel Public API が外部へ公開する RealWorld JWT contract を検証する。
+ */
 async function verifyPublicJwtApi() {
   const user = {
     email: `qa-public-${runId}@example.com`,
@@ -90,6 +102,9 @@ async function verifyPublicJwtApi() {
   console.log('- Public JWT API contract passed');
 }
 
+/**
+ * React app と同じ origin 経由で BrowserSession lifecycle を検証する。
+ */
 async function verifyBffBrowserSessionViaFrontendOrigin() {
   const jar = new CookieJar();
   const user = {
@@ -201,6 +216,9 @@ async function verifyBffBrowserSessionViaFrontendOrigin() {
   console.log('- BFF BrowserSession Docker path passed');
 }
 
+/**
+ * frontend production code が browser-readable credential を扱い始める退行を検出する。
+ */
 async function verifyFrontendProductionCodeDoesNotHandleJwt() {
   const files = await listSourceFiles('frontend/src');
   const forbidden = [
@@ -232,6 +250,9 @@ async function verifyFrontendProductionCodeDoesNotHandleJwt() {
   console.log('- Frontend JWT boundary static scan passed');
 }
 
+/**
+ * session 検証用の小さな in-memory jar に cookie を保持しながら JSON request を送る。
+ */
 async function requestJson(url, options = {}) {
   const headers = new Headers(options.headers);
   const init = {
@@ -270,6 +291,9 @@ async function requestJson(url, options = {}) {
   };
 }
 
+/**
+ * container status だけに依存せず、service contract を polling する。
+ */
 async function waitForService(label, probe) {
   const startedAt = Date.now();
   let lastError = null;
@@ -294,6 +318,9 @@ async function waitForService(label, probe) {
   throw new Error(`${label} did not become ready`);
 }
 
+/**
+ * Node fetch 用の最小 cookie jar。QA に必要な name/value pair だけを保持する。
+ */
 class CookieJar {
   #cookies = new Map();
 
@@ -334,6 +361,9 @@ class CookieJar {
   }
 }
 
+/**
+ * test と test setup を除外し、production TypeScript source だけを列挙する。
+ */
 async function listSourceFiles(root) {
   const entries = await readdir(root, { withFileTypes: true });
   const files = [];
@@ -364,6 +394,9 @@ async function listSourceFiles(root) {
   return files;
 }
 
+/**
+ * 失敗内容を PR comment に貼れるよう、token を redact して status を検証する。
+ */
 function assertStatus(result, expected, label) {
   assert.equal(
     result.response.status,
