@@ -6,10 +6,13 @@ import { createAdaptorServer } from '@hono/node-server';
 import { Hono, type Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
+import { createClient } from 'redis';
 
 const DEFAULT_PORT = 3006;
 const DEFAULT_PUBLIC_API_BASE_URL = 'http://localhost:8080';
+const DEFAULT_REDIS_URL = 'redis://localhost:6379';
 const DEFAULT_SESSION_COOKIE_NAME = '__Host-conduit_session';
+const DEFAULT_SESSION_KEY_PREFIX = 'bff:session:';
 const DEFAULT_SESSION_TTL_SECONDS = 60 * 60;
 const CSRF_HEADER_NAME = 'x-csrf-token';
 
@@ -47,7 +50,10 @@ interface BffServerOptions {
   env?: NodeJS.ProcessEnv;
   port?: number | string;
   publicApiBaseUrl?: string | URL;
+  redisClient?: RedisSessionClient;
+  redisUrl?: string;
   sessionCookieName?: string;
+  sessionKeyPrefix?: string;
   sessionStore?: BrowserSessionStore;
   sessionTtlSeconds?: number | string;
 }
@@ -55,25 +61,52 @@ interface BffServerOptions {
 interface BffConfig {
   port: number;
   publicApiBaseUrl: URL;
+  redisUrl: string;
   sessionCookieName: string;
+  sessionKeyPrefix: string;
   sessionTtlSeconds: number;
 }
 
-interface BrowserSession {
+export interface BrowserSession {
   csrfToken: string;
   expiresAt: number;
   id: string;
   publicJwt: string | null;
 }
 
-interface BrowserSessionStore {
-  createPreSession: () => BrowserSession;
-  destroy: (sessionId: string | null) => void;
-  get: (sessionId: string | null) => BrowserSession | null;
+export interface BrowserSessionStore {
+  createPreSession: () => Promise<BrowserSession>;
+  destroy: (sessionId: string | null) => Promise<void>;
+  get: (sessionId: string | null) => Promise<BrowserSession | null>;
   startAuthenticatedSession: (
     previousSession: BrowserSession,
     publicJwt: string,
-  ) => BrowserSession;
+  ) => Promise<BrowserSession>;
+}
+
+interface RedisSessionPayload {
+  csrfToken: string;
+  publicJwt: string | null;
+}
+
+export interface RedisSetOptions {
+  EX: number;
+}
+
+export interface RedisSessionClient {
+  connect?: () => Promise<unknown>;
+  del: (key: string) => Promise<unknown>;
+  get: (key: string) => Promise<string | null>;
+  ping?: () => Promise<unknown>;
+  set: (key: string, value: string, options: RedisSetOptions) => Promise<unknown>;
+  ttl: (key: string) => Promise<number>;
+}
+
+export interface RedisSessionStoreOptions {
+  client?: RedisSessionClient;
+  keyPrefix: string;
+  redisUrl?: string;
+  ttlSeconds: number;
 }
 
 interface RequestSession {
@@ -90,15 +123,15 @@ interface PublicApiForwardOptions {
 /**
  * BrowserSession、CSRF、Public API forwarding を扱う Hono app を Node HTTP server として生成する。
  */
-export function createBffServer(options: BffServerOptions = {}): Server {
-  const app = createBffApp(options);
+export async function createBffServer(options: BffServerOptions = {}): Promise<Server> {
+  const app = await createBffApp(options);
 
   return createAdaptorServer({ fetch: app.fetch }) as Server;
 }
 
-function createBffApp(options: BffServerOptions = {}): Hono {
+async function createBffApp(options: BffServerOptions = {}): Promise<Hono> {
   const config = resolveConfig(options);
-  const sessions = options.sessionStore ?? new MemorySessionStore(config.sessionTtlSeconds);
+  const sessions = await resolveSessionStore(config, options);
   const app = new Hono();
 
   app.onError(() => {
@@ -109,9 +142,9 @@ function createBffApp(options: BffServerOptions = {}): Hono {
     return context.json({ status: 'ok' });
   });
 
-  app.get('/api/session/csrf', (context) => {
-    const existingSession = readRequestSession(context, config, sessions).session;
-    const session = existingSession ?? sessions.createPreSession();
+  app.get('/api/session/csrf', async (context) => {
+    const existingSession = (await readRequestSession(context, config, sessions)).session;
+    const session = existingSession ?? await sessions.createPreSession();
 
     setSessionCookie(context, config, session.id);
 
@@ -134,14 +167,14 @@ function createBffApp(options: BffServerOptions = {}): Hono {
     return handleAuthenticatedSessionRequest(context, config, sessions, '/api/user');
   });
 
-  app.delete('/api/session', (context) => {
-    const { session, sessionId } = readRequestSession(context, config, sessions);
+  app.delete('/api/session', async (context) => {
+    const { session, sessionId } = await readRequestSession(context, config, sessions);
 
     if (!hasValidCsrf(context, session)) {
       return csrfMismatchResponse();
     }
 
-    sessions.destroy(sessionId);
+    await sessions.destroy(sessionId);
     expireSessionCookie(context, config);
 
     return context.body(null, 204);
@@ -166,8 +199,10 @@ function createBffApp(options: BffServerOptions = {}): Hono {
   return app;
 }
 
-// TODO: 本番運用や複数 instance 構成では Redis などの共有 store に置き換える。
-// TODO: 長時間起動する場合は定期 cleanup または session 数の上限を追加する。
+export function createMemorySessionStore(ttlSeconds: number): BrowserSessionStore {
+  return new MemorySessionStore(ttlSeconds);
+}
+
 class MemorySessionStore implements BrowserSessionStore {
   private readonly sessions = new Map<string, BrowserSession>();
 
@@ -177,7 +212,7 @@ class MemorySessionStore implements BrowserSessionStore {
     this.ttlMilliseconds = ttlSeconds * 1000;
   }
 
-  public createPreSession(): BrowserSession {
+  public async createPreSession(): Promise<BrowserSession> {
     return this.persist({
       csrfToken: randomOpaqueValue(),
       expiresAt: 0,
@@ -186,13 +221,13 @@ class MemorySessionStore implements BrowserSessionStore {
     });
   }
 
-  public destroy(sessionId: string | null): void {
+  public async destroy(sessionId: string | null): Promise<void> {
     if (sessionId !== null) {
       this.sessions.delete(sessionId);
     }
   }
 
-  public get(sessionId: string | null): BrowserSession | null {
+  public async get(sessionId: string | null): Promise<BrowserSession | null> {
     if (sessionId === null) {
       return null;
     }
@@ -211,11 +246,11 @@ class MemorySessionStore implements BrowserSessionStore {
     return session;
   }
 
-  public startAuthenticatedSession(
+  public async startAuthenticatedSession(
     previousSession: BrowserSession,
     publicJwt: string,
-  ): BrowserSession {
-    this.destroy(previousSession.id);
+  ): Promise<BrowserSession> {
+    await this.destroy(previousSession.id);
 
     return this.persist({
       csrfToken: previousSession.csrfToken,
@@ -237,13 +272,112 @@ class MemorySessionStore implements BrowserSessionStore {
   }
 }
 
+export async function createRedisSessionStore(
+  options: RedisSessionStoreOptions,
+): Promise<BrowserSessionStore> {
+  const client = options.client ?? createDefaultRedisClient(options.redisUrl ?? DEFAULT_REDIS_URL);
+
+  try {
+    await client.connect?.();
+    await client.ping?.();
+  } catch (cause) {
+    throw new Error('Redis session store is unavailable', { cause });
+  }
+
+  return new RedisSessionStore(client, options.keyPrefix, options.ttlSeconds);
+}
+
+class RedisSessionStore implements BrowserSessionStore {
+  public constructor(
+    private readonly client: RedisSessionClient,
+    private readonly keyPrefix: string,
+    private readonly ttlSeconds: number,
+  ) {}
+
+  public async createPreSession(): Promise<BrowserSession> {
+    return this.persist({
+      csrfToken: randomOpaqueValue(),
+      id: randomOpaqueValue(),
+      publicJwt: null,
+    });
+  }
+
+  public async destroy(sessionId: string | null): Promise<void> {
+    if (sessionId !== null) {
+      await this.client.del(this.sessionKey(sessionId));
+    }
+  }
+
+  public async get(sessionId: string | null): Promise<BrowserSession | null> {
+    if (sessionId === null) {
+      return null;
+    }
+
+    const key = this.sessionKey(sessionId);
+    const serializedPayload = await this.client.get(key);
+
+    if (serializedPayload === null) {
+      return null;
+    }
+
+    const payload = parseRedisSessionPayload(serializedPayload);
+
+    if (payload === null) {
+      await this.destroy(sessionId);
+      return null;
+    }
+
+    const remainingTtlSeconds = await this.client.ttl(key);
+
+    if (remainingTtlSeconds <= 0) {
+      await this.destroy(sessionId);
+      return null;
+    }
+
+    return {
+      csrfToken: payload.csrfToken,
+      expiresAt: Date.now() + remainingTtlSeconds * 1000,
+      id: sessionId,
+      publicJwt: payload.publicJwt,
+    };
+  }
+
+  public async startAuthenticatedSession(
+    previousSession: BrowserSession,
+    publicJwt: string,
+  ): Promise<BrowserSession> {
+    await this.destroy(previousSession.id);
+
+    return this.persist({
+      csrfToken: previousSession.csrfToken,
+      id: randomOpaqueValue(),
+      publicJwt,
+    });
+  }
+
+  private async persist(session: Omit<BrowserSession, 'expiresAt'>): Promise<BrowserSession> {
+    await this.client.set(this.sessionKey(session.id), serializeRedisSessionPayload(session), {
+      EX: this.ttlSeconds,
+    });
+
+    return {
+      ...session,
+      expiresAt: Date.now() + this.ttlSeconds * 1000,
+    };
+  }
+
+  private sessionKey(sessionId: string): string {
+    return `${this.keyPrefix}${sessionId}`;
+  }
+}
+
 async function handleAuthSessionStart(
   context: Context,
   config: BffConfig,
   sessions: BrowserSessionStore,
   publicPath: string,
 ): Promise<Response> {
-  const { session } = readRequestSession(context, config, sessions);
+  const { session } = await readRequestSession(context, config, sessions);
 
   if (!hasValidCsrf(context, session)) {
     return csrfMismatchResponse();
@@ -268,7 +402,7 @@ async function handleAuthSessionStart(
     });
   }
 
-  const authenticatedSession = sessions.startAuthenticatedSession(session, publicJwt);
+  const authenticatedSession = await sessions.startAuthenticatedSession(session, publicJwt);
   setSessionCookie(context, config, authenticatedSession.id);
 
   return context.json(stripUserToken(body), upstreamResponse.status as ContentfulStatusCode);
@@ -280,7 +414,7 @@ async function handleAuthenticatedSessionRequest(
   sessions: BrowserSessionStore,
   publicPath: string,
 ): Promise<Response> {
-  const { session, sessionId } = readRequestSession(context, config, sessions);
+  const { session, sessionId } = await readRequestSession(context, config, sessions);
 
   if (session?.publicJwt === null || session?.publicJwt === undefined) {
     return jsonResponse(401, { errors: { body: ['Unauthorized'] } });
@@ -297,7 +431,7 @@ async function handleAuthenticatedSessionRequest(
   });
 
   if (upstreamResponse.status === 401) {
-    sessions.destroy(sessionId);
+    await sessions.destroy(sessionId);
     expireSessionCookie(context, config);
 
     return upstreamResponseToBrowserResponse(upstreamResponse, context);
@@ -323,7 +457,7 @@ async function handlePublicApiForwarding(
     return jsonResponse(404, { errors: { body: ['Use the BFF session endpoints'] } });
   }
 
-  const { session, sessionId } = readRequestSession(context, config, sessions);
+  const { session, sessionId } = await readRequestSession(context, config, sessions);
 
   if (isMutatingMethod(context.req.raw) && !hasValidCsrf(context, session)) {
     return csrfMismatchResponse();
@@ -337,7 +471,7 @@ async function handlePublicApiForwarding(
   });
 
   if (upstreamResponse.status === 401 && publicJwt !== null) {
-    sessions.destroy(sessionId);
+    await sessions.destroy(sessionId);
     expireSessionCookie(context, config);
 
     return upstreamResponseToBrowserResponse(upstreamResponse, context);
@@ -410,15 +544,15 @@ async function upstreamResponseToBrowserResponse(
   });
 }
 
-function readRequestSession(
+async function readRequestSession(
   context: Context,
   config: BffConfig,
   sessions: BrowserSessionStore,
-): RequestSession {
+): Promise<RequestSession> {
   const sessionId = getCookie(context, config.sessionCookieName) ?? null;
 
   return {
-    session: sessions.get(sessionId),
+    session: await sessions.get(sessionId),
     sessionId,
   };
 }
@@ -498,7 +632,9 @@ function stripUserToken(body: unknown): unknown {
     return body;
   }
 
-  const { token: _token, ...userWithoutToken } = body.user;
+  const userWithoutToken = { ...body.user };
+
+  delete userWithoutToken.token;
 
   return {
     ...body,
@@ -514,6 +650,59 @@ function randomOpaqueValue(): string {
   return randomBytes(32).toString('base64url');
 }
 
+async function resolveSessionStore(
+  config: BffConfig,
+  options: BffServerOptions,
+): Promise<BrowserSessionStore> {
+  if (options.sessionStore !== undefined) {
+    return options.sessionStore;
+  }
+
+  return createRedisSessionStore({
+    client: options.redisClient,
+    keyPrefix: config.sessionKeyPrefix,
+    redisUrl: config.redisUrl,
+    ttlSeconds: config.sessionTtlSeconds,
+  });
+}
+
+function createDefaultRedisClient(redisUrl: string): RedisSessionClient {
+  const client = createClient({ url: redisUrl });
+
+  client.on('error', () => undefined);
+
+  return client as unknown as RedisSessionClient;
+}
+
+function serializeRedisSessionPayload(session: Omit<BrowserSession, 'expiresAt'>): string {
+  return JSON.stringify({
+    csrfToken: session.csrfToken,
+    publicJwt: session.publicJwt,
+  } satisfies RedisSessionPayload);
+}
+
+function parseRedisSessionPayload(serializedPayload: string): RedisSessionPayload | null {
+  try {
+    const payload = JSON.parse(serializedPayload) as unknown;
+
+    if (
+      !isRecord(payload)
+      || typeof payload.csrfToken !== 'string'
+      || payload.csrfToken === ''
+      || (payload.publicJwt !== null && typeof payload.publicJwt !== 'string')
+    ) {
+      return null;
+    }
+
+    return {
+      csrfToken: payload.csrfToken,
+      publicJwt: payload.publicJwt,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function resolveConfig(options: BffServerOptions): BffConfig {
   const env = options.env ?? process.env;
   const port = readPositiveInteger(options.port ?? env.PORT, DEFAULT_PORT);
@@ -524,14 +713,23 @@ function resolveConfig(options: BffServerOptions): BffConfig {
   const publicApiBaseUrl = options.publicApiBaseUrl
     ?? env.PUBLIC_API_BASE_URL
     ?? DEFAULT_PUBLIC_API_BASE_URL;
+  const redisUrl = options.redisUrl
+    ?? env.BFF_REDIS_URL
+    ?? DEFAULT_REDIS_URL;
   const sessionCookieName = options.sessionCookieName
     ?? env.BFF_SESSION_COOKIE_NAME
     ?? DEFAULT_SESSION_COOKIE_NAME;
+  const sessionKeyPrefix = readNonEmptyString(
+    options.sessionKeyPrefix ?? env.BFF_SESSION_KEY_PREFIX,
+    DEFAULT_SESSION_KEY_PREFIX,
+  );
 
   return {
     port,
     publicApiBaseUrl: new URL(publicApiBaseUrl),
+    redisUrl,
     sessionCookieName,
+    sessionKeyPrefix,
     sessionTtlSeconds,
   };
 }
@@ -550,9 +748,21 @@ function readPositiveInteger(value: number | string | undefined, defaultValue: n
   return parsed;
 }
 
+function readNonEmptyString(value: string | undefined, defaultValue: string): string {
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  if (value === '') {
+    throw new Error('Expected a non-empty configuration value');
+  }
+
+  return value;
+}
+
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const config = resolveConfig({});
-  const server = createBffServer();
+  const server = await createBffServer();
 
   server.listen(config.port, '0.0.0.0');
 }
