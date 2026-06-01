@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Infrastructure\Persistence\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -158,7 +159,8 @@ describe('Article CRUD API', function (): void {
             ->assertJsonPath('article.favoritesCount', 1)
             ->assertJsonPath('article.author.following', true);
 
-        $this->getJson('/api/articles/how-to-train-your-dragon')
+        $this->flushHeaders()
+            ->getJson('/api/articles/how-to-train-your-dragon')
             ->assertOk()
             ->assertJsonPath('article.favorited', false)
             ->assertJsonPath('article.favoritesCount', 1)
@@ -190,6 +192,8 @@ describe('Article CRUD API', function (): void {
             ])
             ->assertForbidden()
             ->assertJsonStructure(['errors' => ['body']]);
+
+        Auth::forgetGuards();
 
         $this->withRealWorldToken($this->issueRealWorldTokenFor($author))
             ->putJson('/api/articles/how-to-train-your-dragon', [
@@ -229,6 +233,8 @@ describe('Article CRUD API', function (): void {
             ->deleteJson('/api/articles/how-to-train-your-dragon')
             ->assertForbidden()
             ->assertJsonStructure(['errors' => ['body']]);
+
+        Auth::forgetGuards();
 
         expect(DB::table('articles')->where('id', $articleId)->exists())->toBeTrue();
 
