@@ -37,6 +37,7 @@ export async function createRedisSessionStore(
   const client = options.client ?? createDefaultRedisClient(options.redisUrl ?? 'redis://localhost:6379');
 
   try {
+    // Session state is the auth boundary, so the BFF should not start with an unavailable store.
     await client.connect?.();
     await client.ping?.();
   } catch (cause) {
@@ -88,6 +89,7 @@ class RedisSessionStore implements BrowserSessionStore {
 
     const remainingTtlSeconds = await this.client.ttl(key);
 
+    // Redis TTL is the source of truth; expiresAt is derived for the BrowserSession contract.
     if (remainingTtlSeconds <= 0) {
       await this.destroy(sessionId);
       return null;

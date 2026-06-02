@@ -129,6 +129,7 @@ function createForwardHeaders(incomingHeaders: Headers, publicJwt: string | null
     }
   });
 
+  // Browser-sent Authorization is ignored; the BFF injects the server-side session JWT only.
   if (publicJwt !== null) {
     headers.set('Authorization', `Token ${publicJwt}`);
   }

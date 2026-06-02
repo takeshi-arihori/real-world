@@ -56,6 +56,7 @@ export async function createBffApp(options: BffAppOptions = {}): Promise<Hono> {
     const existingSession = (await readRequestSession(context, config, sessions)).session;
     const session = existingSession ?? await sessions.createPreSession();
 
+    // Login and register are also mutating requests, so they need a pre-session CSRF proof.
     setSessionCookie(context, config, session.id);
 
     return context.json({ csrfToken: session.csrfToken });
@@ -169,6 +170,7 @@ async function handleAuthenticatedSessionRequest(
   });
 
   if (upstreamResponse.status === 401) {
+    // The stored Public API JWT is no longer valid; invalidate the browser session boundary too.
     await sessions.destroy(sessionId);
     expireSessionCookie(context, config);
 
@@ -209,6 +211,7 @@ async function handlePublicApiForwarding(
   });
 
   if (upstreamResponse.status === 401 && publicJwt !== null) {
+    // Authenticated forwarding uses the stored JWT, so upstream 401 must clear that session.
     await sessions.destroy(sessionId);
     expireSessionCookie(context, config);
 

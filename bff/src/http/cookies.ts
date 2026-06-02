@@ -4,6 +4,7 @@ import { setCookie } from 'hono/cookie';
 import type { BffConfig } from '../config.js';
 
 export function setSessionCookie(context: Context, config: BffConfig, sessionId: string): void {
+  // The browser receives only an opaque id; JWT and CSRF state stay server-side.
   setCookie(context, config.sessionCookieName, sessionId, {
     httpOnly: true,
     maxAge: config.sessionTtlSeconds,
