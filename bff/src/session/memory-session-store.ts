@@ -5,6 +5,7 @@ import {
 } from './browser-session.js';
 
 export function createMemorySessionStore(ttlSeconds: number): BrowserSessionStore {
+  // 明示注入用の store。通常起動では Redis-backed store を使う。
   return new MemorySessionStore(ttlSeconds);
 }
 

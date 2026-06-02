@@ -47,6 +47,7 @@ services:
     networks:
       - app-network
 
+  # BFF の BrowserSession を共有し、TTL による session expiry を Redis 側で管理する。
   redis:
     image: redis:7-alpine
     ports:
@@ -73,6 +74,7 @@ services:
     environment:
       PORT: "3006"
       PUBLIC_API_BASE_URL: "http://backend-nginx"
+      # browser cookie には opaque id だけを保持し、session state は Redis に保存する。
       BFF_REDIS_URL: "redis://redis:6379"
       BFF_SESSION_COOKIE_NAME: "__Host-conduit_session"
       BFF_SESSION_KEY_PREFIX: "${BFF_SESSION_KEY_PREFIX:-bff:session:}"
@@ -80,6 +82,7 @@ services:
     depends_on:
       backend-nginx:
         condition: service_started
+      # Redis session store に接続できる状態で BFF を起動する。
       redis:
         condition: service_healthy
     networks:

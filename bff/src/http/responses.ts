@@ -10,6 +10,7 @@ export async function readJsonResponse(response: Response): Promise<unknown> {
   const text = await response.text();
 
   if (text === '') {
+    // Public API の 204 など body が空の response でも JSON flow を壊さない。
     return {};
   }
 

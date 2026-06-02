@@ -27,6 +27,7 @@ export interface RedisSessionStoreOptions {
 }
 
 interface RedisSessionPayload {
+  // Redis には browser へ露出しない session state だけを保存する。
   csrfToken: string;
   publicJwt: string | null;
 }
@@ -37,7 +38,7 @@ export async function createRedisSessionStore(
   const client = options.client ?? createDefaultRedisClient(options.redisUrl ?? 'redis://localhost:6379');
 
   try {
-    // Session state is the auth boundary, so the BFF should not start with an unavailable store.
+    // session store が認証境界なので、Redis に接続できない状態では BFF を起動しない。
     await client.connect?.();
     await client.ping?.();
   } catch (cause) {
@@ -83,13 +84,14 @@ class RedisSessionStore implements BrowserSessionStore {
     const payload = parseRedisSessionPayload(serializedPayload);
 
     if (payload === null) {
+      // 破損した session payload は利用せず、次回以降も読まれないよう削除する。
       await this.destroy(sessionId);
       return null;
     }
 
     const remainingTtlSeconds = await this.client.ttl(key);
 
-    // Redis TTL is the source of truth; expiresAt is derived for the BrowserSession contract.
+    // session expiry は Redis TTL を正とし、expiresAt は BrowserSession contract 用に導出する。
     if (remainingTtlSeconds <= 0) {
       await this.destroy(sessionId);
       return null;

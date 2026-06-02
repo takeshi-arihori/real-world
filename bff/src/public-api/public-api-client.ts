@@ -41,6 +41,7 @@ export async function forwardRequestToPublicApi(
   config: BffConfig,
   options: PublicApiForwardOptions,
 ): Promise<Response> {
+  // Public API への認証付きアクセスは browser 直送ではなく BFF 経由に固定する。
   const targetUrl = new URL(options.targetPath, config.publicApiBaseUrl);
   const init: RequestInit = {
     headers: createForwardHeaders(options.request.headers, options.publicJwt),
@@ -49,6 +50,7 @@ export async function forwardRequestToPublicApi(
   };
 
   if (options.request.method !== 'GET' && options.request.method !== 'HEAD') {
+    // GET / HEAD 以外だけ body を引き継ぎ、fetch の body 禁止条件に触れないようにする。
     const body = Buffer.from(await options.request.arrayBuffer());
 
     if (body.length > 0) {
@@ -65,6 +67,7 @@ export async function upstreamResponseToBrowserResponse(
 ): Promise<Response> {
   const headers = new Headers();
 
+  // upstream の Set-Cookie など境界を越えてはいけない header は browser に返さない。
   upstreamResponse.headers.forEach((value, name) => {
     if (!HOP_BY_HOP_RESPONSE_HEADERS.has(name.toLowerCase())) {
       headers.set(name, value);
@@ -72,6 +75,7 @@ export async function upstreamResponseToBrowserResponse(
   });
 
   if (context !== undefined) {
+    // BFF が設定した session cookie だけは upstream response へ合成して返す。
     const outgoingSetCookie = context.res.headers.get('set-cookie');
 
     if (outgoingSetCookie !== null) {
@@ -123,13 +127,14 @@ export function isBlockedPublicIdentityPath(pathname: string): boolean {
 function createForwardHeaders(incomingHeaders: Headers, publicJwt: string | null): Headers {
   const headers = new Headers();
 
+  // browser 由来の cookie / Authorization / hop-by-hop header は Public API へ渡さない。
   incomingHeaders.forEach((value, name) => {
     if (!HOP_BY_HOP_REQUEST_HEADERS.has(name.toLowerCase())) {
       headers.set(name, value);
     }
   });
 
-  // Browser-sent Authorization is ignored; the BFF injects the server-side session JWT only.
+  // browser が送った Authorization は無視し、server-side session の JWT だけを注入する。
   if (publicJwt !== null) {
     headers.set('Authorization', `Token ${publicJwt}`);
   }

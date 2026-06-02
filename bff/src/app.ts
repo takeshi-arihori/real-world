@@ -44,6 +44,7 @@ export async function createBffApp(options: BffAppOptions = {}): Promise<Hono> {
   const sessions = await resolveSessionStore(config, options);
   const app = new Hono();
 
+  // 認証境界の内部エラーでは詳細や token を返さず、RealWorld 形式の汎用エラーだけを返す。
   app.onError(() => {
     return jsonResponse(500, { errors: { body: ['Internal Server Error'] } });
   });
@@ -56,7 +57,7 @@ export async function createBffApp(options: BffAppOptions = {}): Promise<Hono> {
     const existingSession = (await readRequestSession(context, config, sessions)).session;
     const session = existingSession ?? await sessions.createPreSession();
 
-    // Login and register are also mutating requests, so they need a pre-session CSRF proof.
+    // login/register も変更系 request なので、未ログイン時点で pre-session CSRF proof を確立する。
     setSessionCookie(context, config, session.id);
 
     return context.json({ csrfToken: session.csrfToken });
@@ -95,6 +96,7 @@ export async function createBffApp(options: BffAppOptions = {}): Promise<Hono> {
     return jsonResponse(404, { errors: { body: ['Not Found'] } });
   });
 
+  // session endpoint の未定義 method / path は Public API へ誤転送しない。
   app.all('/api/session/*', () => {
     return jsonResponse(404, { errors: { body: ['Not Found'] } });
   });
@@ -116,6 +118,7 @@ async function handleAuthSessionStart(
   sessions: BrowserSessionStore,
   publicPath: string,
 ): Promise<Response> {
+  // Public API token はレスポンスから取り除き、BrowserSession にだけ関連付ける。
   const { session } = await readRequestSession(context, config, sessions);
 
   if (!hasValidCsrf(context, session)) {
@@ -170,7 +173,7 @@ async function handleAuthenticatedSessionRequest(
   });
 
   if (upstreamResponse.status === 401) {
-    // The stored Public API JWT is no longer valid; invalidate the browser session boundary too.
+    // 保持している Public API JWT が無効なので、BFF 側の browser session も失効させる。
     await sessions.destroy(sessionId);
     expireSessionCookie(context, config);
 
@@ -211,7 +214,7 @@ async function handlePublicApiForwarding(
   });
 
   if (upstreamResponse.status === 401 && publicJwt !== null) {
-    // Authenticated forwarding uses the stored JWT, so upstream 401 must clear that session.
+    // 認証付き forwarding は保存済み JWT を使うため、upstream 401 では該当 session を削除する。
     await sessions.destroy(sessionId);
     expireSessionCookie(context, config);
 
@@ -226,6 +229,7 @@ async function readRequestSession(
   config: BffConfig,
   sessions: BrowserSessionStore,
 ): Promise<RequestSession> {
+  // Cookie の opaque id を唯一の browser 入力として扱い、session 本体は store から取得する。
   const sessionId = getCookie(context, config.sessionCookieName) ?? null;
 
   return {
@@ -242,6 +246,7 @@ async function resolveSessionStore(
   config: BffConfig,
   options: BffAppOptions,
 ): Promise<BrowserSessionStore> {
+  // テストでは明示注入を使い、通常起動では Redis-backed store を認証境界の正とする。
   if (options.sessionStore !== undefined) {
     return options.sessionStore;
   }

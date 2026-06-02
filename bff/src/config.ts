@@ -27,6 +27,7 @@ export interface BffConfig {
 }
 
 export function resolveConfig(options: BffConfigOptions = {}): BffConfig {
+  // テストでは options を優先し、通常起動では環境変数から BFF 境界の設定を読む。
   const env = options.env ?? process.env;
   const port = readPositiveInteger(options.port ?? env.PORT, DEFAULT_PORT);
   const sessionTtlSeconds = readPositiveInteger(

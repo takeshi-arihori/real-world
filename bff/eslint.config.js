@@ -6,6 +6,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 export default defineConfig([
   globalIgnores(['coverage', 'dist']),
   {
+    // BFF は Node.js 上で動く TypeScript なので、browser globals は使わない。
     files: ['**/*.ts'],
     extends: [
       js.configs.recommended,

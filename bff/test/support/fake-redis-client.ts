@@ -10,6 +10,7 @@ interface RedisSetOptions {
 export class FakeRedisClient {
   private readonly values = new Map<string, StoredRedisValue>();
 
+  // TTL expiry を実 Redis に依存せず検証するため、テスト側で時刻を進められるようにする。
   private now = 0;
 
   public connectCount = 0;

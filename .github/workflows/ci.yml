@@ -107,6 +107,7 @@ jobs:
       - name: Type check
         run: pnpm type-check
 
+      # BFF は production TypeScript を持つため、type-check と test に加えて lint も gate にする。
       - name: Lint
         run: pnpm lint
 

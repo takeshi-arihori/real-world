@@ -5,6 +5,7 @@ import type { BrowserSession } from '../session/browser-session.js';
 
 export function hasValidCsrf(context: Context, session: BrowserSession | null): boolean {
   if (session === null) {
+    // session が無い request は CSRF proof の比較対象がないため拒否する。
     return false;
   }
 
