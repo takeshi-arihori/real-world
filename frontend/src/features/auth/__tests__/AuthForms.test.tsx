@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '@/lib/apiError';
@@ -146,6 +146,76 @@ describe('認証フォーム', () => {
     await user.click(screen.getByRole('button', { name: 'Update Settings' }));
 
     expect(await screen.findByText('email is invalid')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toHaveAccessibleDescription(
+      'email is invalid',
+    );
     expect(screen.getByLabelText('Email')).toHaveValue('invalid@example.com');
+  });
+
+  it('settings formは必須validationをfield errorとして表示する', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <SettingsForm
+        onLogout={vi.fn().mockResolvedValue(undefined)}
+        onSubmit={onSubmit}
+        user={{
+          bio: null,
+          email: 'jake@example.com',
+          image: null,
+          username: 'jake',
+        }}
+      />,
+    );
+
+    await user.clear(screen.getByLabelText('Username'));
+    await user.click(screen.getByRole('button', { name: 'Update Settings' }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Username')).toHaveAccessibleDescription(
+      'username is required',
+    );
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('settings formは送信中の二重submitを防止する', async () => {
+    let resolveSubmit: (() => void) | undefined;
+    const submitPromise = new Promise<void>((resolve) => {
+      resolveSubmit = resolve;
+    });
+    const onSubmit = vi.fn().mockReturnValue(submitPromise);
+
+    render(
+      <SettingsForm
+        onLogout={vi.fn().mockResolvedValue(undefined)}
+        onSubmit={onSubmit}
+        user={{
+          bio: null,
+          email: 'jake@example.com',
+          image: null,
+          username: 'jake',
+        }}
+      />,
+    );
+
+    const form = screen
+      .getByRole('button', { name: 'Update Settings' })
+      .closest('form');
+
+    if (form === null) {
+      throw new Error('Settings form was not rendered');
+    }
+
+    fireEvent.submit(form);
+    fireEvent.submit(form);
+
+    expect(onSubmit).toHaveBeenCalledOnce();
+    expect(screen.getByRole('button', { name: 'Updating...' })).toBeDisabled();
+
+    await act(async () => {
+      resolveSubmit?.();
+      await submitPromise;
+    });
   });
 });
