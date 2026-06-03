@@ -181,8 +181,8 @@ export function SettingsPage(): ReactElement {
   const navigate = useNavigate();
 
   async function handleLogout(): Promise<void> {
-    await logout();
     navigate('/', { replace: true });
+    await logout();
   }
 
   if (user === null) {

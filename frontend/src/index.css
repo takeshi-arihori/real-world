@@ -425,13 +425,23 @@ textarea:focus-visible {
   margin-top: 6px;
 }
 
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-stack label,
+.form-field label {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
 .form-stack label {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  color: var(--text-muted);
-  font-size: 0.84rem;
-  font-weight: 700;
 }
 
 .form-stack input,
@@ -450,6 +460,13 @@ textarea:focus-visible {
 .form-stack input:focus,
 .form-stack textarea:focus {
   border-color: var(--primary);
+}
+
+.field-error {
+  margin: 0;
+  color: var(--error);
+  font-size: 0.84rem;
+  font-weight: 700;
 }
 
 .form-actions {
