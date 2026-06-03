@@ -4,7 +4,8 @@ import type { AddressInfo } from 'node:net';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { createBffServer } from '../src/server.js';
+import { createBffServer, createRedisSessionStore } from '../src/server.js';
+import { FakeRedisClient } from './support/fake-redis-client.js';
 
 interface StartedServer {
   close: () => Promise<void>;
@@ -389,8 +390,14 @@ async function bootstrapCsrf(baseUrl: string): Promise<CsrfBootstrap> {
 }
 
 async function startBffServer(publicApiBaseUrl: string): Promise<StartedServer> {
-  const server = createBffServer({
+  const sessionStore = await createRedisSessionStore({
+    client: new FakeRedisClient(),
+    keyPrefix: 'bff:test:',
+    ttlSeconds: 3600,
+  });
+  const server = await createBffServer({
     publicApiBaseUrl,
+    sessionStore,
     sessionTtlSeconds: 3600,
   });
 
