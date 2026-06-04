@@ -23,6 +23,20 @@ React 19 + TypeScript / Laravel 13 のモノレポ。API、CRUD、新しい技�
 - `.worktree` は gitignored の非追跡作業領域として扱い、作業完了後にクリーンアップする。
 - 詳細な作成手順と命名は `docs/ai/harness.md` と該当 skill を正本とする。
 
+## Codex sandbox と GitHub CLI
+
+- Codex sandbox 内では macOS keyring や外部ネットワークにアクセスできず、`gh issue`、`gh pr`、`gh api` が失敗する場合がある。
+- GitHub API の読み取り・作成・編集が必要な場合は、必要に応じて sandbox 外実行を許可して行う。
+- `GH_TOKEN` / `GITHUB_TOKEN` を shell config に直書きせず、`gh auth login` の keyring 認証を使う。
+- sudo / root 権限で解決しようとしない。
+
+## Shell command と RTK
+
+- Shell command は原則として必ず `rtk` 経由で実行する。
+- 通常は `rtk <command>`、raw output や引数互換性が必要な場合は `rtk proxy <command>` を使う。
+- `rtk` 経由で実行できない場合は、commentary または approval justification に理由を明記してから最小範囲の bare command を使う。
+- 詳細は `docs/ai/harness.md` の Shell Command Policy を正本とする。
+
 ## Skill の使い分け
 
 - `.agents/skills/code-review/` - コードレビュー、テスト妥当性、アーキテクチャ確認。
