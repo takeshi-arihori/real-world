@@ -1,41 +1,75 @@
-import type { ReactElement, ReactNode } from 'react';
+import { type ReactElement, type ReactNode, useCallback } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/app/providers/useAuth';
+import {
+  ArticleList,
+  listArticles,
+  type ArticleListQuery,
+  type ArticleListResult,
+} from '@/features/article';
 import { LoginForm, RegisterForm, SettingsForm } from '@/features/auth';
+import { FeedTabs, getFeed, type ActiveFeed } from '@/features/feed';
+import { PopularTags } from '@/features/tag';
 import { getSafeReturnTo } from './returnTo';
-
-const SAMPLE_ARTICLES = [
-  {
-    author: 'Eric Simons',
-    description:
-      'This is the description for the post. It gives a brief overview without giving everything away.',
-    favoritesCount: 29,
-    slug: 'how-to-build-webapps',
-    tags: ['programming', 'webdev'],
-    title: 'How to build webapps that scale',
-  },
-  {
-    author: 'Jane Doe',
-    description:
-      'A concise field guide for building calm product interfaces around long-form writing.',
-    favoritesCount: 12,
-    slug: 'designing-for-reading',
-    tags: ['design', 'ux'],
-    title: 'Designing for the reading state',
-  },
-] as const;
-
-const POPULAR_TAGS = [
-  'programming',
-  'design',
-  'react',
-  'laravel',
-  'architecture',
-  'testing',
-] as const;
 
 export function HomePage(): ReactElement {
   const { isAuthenticated } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedTag = normalizeTag(searchParams.get('tag'));
+  const page = parsePage(searchParams.get('page'));
+  const activeFeed = getActiveFeed({
+    feedParam: searchParams.get('feed'),
+    isAuthenticated,
+    selectedTag,
+  });
+  const articleListKey = `${activeFeed}:${selectedTag ?? ''}:${page}`;
+  const heading = getFeedHeading(activeFeed, selectedTag);
+
+  const loadArticles = useCallback(
+    (query: ArticleListQuery): Promise<ArticleListResult> => {
+      if (activeFeed === 'your') {
+        return getFeed(query);
+      }
+
+      if (activeFeed === 'tag') {
+        return listArticles({
+          ...query,
+          tag: selectedTag ?? undefined,
+        });
+      }
+
+      return listArticles(query);
+    },
+    [activeFeed, selectedTag],
+  );
+
+  const selectGlobalFeed = useCallback((): void => {
+    setSearchParams(createHomeSearchParams({ activeFeed: 'global', page: 1 }));
+  }, [setSearchParams]);
+
+  const selectYourFeed = useCallback((): void => {
+    setSearchParams(createHomeSearchParams({ activeFeed: 'your', page: 1 }));
+  }, [setSearchParams]);
+
+  const selectTag = useCallback(
+    (tag: string): void => {
+      setSearchParams(createHomeSearchParams({ activeFeed: 'tag', page: 1, tag }));
+    },
+    [setSearchParams],
+  );
+
+  const selectPage = useCallback(
+    (nextPage: number): void => {
+      setSearchParams(
+        createHomeSearchParams({
+          activeFeed,
+          page: nextPage,
+          tag: selectedTag,
+        }),
+      );
+    },
+    [activeFeed, selectedTag, setSearchParams],
+  );
 
   return (
     <main className="page page--wide">
@@ -46,57 +80,23 @@ export function HomePage(): ReactElement {
 
       <div className="discovery-grid">
         <section className="feed-column" aria-labelledby="home-title">
-          <nav className="feed-tabs" aria-label="Feed filters">
-            {isAuthenticated ? <button type="button">Your Feed</button> : null}
-            <button className="is-active" type="button">
-              Global Feed
-            </button>
-          </nav>
-          <h1 id="home-title">Global Feed</h1>
-
-          <div className="article-list">
-            {SAMPLE_ARTICLES.map((article) => (
-              <article className="article-preview" key={article.slug}>
-                <div className="article-preview__meta">
-                  <Link to={`/profile/${article.author.toLowerCase().replaceAll(' ', '-')}`}>
-                    <span className="avatar" aria-hidden="true">
-                      {article.author.charAt(0)}
-                    </span>
-                    {article.author}
-                  </Link>
-                  <button className="favorite-button" type="button">
-                    {article.favoritesCount}
-                  </button>
-                </div>
-                <Link className="article-preview__body" to={`/article/${article.slug}`}>
-                  <h2>{article.title}</h2>
-                  <p>{article.description}</p>
-                  <div className="article-preview__footer">
-                    <span>Read more...</span>
-                    <span className="tag-row">
-                      {article.tags.map((tag) => (
-                        <span className="tag" key={tag}>
-                          {tag}
-                        </span>
-                      ))}
-                    </span>
-                  </div>
-                </Link>
-              </article>
-            ))}
-          </div>
+          <FeedTabs
+            activeFeed={activeFeed}
+            isAuthenticated={isAuthenticated}
+            onSelectGlobal={selectGlobalFeed}
+            onSelectYour={selectYourFeed}
+            selectedTag={selectedTag}
+          />
+          <h1 id="home-title">{heading}</h1>
+          <ArticleList
+            key={articleListKey}
+            loadArticles={loadArticles}
+            onPageChange={selectPage}
+            page={page}
+          />
         </section>
 
-        <aside className="tag-panel" aria-labelledby="popular-tags-title">
-          <h2 id="popular-tags-title">Popular Tags</h2>
-          <div className="tag-cloud">
-            {POPULAR_TAGS.map((tag) => (
-              <Link className="tag" key={tag} to={`/?tag=${tag}`}>
-                {tag}
-              </Link>
-            ))}
-          </div>
-        </aside>
+        <PopularTags onSelectTag={selectTag} selectedTag={selectedTag} />
       </div>
     </main>
   );
@@ -314,4 +314,86 @@ function readableSlug(slug: string): string {
     .filter((word) => word.length > 0)
     .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
     .join(' ');
+}
+
+function normalizeTag(tag: string | null): string | null {
+  const normalizedTag = tag?.trim();
+
+  if (normalizedTag === undefined || normalizedTag === '') {
+    return null;
+  }
+
+  return normalizedTag;
+}
+
+function parsePage(page: string | null): number {
+  if (page === null) {
+    return 1;
+  }
+
+  const parsedPage = Number.parseInt(page, 10);
+
+  if (!Number.isInteger(parsedPage) || parsedPage < 1) {
+    return 1;
+  }
+
+  return parsedPage;
+}
+
+function getActiveFeed({
+  feedParam,
+  isAuthenticated,
+  selectedTag,
+}: {
+  feedParam: string | null;
+  isAuthenticated: boolean;
+  selectedTag: string | null;
+}): ActiveFeed {
+  if (selectedTag !== null) {
+    return 'tag';
+  }
+
+  if (feedParam === 'your' && isAuthenticated) {
+    return 'your';
+  }
+
+  return 'global';
+}
+
+function getFeedHeading(activeFeed: ActiveFeed, selectedTag: string | null): string {
+  if (activeFeed === 'your') {
+    return 'Your Feed';
+  }
+
+  if (activeFeed === 'tag') {
+    return `# ${selectedTag ?? ''}`;
+  }
+
+  return 'Global Feed';
+}
+
+function createHomeSearchParams({
+  activeFeed,
+  page,
+  tag,
+}: {
+  activeFeed: ActiveFeed;
+  page: number;
+  tag?: string | null;
+}): URLSearchParams {
+  const searchParams = new URLSearchParams();
+
+  if (activeFeed === 'your') {
+    searchParams.set('feed', 'your');
+  }
+
+  if (activeFeed === 'tag' && tag !== undefined && tag !== null && tag.trim() !== '') {
+    searchParams.set('tag', tag);
+  }
+
+  if (page > 1) {
+    searchParams.set('page', String(page));
+  }
+
+  return searchParams;
 }
