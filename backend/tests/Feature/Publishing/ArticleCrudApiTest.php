@@ -97,6 +97,16 @@ describe('Article CRUD API', function (): void {
             ->assertJsonStructure(['errors' => ['body']]);
     });
 
+    it('Article一覧のquery validation failureを422のerrors.bodyで返す', function (): void {
+        $response = $this->getJson('/api/articles?limit=0&offset=-1');
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonStructure(['errors' => ['body']]);
+
+        expect($response->json('errors.body'))->toBeArray()->toHaveCount(2);
+    });
+
     it('Article一覧をfilterとpaginationつきで返しbodyを含めない', function (): void {
         $jake = User::factory()->create(['username' => 'jake']);
         $jane = User::factory()->create(['username' => 'jane']);
@@ -167,12 +177,33 @@ describe('Article CRUD API', function (): void {
             ->assertJsonPath('article.author.following', false);
     });
 
+    it('Article一覧のoptional auth endpointでも無効JWTは401を返す', function (): void {
+        $author = User::factory()->create();
+        articleApiCreateArticle($author, ['slug' => 'how-to-train-your-dragon']);
+
+        $this->withRealWorldToken('not-a-jwt')
+            ->getJson('/api/articles')
+            ->assertUnauthorized()
+            ->assertJsonStructure(['errors' => ['body']]);
+    });
+
     it('optional auth endpointでも無効JWTは401を返す', function (): void {
         $author = User::factory()->create();
         articleApiCreateArticle($author, ['slug' => 'how-to-train-your-dragon']);
 
         $this->withRealWorldToken('not-a-jwt')
             ->getJson('/api/articles/how-to-train-your-dragon')
+            ->assertUnauthorized()
+            ->assertJsonStructure(['errors' => ['body']]);
+    });
+
+    it('未認証のArticle更新を401で拒否する', function (): void {
+        $author = User::factory()->create();
+        articleApiCreateArticle($author, ['slug' => 'how-to-train-your-dragon']);
+
+        $this->putJson('/api/articles/how-to-train-your-dragon', [
+            'article' => ['title' => 'Hacked'],
+        ])
             ->assertUnauthorized()
             ->assertJsonStructure(['errors' => ['body']]);
     });
@@ -221,6 +252,15 @@ describe('Article CRUD API', function (): void {
                 'article' => ['title' => 'Missing'],
             ])
             ->assertNotFound()
+            ->assertJsonStructure(['errors' => ['body']]);
+    });
+
+    it('未認証のArticle削除を401で拒否する', function (): void {
+        $author = User::factory()->create();
+        articleApiCreateArticle($author, ['slug' => 'how-to-train-your-dragon']);
+
+        $this->deleteJson('/api/articles/how-to-train-your-dragon')
+            ->assertUnauthorized()
             ->assertJsonStructure(['errors' => ['body']]);
     });
 
