@@ -27,6 +27,16 @@ ADR は廃止方向とし、判断は要件・ルール・ドメイン設計・�
 - https://openai.com/ja-JP/index/harness-engineering/
 - https://developers.openai.com/codex/skills
 
+## Shell Command Policy
+
+このプロジェクトで AI agent が shell command を実行するときは、セッションをまたいでも必ず RTK を経由する。
+
+- 通常の shell command は `rtk <command>` で実行する。
+- `git diff` や `git status` のように raw output を読みたい場合、または RTK のフィルタリングや引数解釈が command の挙動に影響する場合は `rtk proxy <command>` を使う。
+- GitHub CLI、Docker、curl、git の sandbox 外実行や approval 付き実行でも、原則として `rtk proxy gh ...`、`rtk proxy docker ...`、`rtk proxy curl ...`、`rtk proxy git ...` のように RTK 経由を維持する。
+- `rtk` 経由では command が壊れる、承認 prefix と衝突する、または tool/runtime の制約で実行できない場合に限り bare command を使ってよい。その場合は、commentary または approval justification に「なぜ bare command にしたか」を具体的に残す。
+- bare command fallback は必要最小限の 1 command に留め、以後の command は RTK 経由へ戻す。
+
 ## Worktree Policy
 
 AI agent が Issue 対応で worktree を使う場合、作業用 checkout は repo root 配下の `.worktree/<task-name>` に作成する。
