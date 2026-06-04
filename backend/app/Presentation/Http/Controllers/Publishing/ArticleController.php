@@ -6,6 +6,8 @@ namespace App\Presentation\Http\Controllers\Publishing;
 
 use App\Application\Publishing\Commands\CreateArticleCommand;
 use App\Application\Publishing\Commands\DeleteArticleCommand;
+use App\Application\Publishing\Commands\FavoriteArticleCommand;
+use App\Application\Publishing\Commands\UnfavoriteArticleCommand;
 use App\Application\Publishing\Commands\UpdateArticleCommand;
 use App\Application\Publishing\Queries\GetArticleForAuthorizationQuery;
 use App\Application\Publishing\Queries\GetArticleQuery;
@@ -110,6 +112,46 @@ final class ArticleController extends Controller
         $command->execute($article);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * 認証済み User が Article を favorite する。
+     */
+    public function favorite(
+        Request $request,
+        string $slug,
+        FavoriteArticleCommand $command,
+        GetArticleQuery $query,
+    ): JsonResponse {
+        $currentUserId = $this->authenticatedUserId($request);
+        $command->execute($currentUserId, $slug);
+
+        return (new SingleArticleResource($query->execute(
+            slug: $slug,
+            currentUserId: $currentUserId,
+        )))
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
+    }
+
+    /**
+     * 認証済み User が Article の favorite を解除する。
+     */
+    public function unfavorite(
+        Request $request,
+        string $slug,
+        UnfavoriteArticleCommand $command,
+        GetArticleQuery $query,
+    ): JsonResponse {
+        $currentUserId = $this->authenticatedUserId($request);
+        $command->execute($currentUserId, $slug);
+
+        return (new SingleArticleResource($query->execute(
+            slug: $slug,
+            currentUserId: $currentUserId,
+        )))
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
