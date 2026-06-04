@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createApiClient } from '../apiClient';
+import { createApiClient, resolveDefaultApiBaseUrl } from '../apiClient';
 import { isApiError } from '../apiError';
 
 /**
@@ -66,6 +66,38 @@ describe('共通API client', () => {
     expect(requestOptions.credentials).toBe('same-origin');
     expect(headers.get('Authorization')).toBeNull();
     expect(window.localStorage.getItem('realworld.authToken')).toBeNull();
+  });
+
+  it('base URL未設定時はrelativeなBFF pathへrequestする', async () => {
+    const fetchMock = createFetchMock(jsonResponse({ tags: ['react'] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const client = createApiClient();
+
+    await client.get('/api/tags');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/tags',
+      expect.objectContaining({
+        credentials: 'same-origin',
+        method: 'GET',
+      }),
+    );
+  });
+
+  it('VITE_API_BASE_URLが現在originと異なる場合はdefault base URLに採用しない', () => {
+    expect(
+      resolveDefaultApiBaseUrl('http://localhost:8080', 'http://localhost:3005'),
+    ).toBe('');
+    expect(
+      resolveDefaultApiBaseUrl('http://backend-nginx', 'http://localhost:3005'),
+    ).toBe('');
+  });
+
+  it('VITE_API_BASE_URLが現在originと一致する場合だけdefault base URLに採用する', () => {
+    expect(
+      resolveDefaultApiBaseUrl('http://localhost:3005', 'http://localhost:3005'),
+    ).toBe('http://localhost:3005');
   });
 
   it('mutating request前にCSRF proofを取得してX-CSRF-TOKEN headerを付与する', async () => {
