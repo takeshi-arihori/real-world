@@ -49,6 +49,23 @@ session をまたいでも作業場所を再発見できるように、標準の
 - worktree には `node_modules/` や `vendor/` が含まれないため、対象レイヤーに応じて worktree 内で依存関係を入れる。
 - 作業完了後、PR 作成と必要な引き継ぎが済んだ worktree はクリーンアップする。
 
+## Codex Sandbox And GitHub CLI Policy
+
+Codex sandbox 内では、macOS keyring や外部ネットワークへ到達できないことがある。
+そのため `gh issue`、`gh pr`、`gh api` が認証済みのユーザー端末では成功しても、sandbox 内では失敗する場合がある。
+これは sudo / root 権限で解決する問題ではなく、sandbox 境界、keyring、network access の扱いとして切り分ける。
+
+- GitHub API の読み取り・作成・編集が必要な場合は、まず対象リポジトリ、Issue / PR 番号、操作内容を明確にする。
+- `gh` が keyring、network access、permission、host resolution などの理由で sandbox 内実行に失敗した場合は、必要性を説明して sandbox 外実行の許可を得てから再実行する。
+- `GH_TOKEN` / `GITHUB_TOKEN` を shell config、`.env`、git 管理ファイル、Issue / PR 本文、ログへ直書きしない。
+- 認証は `gh auth login` によるユーザーセッションの keyring 認証を使い、token 実値を AI agent に渡さない。
+- 認証状態の確認や API 操作で token 値、secret 値、cookie、credential helper の実体を出力しない。
+- sandbox 外実行でも、実行するコマンドは必要最小限にし、読み取り、作成、編集、push などの目的を分けて確認できるようにする。
+- sudo / root 権限、root の keyring、個人 token の一時 export で回避しない。
+
+この方針は GitHub Issue / PR / Project 操作全般に適用する。
+Issue、sub-issue、Project field の具体的な運用は `docs/rules/project.md` を正本とする。
+
 ## Skill Trigger Policy
 
 - Repository skill は `.agents/skills/<skill-name>/SKILL.md` に置く。
