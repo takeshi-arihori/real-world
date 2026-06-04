@@ -292,5 +292,6 @@ Test examples:
 - Do not use `innerHTML` or `dangerouslySetInnerHTML` for Article body in MVP.
 - Do not store JWT, session identifiers, or refresh tokens in `localStorage`, `sessionStorage`, or React state.
 - Browser authentication uses BFF-managed `HttpOnly` session cookies; `lib/` sends same-origin credentialed requests and CSRF proof without reading the auth cookie.
-- `VITE_API_BASE_URL` targets the frontend/BFF origin or uses relative `/api`; it does not target the Public API origin for authenticated browser operations.
+- The default API client uses relative `/api/*` so the browser reaches the same-origin BFF through the frontend dev proxy.
+- `VITE_API_BASE_URL` must not target the Public API origin such as `http://localhost:8080`; if a local `.env.local` still has that value, remove it and use `BFF_PROXY_TARGET` to configure the Vite proxy target instead.
 - Backend authorization remains required even when frontend hides buttons.

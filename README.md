@@ -42,6 +42,9 @@ docker compose exec frontend sh
 pnpm install
 ```
 
+Frontend は browser から same-origin の `/api/*` だけを呼び、Vite dev server が BFF (`BFF_PROXY_TARGET`, 既定 `http://localhost:3006`) へ proxy します。
+既存の `frontend/.env.local` に `VITE_API_BASE_URL=http://localhost:8080` が残っている場合は、Public API/backend-nginx 直送になるため削除してください。
+
 停止:
 
 ```bash
