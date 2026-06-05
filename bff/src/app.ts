@@ -158,7 +158,20 @@ async function handleAuthenticatedSessionRequest(
 ): Promise<Response> {
   const { session, sessionId } = await readRequestSession(context, config, sessions);
 
-  if (session?.publicJwt === null || session?.publicJwt === undefined) {
+  if (session === null) {
+    if (sessionId !== null) {
+      expireSessionCookie(context, config);
+
+      return context.json(
+        { errors: { body: ['Unauthorized'] } },
+        401 as ContentfulStatusCode,
+      );
+    }
+
+    return jsonResponse(401, { errors: { body: ['Unauthorized'] } });
+  }
+
+  if (session.publicJwt === null) {
     return jsonResponse(401, { errors: { body: ['Unauthorized'] } });
   }
 
