@@ -3,6 +3,7 @@
 use App\Presentation\Http\Controllers\Identity\AuthController;
 use App\Presentation\Http\Controllers\Identity\CurrentUserController;
 use App\Presentation\Http\Controllers\Publishing\ArticleController;
+use App\Presentation\Http\Controllers\Publishing\TagController;
 use App\Presentation\Http\Controllers\Social\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,6 +11,7 @@ Route::post('/users', [AuthController::class, 'register']);
 Route::post('/users/login', [AuthController::class, 'login']);
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articles.show');
+Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
 Route::get('/profiles/{username}', [ProfileController::class, 'show'])->name('profiles.show');
 
 Route::middleware('auth:api')->group(function (): void {
