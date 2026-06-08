@@ -93,6 +93,21 @@ describe('Profile and Follow API', function (): void {
         expect(DB::table('follows')->count())->toBe(0);
     });
 
+    it('self-unfollowを422で拒否する', function (): void {
+        $viewer = User::factory()->create(['username' => 'jake']);
+
+        $this->withRealWorldToken($this->issueRealWorldTokenFor($viewer))
+            ->deleteJson('/api/profiles/jake/follow')
+            ->assertUnprocessable()
+            ->assertExactJson([
+                'errors' => [
+                    'body' => ['cannot follow yourself'],
+                ],
+            ]);
+
+        expect(DB::table('follows')->count())->toBe(0);
+    });
+
     it('unfollowは未follow状態でもidempotentにprofile wrapperを返す', function (): void {
         $viewer = User::factory()->create(['username' => 'viewer']);
         User::factory()->create(['username' => 'jake']);
