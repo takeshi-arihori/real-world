@@ -59,6 +59,8 @@ describe('Comment API', function (): void {
             ->assertOk()
             ->assertJsonPath('comments.0.author.following', true);
 
+        Auth::forgetGuards();
+
         $this->withRealWorldToken('not-a-jwt')
             ->getJson('/api/articles/how-to-train-your-dragon/comments')
             ->assertUnauthorized()
