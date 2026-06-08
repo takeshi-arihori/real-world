@@ -6,6 +6,7 @@ namespace App\Presentation\Http\Responses;
 
 use App\Domain\Identity\Exceptions\UserNotFoundException;
 use App\Domain\Publishing\Exceptions\ArticleNotFoundException;
+use App\Domain\Publishing\Exceptions\CommentNotFoundException;
 use DomainException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -57,7 +58,7 @@ final class RealWorldErrorResponse
             return [Response::HTTP_UNPROCESSABLE_ENTITY, self::validationMessages($exception)];
         }
 
-        if ($exception instanceof ArticleNotFoundException || $exception instanceof UserNotFoundException) {
+        if ($exception instanceof ArticleNotFoundException || $exception instanceof CommentNotFoundException || $exception instanceof UserNotFoundException) {
             return [Response::HTTP_NOT_FOUND, ['Resource not found.']];
         }
 
