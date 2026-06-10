@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "qa:auth": "node scripts/qa/auth-integration-qa.mjs"
+    "qa:auth": "node scripts/qa/auth-integration-qa.mjs",
+    "test:docs": "node --test tests/docs/*.test.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
