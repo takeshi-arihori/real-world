@@ -25,17 +25,15 @@ API 仕様そのものは `docs/api-requirements.md` を正本とし、この文
 | `DELETE /api/articles/{slug}` | Required | empty | missing token `401`, non-author `403`, missing article `404`, success `204` | `backend/tests/Feature/Publishing/ArticleCrudApiTest.php` | Covered |
 | `POST /api/articles/{slug}/favorite` | Required | `article` | missing token `401`, missing article `404`, duplicate favorite idempotency | `backend/tests/Feature/Publishing/ArticleFavoriteApiTest.php` | Covered |
 | `DELETE /api/articles/{slug}/favorite` | Required | `article` | missing favorite idempotency | `backend/tests/Feature/Publishing/ArticleFavoriteApiTest.php` | Covered |
-| `GET /api/articles/{slug}/comments` | Optional | `comments` | Not implemented yet | none | Gap |
-| `POST /api/articles/{slug}/comments` | Required | `comment` | Not implemented yet | none | Gap |
-| `DELETE /api/articles/{slug}/comments/{id}` | Required | empty | Comment author ownership is not covered yet | none | Gap |
+| `GET /api/articles/{slug}/comments` | Optional | `comments` | `200`, author following state, invalid optional token `401`, missing article `404` | `backend/tests/Feature/Publishing/CommentApiTest.php` | Covered |
+| `POST /api/articles/{slug}/comments` | Required | `comment` | `201`, missing token `401`, validation `422`, missing article `404` | `backend/tests/Feature/Publishing/CommentApiTest.php` | Covered |
+| `DELETE /api/articles/{slug}/comments/{id}` | Required | empty | success `204`, non-author `403`, missing / cross-article comment `404` | `backend/tests/Feature/Publishing/CommentApiTest.php` | Covered |
 | `GET /api/articles/feed` | Required | `articles`, `articlesCount` | Not implemented yet | none | Gap |
-| `GET /api/tags` | None | `tags` | Not implemented yet | none | Gap |
+| `GET /api/tags` | None | `tags` | `200`, distinct sorted tags, empty list, seeded tags fixture | `backend/tests/Feature/Publishing/TagApiTest.php` | Covered |
 
 ## Remaining Gaps
 
-- Comment API の `comments` / `comment` wrapper、comment author ownership、missing article / comment の `404` は未実装 endpoint のため未対応。
 - Feed API の required auth `401`、followee article list、pagination contract は未実装 endpoint のため未対応。
-- Tag API の distinct tag list wrapper は未実装 endpoint のため未対応。
 - Follow の duplicate follow は `insertOrIgnore` による idempotent insert として扱うが、重複 follow 専用の独立テストは未追加。
 
 ## Review Notes
