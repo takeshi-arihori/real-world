@@ -145,7 +145,7 @@ Docker development environment では Hono + TypeScript BFF service を追加し
   "user": {
     "username": "jake",
     "email": "jake@example.com",
-    "password": "secret"
+    "password": "<password>"
   }
 }
 ```
@@ -164,7 +164,7 @@ Validation:
 {
   "user": {
     "email": "jake@example.com",
-    "password": "secret"
+    "password": "<password>"
   }
 }
 ```
@@ -183,7 +183,7 @@ Validation:
   "user": {
     "email": "jake@example.com",
     "username": "jake",
-    "password": "new-secret",
+    "password": "<new-password>",
     "bio": "I like APIs",
     "image": "https://example.com/avatar.png"
   }
@@ -281,13 +281,15 @@ Validation:
 {
   "user": {
     "email": "jake@example.com",
-    "token": "jwt.token.value",
+    "token": "<jwt-token>",
     "username": "jake",
-    "bio": "I like APIs",
-    "image": "https://example.com/avatar.png"
+    "bio": null,
+    "image": null
   }
 }
 ```
+
+Register can return `null` profile fields. Login, Current User, and Update User use the same wrapper and return the current persisted `bio` / `image` values.
 
 BFF が browser へ返す `user` response は同じ表示 field を持つが、`token` field を含めない。
 
@@ -297,8 +299,8 @@ BFF が browser へ返す `user` response は同じ表示 field を持つが、`
 {
   "profile": {
     "username": "jake",
-    "bio": "I like APIs",
-    "image": "https://example.com/avatar.png",
+    "bio": null,
+    "image": null,
     "following": false
   }
 }
@@ -314,14 +316,14 @@ BFF が browser へ返す `user` response は同じ表示 field を持つが、`
     "description": "Ever wonder how?",
     "body": "You have to believe",
     "tagList": ["dragons", "training"],
-    "createdAt": "2026-05-06T00:00:00.000Z",
-    "updatedAt": "2026-05-06T00:00:00.000Z",
+    "createdAt": "2026-05-01T00:00:00.000Z",
+    "updatedAt": "2026-05-01T00:00:00.000Z",
     "favorited": false,
     "favoritesCount": 0,
     "author": {
       "username": "jake",
-      "bio": "I like APIs",
-      "image": "https://example.com/avatar.png",
+      "bio": null,
+      "image": null,
       "following": false
     }
   }
@@ -340,14 +342,14 @@ Article list and feed responses return summaries. They do not include `body`.
       "title": "How to train your dragon",
       "description": "Ever wonder how?",
       "tagList": ["dragons", "training"],
-      "createdAt": "2026-05-06T00:00:00.000Z",
-      "updatedAt": "2026-05-06T00:00:00.000Z",
+      "createdAt": "2026-05-01T00:00:00.000Z",
+      "updatedAt": "2026-05-01T00:00:00.000Z",
       "favorited": false,
       "favoritesCount": 0,
       "author": {
         "username": "jake",
-        "bio": "I like APIs",
-        "image": "https://example.com/avatar.png",
+        "bio": null,
+        "image": null,
         "following": false
       }
     }
@@ -362,13 +364,13 @@ Article list and feed responses return summaries. They do not include `body`.
 {
   "comment": {
     "id": 1,
-    "createdAt": "2026-05-06T00:00:00.000Z",
-    "updatedAt": "2026-05-06T00:00:00.000Z",
+    "createdAt": "2026-05-02T00:00:00.000Z",
+    "updatedAt": "2026-05-02T00:00:00.000Z",
     "body": "Nice article",
     "author": {
-      "username": "jake",
-      "bio": "I like APIs",
-      "image": "https://example.com/avatar.png",
+      "username": "bob",
+      "bio": null,
+      "image": null,
       "following": false
     }
   }
@@ -382,13 +384,13 @@ Article list and feed responses return summaries. They do not include `body`.
   "comments": [
     {
       "id": 1,
-      "createdAt": "2026-05-06T00:00:00.000Z",
-      "updatedAt": "2026-05-06T00:00:00.000Z",
+      "createdAt": "2026-05-02T00:00:00.000Z",
+      "updatedAt": "2026-05-02T00:00:00.000Z",
       "body": "Nice article",
       "author": {
-        "username": "jake",
-        "bio": "I like APIs",
-        "image": "https://example.com/avatar.png",
+        "username": "bob",
+        "bio": null,
+        "image": null,
         "following": false
       }
     }
@@ -400,16 +402,33 @@ Article list and feed responses return summaries. They do not include `body`.
 
 ```json
 {
-  "tags": ["dragons", "training"]
+  "tags": ["dragons", "laravel", "training"]
 }
 ```
 
 ### Errors
 
+Authentication errors:
+
 ```json
 {
   "errors": {
-    "body": ["title is required"]
+    "body": [
+      "Unauthenticated."
+    ]
+  }
+}
+```
+
+Validation errors flatten FormRequest field messages into `errors.body`:
+
+```json
+{
+  "errors": {
+    "body": [
+      "title is required",
+      "body is required"
+    ]
   }
 }
 ```
@@ -425,8 +444,8 @@ Article list and feed responses return summaries. They do not include `body`.
 | `DELETE /api/articles/{slug}` | Authenticated User must be Article author | `403` |
 | `POST /api/articles/{slug}/comments` | Authenticated User only | `401` |
 | `DELETE /api/articles/{slug}/comments/{id}` | Authenticated User must be Comment author | `403` |
-| `POST /api/profiles/{username}/follow` | Authenticated User cannot follow self | `401` or `422` |
-| `DELETE /api/profiles/{username}/follow` | Authenticated User cannot target self | `401` or `422` |
+| `POST /api/profiles/{username}/follow` | Authenticated User cannot follow self | `422` |
+| `DELETE /api/profiles/{username}/follow` | Authenticated User cannot target self | `422` |
 | `POST /api/articles/{slug}/favorite` | Authenticated User only; duplicate is idempotent | `401` |
 | `DELETE /api/articles/{slug}/favorite` | Authenticated User only; missing favorite is idempotent | `401` |
 | `GET /api/articles/feed` | Authenticated User only | `401` |
