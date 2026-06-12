@@ -5,6 +5,13 @@ export {
   mapArticleListResponse,
   type ArticleListResponse,
 } from './api/articleApi';
+export {
+  createArticleForEditor,
+  editorApi,
+  getArticleForEditor,
+  updateArticleForEditor,
+} from './api/editorApi';
+export { ArticleEditor } from './components/ArticleEditor';
 export { ArticleList } from './components/ArticleList';
 export type {
   ArticleAuthor,
@@ -14,3 +21,9 @@ export type {
   ArticleSummary,
   LoadArticles,
 } from './types/article';
+export type {
+  ArticleEditorApi,
+  ArticleEditorArticle,
+  ArticleEditorInput,
+  ArticleEditorLoadOptions,
+} from './types/editor';
