@@ -1,6 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ApiClient } from '@/lib/apiClient';
-import { ARTICLE_PAGE_SIZE, listArticles } from '../api/articleApi';
+import {
+  ARTICLE_PAGE_SIZE,
+  deleteArticle,
+  favoriteArticle,
+  getArticle,
+  listArticles,
+  unfavoriteArticle,
+} from '../api/articleApi';
 
 function createClient(): ApiClient {
   return {
@@ -90,5 +97,84 @@ describe('Article API', () => {
     expect(client.get).toHaveBeenCalledWith(
       '/api/articles?tag=react+patterns&limit=10&offset=0',
     );
+  });
+
+  it('Article detailを取得してbodyを含むfrontend modelへ変換する', async () => {
+    const client = createClient();
+    vi.mocked(client.get).mockResolvedValue({
+      article: {
+        ...ARTICLE_RESPONSE.articles[0],
+        body: 'It takes a Jacobian matrix to train your dragon.',
+      },
+    });
+
+    const result = await getArticle('how-to-train-your-dragon', client);
+
+    expect(client.get).toHaveBeenCalledWith(
+      '/api/articles/how-to-train-your-dragon',
+    );
+    expect(result).toEqual({
+      author: {
+        bio: 'API learner',
+        following: false,
+        image: 'https://example.com/jake.png',
+        username: 'jake',
+      },
+      body: 'It takes a Jacobian matrix to train your dragon.',
+      createdAt: '2026-05-06T00:00:00.000Z',
+      description: 'Ever wonder how?',
+      favorited: false,
+      favoritesCount: 3,
+      slug: 'how-to-train-your-dragon',
+      tags: ['dragons', 'training'],
+      title: 'How to train your dragon',
+      updatedAt: '2026-05-07T00:00:00.000Z',
+    });
+  });
+
+  it('favoriteとunfavoriteをArticle detail modelとして返す', async () => {
+    const client = createClient();
+    vi.mocked(client.post).mockResolvedValue({
+      article: {
+        ...ARTICLE_RESPONSE.articles[0],
+        body: 'Favorite response body',
+        favorited: true,
+        favoritesCount: 4,
+      },
+    });
+    vi.mocked(client.delete).mockResolvedValue({
+      article: {
+        ...ARTICLE_RESPONSE.articles[0],
+        body: 'Unfavorite response body',
+        favorited: false,
+        favoritesCount: 3,
+      },
+    });
+
+    const favoriteResult = await favoriteArticle('how-to-train-your-dragon', client);
+    const unfavoriteResult = await unfavoriteArticle(
+      'how-to-train-your-dragon',
+      client,
+    );
+
+    expect(client.post).toHaveBeenCalledWith(
+      '/api/articles/how-to-train-your-dragon/favorite',
+    );
+    expect(client.delete).toHaveBeenCalledWith(
+      '/api/articles/how-to-train-your-dragon/favorite',
+    );
+    expect(favoriteResult.favorited).toBe(true);
+    expect(favoriteResult.favoritesCount).toBe(4);
+    expect(unfavoriteResult.favorited).toBe(false);
+    expect(unfavoriteResult.favoritesCount).toBe(3);
+  });
+
+  it('Article delete endpointを呼び出す', async () => {
+    const client = createClient();
+    vi.mocked(client.delete).mockResolvedValue(null);
+
+    await deleteArticle('how-to-train-your-dragon', client);
+
+    expect(client.delete).toHaveBeenCalledWith('/api/articles/how-to-train-your-dragon');
   });
 });
