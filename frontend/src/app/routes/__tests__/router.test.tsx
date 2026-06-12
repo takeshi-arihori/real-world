@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { RouterProvider } from 'react-router-dom';
@@ -61,6 +61,13 @@ function renderRoute({
   );
 }
 
+async function waitForHomeRequestsToSettle(): Promise<void> {
+  await waitFor(() => {
+    expect(screen.queryByText('Loading articles...')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading tags...')).not.toBeInTheDocument();
+  });
+}
+
 describe('アプリルーター', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -76,6 +83,20 @@ describe('アプリルーター', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('/settings')).toBeInTheDocument();
   });
+
+  it.each(['/editor', '/editor/existing-article'])(
+    '未認証ユーザーを%sからreturn path付きログインへ遷移する',
+    async (initialPath) => {
+      const { render } = await import('@testing-library/react');
+
+      render(renderRoute({ initialPath }));
+
+      expect(
+        await screen.findByRole('heading', { name: 'Sign in' }),
+      ).toBeInTheDocument();
+      expect(screen.getByText(initialPath)).toBeInTheDocument();
+    },
+  );
 
   it('ログイン後にreturn pathへ復帰する', async () => {
     const user = userEvent.setup();
@@ -112,6 +133,7 @@ describe('アプリルーター', () => {
     expect(
       await screen.findByRole('heading', { name: 'Global Feed' }),
     ).toBeInTheDocument();
+    await waitForHomeRequestsToSettle();
   });
 
   it('認証済みユーザーをゲスト専用ルートからリダイレクトする', async () => {
@@ -120,8 +142,9 @@ describe('アプリルーター', () => {
     render(renderRoute({ initialPath: '/login', initialUser: DEMO_USER }));
 
     expect(
-      screen.getByRole('heading', { name: 'Global Feed' }),
+      await screen.findByRole('heading', { name: 'Global Feed' }),
     ).toBeInTheDocument();
+    await waitForHomeRequestsToSettle();
   });
 
   it('未知のルートではnot foundを表示する', async () => {
@@ -213,5 +236,6 @@ describe('アプリルーター', () => {
     expect(
       await screen.findByRole('heading', { name: 'Global Feed' }),
     ).toBeInTheDocument();
+    await waitForHomeRequestsToSettle();
   });
 });
