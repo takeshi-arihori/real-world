@@ -1,11 +1,20 @@
 import { apiClient, type ApiClient } from '@/lib/apiClient';
-import type { ArticleListParams, ArticleListResult, ArticleSummary } from '../types/article';
+import type {
+  ArticleDetail,
+  ArticleListParams,
+  ArticleListResult,
+  ArticleSummary,
+} from '../types/article';
 
 export const ARTICLE_PAGE_SIZE = 10;
 
 export interface ArticleListResponse {
   articles: ArticleResponse[];
   articlesCount: number;
+}
+
+export interface SingleArticleResponse {
+  article: ArticleDetailResponse;
 }
 
 interface ArticleResponse {
@@ -23,6 +32,10 @@ interface ArticleResponse {
   tagList: string[];
   title: string;
   updatedAt: string;
+}
+
+interface ArticleDetailResponse extends ArticleResponse {
+  body: string;
 }
 
 /**
@@ -48,6 +61,63 @@ export function mapArticleListResponse(response: ArticleListResponse): ArticleLi
   };
 }
 
+/**
+ * slugで指定されたArticle detailをBFF経由で取得する。
+ */
+export async function getArticle(
+  slug: string,
+  client: ApiClient = apiClient,
+  signal?: AbortSignal,
+): Promise<ArticleDetail> {
+  const path = buildArticlePath(slug);
+
+  if (signal === undefined) {
+    return mapSingleArticleResponse(await client.get<SingleArticleResponse>(path));
+  }
+
+  return mapSingleArticleResponse(
+    await client.get<SingleArticleResponse>(path, { signal }),
+  );
+}
+
+/**
+ * Articleをfavoriteし、更新後のArticle detailを返す。
+ */
+export async function favoriteArticle(
+  slug: string,
+  client: ApiClient = apiClient,
+): Promise<ArticleDetail> {
+  return mapSingleArticleResponse(
+    await client.post<SingleArticleResponse>(`${buildArticlePath(slug)}/favorite`),
+  );
+}
+
+/**
+ * Articleのfavoriteを解除し、更新後のArticle detailを返す。
+ */
+export async function unfavoriteArticle(
+  slug: string,
+  client: ApiClient = apiClient,
+): Promise<ArticleDetail> {
+  return mapSingleArticleResponse(
+    await client.delete<SingleArticleResponse>(`${buildArticlePath(slug)}/favorite`),
+  );
+}
+
+/**
+ * Article authorがArticleを削除する。
+ */
+export async function deleteArticle(
+  slug: string,
+  client: ApiClient = apiClient,
+): Promise<void> {
+  await client.delete<null>(buildArticlePath(slug));
+}
+
+export function mapSingleArticleResponse(response: SingleArticleResponse): ArticleDetail {
+  return mapArticleDetailResponse(response.article);
+}
+
 function mapArticleResponse(response: ArticleResponse): ArticleSummary {
   return {
     author: {
@@ -67,6 +137,13 @@ function mapArticleResponse(response: ArticleResponse): ArticleSummary {
   };
 }
 
+function mapArticleDetailResponse(response: ArticleDetailResponse): ArticleDetail {
+  return {
+    ...mapArticleResponse(response),
+    body: response.body,
+  };
+}
+
 export function buildArticleListPath(basePath: string, params: ArticleListParams): string {
   const query = new URLSearchParams();
   const tag = params.tag?.trim();
@@ -79,6 +156,10 @@ export function buildArticleListPath(basePath: string, params: ArticleListParams
   query.set('offset', String(params.offset));
 
   return `${basePath}?${query.toString()}`;
+}
+
+export function buildArticlePath(slug: string): string {
+  return `/api/articles/${encodeURIComponent(slug)}`;
 }
 
 async function getArticleListResponse(

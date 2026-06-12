@@ -90,7 +90,7 @@ describe('ArticleDetailPage', () => {
       await screen.findByRole('heading', { name: 'Guest readable article' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Guest readable article body.')).toBeInTheDocument();
-    expect(screen.getByText('A public comment.')).toBeInTheDocument();
+    expect(await screen.findByText('A public comment.')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Favorite Article (3)' }));
 
