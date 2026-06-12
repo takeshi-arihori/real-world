@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('/users', [AuthController::class, 'register']);
 Route::post('/users/login', [AuthController::class, 'login']);
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+Route::middleware('auth:api')->group(function (): void {
+    Route::get('/articles/feed', [ArticleController::class, 'feed'])->name('articles.feed');
+});
 Route::get('/articles/{slug}/comments', [CommentController::class, 'index'])->name('articles.comments.index');
 Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 Route::get('/tags', [TagController::class, 'index'])->name('tags.index');

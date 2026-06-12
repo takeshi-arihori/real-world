@@ -12,9 +12,11 @@ use App\Application\Publishing\Commands\UpdateArticleCommand;
 use App\Application\Publishing\Queries\GetArticleForAuthorizationQuery;
 use App\Application\Publishing\Queries\GetArticleQuery;
 use App\Application\Publishing\Queries\ListArticlesQuery;
+use App\Application\Publishing\Queries\ListFeedQuery;
 use App\Presentation\Http\Controllers\Controller;
 use App\Presentation\Http\Requests\Publishing\CreateArticleRequest;
 use App\Presentation\Http\Requests\Publishing\ListArticlesRequest;
+use App\Presentation\Http\Requests\Publishing\ListFeedRequest;
 use App\Presentation\Http\Requests\Publishing\UpdateArticleRequest;
 use App\Presentation\Http\Resources\Publishing\ArticleListResource;
 use App\Presentation\Http\Resources\Publishing\SingleArticleResource;
@@ -35,6 +37,21 @@ final class ArticleController extends Controller
         return (new ArticleListResource($query->execute(
             dto: $request->toDto(),
             currentUserId: $this->optionalAuthenticatedUserId($request),
+        )))
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
+    }
+
+    /**
+     * 現在 User が follow している author の Article feed を返す。
+     */
+    public function feed(ListFeedRequest $request, ListFeedQuery $query): JsonResponse
+    {
+        $currentUserId = $this->authenticatedUserId($request);
+
+        return (new ArticleListResource($query->execute(
+            dto: $request->toDto(),
+            currentUserId: $currentUserId,
         )))
             ->response()
             ->setStatusCode(Response::HTTP_OK);
