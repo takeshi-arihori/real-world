@@ -17,6 +17,10 @@ export interface ArticleSummary {
   updatedAt: string;
 }
 
+export interface ArticleDetail extends ArticleSummary {
+  body: string;
+}
+
 export interface ArticleListResult {
   articles: ArticleSummary[];
   totalCount: number;
