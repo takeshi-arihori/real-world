@@ -31,21 +31,25 @@ type ProfileState =
       error: null;
       profile: null;
       status: 'loading';
+      username: string;
     }
   | {
       error: null;
       profile: Profile;
       status: 'success';
+      username: string;
     }
   | {
       error: string;
       profile: null;
       status: 'error';
+      username: string;
     }
   | {
       error: null;
       profile: null;
       status: 'not_found';
+      username: string;
     };
 
 /**
@@ -62,20 +66,15 @@ export function ProfileView({
     error: null,
     profile: null,
     status: 'loading',
+    username,
   });
   const [isFollowMutating, setIsFollowMutating] = useState(false);
   const [followError, setFollowError] = useState<string | null>(null);
+  const currentState = state.username === username ? state : createLoadingState(username);
 
   useEffect(() => {
     const controller = new AbortController();
     let isCurrent = true;
-
-    setState({
-      error: null,
-      profile: null,
-      status: 'loading',
-    });
-    setFollowError(null);
 
     async function load(): Promise<void> {
       try {
@@ -89,7 +88,9 @@ export function ProfileView({
           error: null,
           profile,
           status: 'success',
+          username,
         });
+        setFollowError(null);
       } catch (error: unknown) {
         if (!isCurrent || isAbortError(error)) {
           return;
@@ -100,6 +101,7 @@ export function ProfileView({
             error: null,
             profile: null,
             status: 'not_found',
+            username,
           });
           return;
         }
@@ -108,6 +110,7 @@ export function ProfileView({
           error: 'Profile could not be loaded.',
           profile: null,
           status: 'error',
+          username,
         });
       }
     }
@@ -142,7 +145,7 @@ export function ProfileView({
   );
 
   const handleToggleFollow = useCallback(async (): Promise<void> => {
-    if (state.status !== 'success') {
+    if (currentState.status !== 'success') {
       return;
     }
 
@@ -150,23 +153,24 @@ export function ProfileView({
     setFollowError(null);
 
     try {
-      const nextProfile = state.profile.following
-        ? await unfollowProfile(state.profile.username)
-        : await followProfile(state.profile.username);
+      const nextProfile = currentState.profile.following
+        ? await unfollowProfile(currentState.profile.username)
+        : await followProfile(currentState.profile.username);
 
       setState({
         error: null,
         profile: nextProfile,
         status: 'success',
+        username,
       });
     } catch {
       setFollowError('Follow state could not be updated.');
     } finally {
       setIsFollowMutating(false);
     }
-  }, [state]);
+  }, [currentState, username]);
 
-  if (state.status === 'loading') {
+  if (currentState.status === 'loading') {
     return (
       <section className="profile-header" aria-live="polite">
         <p className="state-message">Loading profile...</p>
@@ -174,7 +178,7 @@ export function ProfileView({
     );
   }
 
-  if (state.status === 'not_found') {
+  if (currentState.status === 'not_found') {
     return (
       <section className="not-found" aria-labelledby="profile-not-found-title">
         <p className="eyebrow">404</p>
@@ -187,10 +191,10 @@ export function ProfileView({
     );
   }
 
-  if (state.status === 'error') {
+  if (currentState.status === 'error') {
     return (
       <section className="profile-header" aria-live="polite">
-        <p className="state-message state-message--error">{state.error}</p>
+        <p className="state-message state-message--error">{currentState.error}</p>
       </section>
     );
   }
@@ -205,10 +209,10 @@ export function ProfileView({
         isAuthenticated={isAuthenticated}
         isFollowMutating={isFollowMutating}
         onToggleFollow={handleToggleFollow}
-        profile={state.profile}
+        profile={currentState.profile}
       />
       <section className="feed-column" aria-label="Profile articles">
-        <ProfileTabs activeTab={activeTab} username={state.profile.username} />
+        <ProfileTabs activeTab={activeTab} username={currentState.profile.username} />
         <ArticleList
           key={articleListKey}
           loadArticles={loadArticles}
@@ -322,4 +326,13 @@ function ProfileTabs({ activeTab, username }: ProfileTabsProps): ReactElement {
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'AbortError';
+}
+
+function createLoadingState(username: string): ProfileState {
+  return {
+    error: null,
+    profile: null,
+    status: 'loading',
+    username,
+  };
 }
