@@ -33,6 +33,8 @@ export interface ArticleListQuery {
 }
 
 export interface ArticleListParams extends ArticleListQuery {
+  author?: string;
+  favorited?: string;
   tag?: string;
 }
 

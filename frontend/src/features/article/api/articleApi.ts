@@ -147,9 +147,19 @@ function mapArticleDetailResponse(response: ArticleDetailResponse): ArticleDetai
 export function buildArticleListPath(basePath: string, params: ArticleListParams): string {
   const query = new URLSearchParams();
   const tag = params.tag?.trim();
+  const author = params.author?.trim();
+  const favorited = params.favorited?.trim();
 
   if (tag !== undefined && tag !== '') {
     query.set('tag', tag);
+  }
+
+  if (author !== undefined && author !== '') {
+    query.set('author', author);
+  }
+
+  if (favorited !== undefined && favorited !== '') {
+    query.set('favorited', favorited);
   }
 
   query.set('limit', String(params.limit));
