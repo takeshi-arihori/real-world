@@ -12,3 +12,7 @@ export interface ArticleComment {
   id: number;
   updatedAt: string;
 }
+
+export interface CreateCommentInput {
+  body: string;
+}

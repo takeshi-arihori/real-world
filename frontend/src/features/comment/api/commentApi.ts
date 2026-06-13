@@ -1,8 +1,12 @@
 import { apiClient, type ApiClient } from '@/lib/apiClient';
-import type { ArticleComment } from '../types/comment';
+import type { ArticleComment, CreateCommentInput } from '../types/comment';
 
 interface CommentListResponse {
   comments: CommentResponse[];
+}
+
+interface SingleCommentResponse {
+  comment: CommentResponse;
 }
 
 interface CommentResponse {
@@ -37,6 +41,37 @@ export async function listComments(
   );
 }
 
+/**
+ * Articleへcommentを投稿し、作成されたcommentをfrontend modelへ変換する。
+ */
+export async function createComment(
+  slug: string,
+  input: CreateCommentInput,
+  client: ApiClient = apiClient,
+): Promise<ArticleComment> {
+  const response = await client.post<SingleCommentResponse>(
+    buildCommentsPath(slug),
+    {
+      comment: {
+        body: input.body,
+      },
+    },
+  );
+
+  return mapCommentResponse(response.comment);
+}
+
+/**
+ * Articleに紐づくcommentを削除する。
+ */
+export async function deleteComment(
+  slug: string,
+  commentId: number,
+  client: ApiClient = apiClient,
+): Promise<void> {
+  await client.delete<null>(buildCommentPath(slug, commentId));
+}
+
 export function mapCommentListResponse(
   response: CommentListResponse,
 ): ArticleComment[] {
@@ -45,6 +80,10 @@ export function mapCommentListResponse(
 
 export function buildCommentsPath(slug: string): string {
   return `/api/articles/${encodeURIComponent(slug)}/comments`;
+}
+
+export function buildCommentPath(slug: string, commentId: number): string {
+  return `${buildCommentsPath(slug)}/${encodeURIComponent(String(commentId))}`;
 }
 
 function mapCommentResponse(response: CommentResponse): ArticleComment {
