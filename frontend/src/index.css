@@ -247,7 +247,10 @@ textarea:focus-visible {
   border-bottom: 1px solid var(--surface-line);
 }
 
-.feed-tabs button {
+.feed-tabs button,
+.feed-tabs a {
+  display: inline-flex;
+  align-items: center;
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
@@ -256,7 +259,8 @@ textarea:focus-visible {
   font-weight: 700;
 }
 
-.feed-tabs button.is-active {
+.feed-tabs button.is-active,
+.feed-tabs a.is-active {
   border-color: var(--primary);
   color: var(--primary);
 }
@@ -333,6 +337,13 @@ textarea:focus-visible {
   font-size: 2.25rem;
 }
 
+.avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
 .favorite-button,
 .secondary-action {
   display: inline-flex;
@@ -349,6 +360,12 @@ textarea:focus-visible {
 }
 
 .favorite-button.is-active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.secondary-action.is-active {
   border-color: var(--primary);
   background: var(--primary-soft);
   color: var(--primary);
@@ -719,6 +736,21 @@ button.tag {
   padding-block: 40px;
   border-bottom: 1px solid var(--surface-line);
   text-align: center;
+}
+
+.profile-header__bio {
+  max-width: 620px;
+  color: var(--text-muted);
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  line-height: 1.6;
+}
+
+.profile-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
 .not-found {
