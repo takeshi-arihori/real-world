@@ -1,36 +1,29 @@
 import { type ReactElement } from 'react';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '@/app/providers/useAuth';
+import { ArticleEditor } from '@/features/article';
 
 export function EditorPage(): ReactElement {
   const { slug } = useParams();
-  const heading = slug ? 'Edit Article' : 'New Article';
+  const { user } = useAuth();
+
+  if (user === null) {
+    return (
+      <main className="page page--narrow">
+        <section className="editorial-panel" aria-labelledby="editor-title">
+          <h1 id="editor-title">{slug === undefined ? 'New Article' : 'Edit Article'}</h1>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="page page--narrow">
-      <section className="editorial-panel" aria-labelledby="editor-title">
-        <h1 id="editor-title">{heading}</h1>
-        <form className="form-stack">
-          <label>
-            <span>Title</span>
-            <input placeholder="Article title" type="text" />
-          </label>
-          <label>
-            <span>Description</span>
-            <input placeholder="What is this article about?" type="text" />
-          </label>
-          <label>
-            <span>Body</span>
-            <textarea placeholder="Write your article" rows={10} />
-          </label>
-          <label>
-            <span>Tags</span>
-            <input placeholder="Enter tags" type="text" />
-          </label>
-          <button className="primary-action" type="button">
-            Publish Article
-          </button>
-        </form>
-      </section>
+      <ArticleEditor
+        currentUsername={user.username}
+        key={slug ?? 'new'}
+        slug={slug}
+      />
     </main>
   );
 }
