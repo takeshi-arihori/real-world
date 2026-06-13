@@ -99,6 +99,40 @@ describe('Article API', () => {
     );
   });
 
+  it('Profile画面用のauthor filterとfavorited filterをquery parameterとして送る', async () => {
+    const client = createClient();
+    vi.mocked(client.get).mockResolvedValue({
+      articles: [],
+      articlesCount: 0,
+    });
+
+    await listArticles(
+      {
+        author: 'eric',
+        limit: ARTICLE_PAGE_SIZE,
+        offset: 0,
+      },
+      client,
+    );
+    await listArticles(
+      {
+        favorited: 'space user',
+        limit: ARTICLE_PAGE_SIZE,
+        offset: 10,
+      },
+      client,
+    );
+
+    expect(client.get).toHaveBeenNthCalledWith(
+      1,
+      '/api/articles?author=eric&limit=10&offset=0',
+    );
+    expect(client.get).toHaveBeenNthCalledWith(
+      2,
+      '/api/articles?favorited=space+user&limit=10&offset=10',
+    );
+  });
+
   it('Article detailを取得してbodyを含むfrontend modelへ変換する', async () => {
     const client = createClient();
     vi.mocked(client.get).mockResolvedValue({
