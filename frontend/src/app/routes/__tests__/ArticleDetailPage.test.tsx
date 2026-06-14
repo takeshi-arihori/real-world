@@ -6,6 +6,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '@/app/providers/AppProviders';
 import type { AuthApi, AuthUser } from '@/features/auth';
 import { ApiError } from '@/lib/apiError';
+import {
+  createDeferred,
+  createFetchMock,
+  emptyResponse,
+  jsonResponse,
+  type MockRoutes,
+} from '@/test/mockFetch';
 import { createAppRouter } from '../router';
 
 const DEMO_USER: AuthUser = {
@@ -46,7 +53,7 @@ function renderArticleRoute({
 }: {
   initialPath: string;
   initialUser?: AuthUser | null;
-  routes: Record<string, unknown | unknown[]>;
+  routes: MockRoutes;
 }): ReactElement {
   vi.stubGlobal('fetch', createFetchMock(routes));
 
@@ -150,6 +157,56 @@ describe('ArticleDetailPage', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('favorite更新中はbuttonを無効化し、失敗時はArticle上にerrorを表示する', async () => {
+    const user = userEvent.setup();
+    const favoriteResponse = createDeferred<Response>();
+
+    render(
+      renderArticleRoute({
+        initialPath: '/article/favorite-error-article',
+        initialUser: DEMO_USER,
+        routes: {
+          '/api/articles/favorite-error-article': articleWrapper({
+            favoritesCount: 3,
+            slug: 'favorite-error-article',
+            title: 'Favorite error article',
+          }),
+          '/api/articles/favorite-error-article/comments': commentsWrapper([]),
+          '/api/session/csrf': { csrfToken: 'csrf-token' },
+          'POST /api/articles/favorite-error-article/favorite':
+            favoriteResponse.promise,
+        },
+      }),
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Favorite error article' }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Favorite Article (3)' }));
+    expect(
+      screen.getByRole('button', { name: 'Favorite Article (3)' }),
+    ).toBeDisabled();
+
+    favoriteResponse.resolve(
+      jsonResponse(
+        {
+          errors: {
+            body: ['Favorite could not be updated.'],
+          },
+        },
+        403,
+      ),
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Favorite could not be updated.',
+    );
+    expect(
+      screen.getByRole('button', { name: 'Favorite Article (3)' }),
+    ).toBeEnabled();
+  });
+
   it('authorだけがedit/delete actionを使え、delete成功後はHomeへ遷移する', async () => {
     const user = userEvent.setup();
 
@@ -188,6 +245,48 @@ describe('ArticleDetailPage', () => {
     expect(
       await screen.findByRole('heading', { name: 'Global Feed' }),
     ).toBeInTheDocument();
+  });
+
+  it('delete失敗時はArticleに留まりerrorを表示する', async () => {
+    const user = userEvent.setup();
+
+    render(
+      renderArticleRoute({
+        initialPath: '/article/delete-error-article',
+        initialUser: AUTHOR_USER,
+        routes: {
+          '/api/articles/delete-error-article': articleWrapper({
+            authorUsername: AUTHOR_USER.username,
+            slug: 'delete-error-article',
+            title: 'Delete error article',
+          }),
+          '/api/articles/delete-error-article/comments': commentsWrapper([]),
+          '/api/session/csrf': { csrfToken: 'csrf-token' },
+          'DELETE /api/articles/delete-error-article': jsonResponse(
+            {
+              errors: {
+                body: ['Article could not be deleted.'],
+              },
+            },
+            403,
+          ),
+        },
+      }),
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Delete error article' }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Delete Article' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Article could not be deleted.',
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Delete error article' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete Article' })).toBeEnabled();
   });
 
   it('404 slugはArticle Detail内でNot Found表示にする', async () => {
@@ -275,85 +374,4 @@ function commentResponse({
     id,
     updatedAt: '2026-05-08T00:00:00.000Z',
   };
-}
-
-function createFetchMock(routes: Record<string, unknown | unknown[]>): typeof fetch {
-  const fetcher: typeof fetch = async (
-    input: RequestInfo | URL,
-    init?: RequestInit,
-  ): Promise<Response> => {
-    const path = requestPath(input);
-    const method = requestMethod(input, init);
-    const response =
-      readMockResponse(routes, `${method} ${path}`) ?? readMockResponse(routes, path);
-
-    if (response instanceof Response) {
-      return response;
-    }
-
-    if (response !== undefined) {
-      return jsonResponse(response);
-    }
-
-    return jsonResponse(
-      {
-        errors: {
-          body: [`Unhandled request: ${method} ${path}`],
-        },
-      },
-      500,
-    );
-  };
-
-  return vi.fn(fetcher);
-}
-
-function readMockResponse(
-  routes: Record<string, unknown | unknown[]>,
-  key: string,
-): unknown {
-  const response = routes[key];
-
-  if (Array.isArray(response)) {
-    return response.shift();
-  }
-
-  return response;
-}
-
-function requestPath(input: RequestInfo | URL): string {
-  if (typeof input === 'string') {
-    const url = new URL(input, window.location.origin);
-
-    return `${url.pathname}${url.search}`;
-  }
-
-  const url = input instanceof URL ? input : new URL(input.url, window.location.origin);
-
-  return `${url.pathname}${url.search}`;
-}
-
-function requestMethod(input: RequestInfo | URL, init: RequestInit | undefined): string {
-  if (init?.method !== undefined) {
-    return init.method.toUpperCase();
-  }
-
-  if (input instanceof Request) {
-    return input.method.toUpperCase();
-  }
-
-  return 'GET';
-}
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    status,
-  });
-}
-
-function emptyResponse(status = 204): Response {
-  return new Response(null, { status });
 }

@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '@/app/providers/AppProviders';
 import type { AuthApi, AuthUser } from '@/features/auth';
 import { ApiError } from '@/lib/apiError';
+import { createFetchMock, jsonResponse, type MockRoutes } from '@/test/mockFetch';
 import { createAppRouter } from '../router';
 
 const DEMO_USER: AuthUser = {
@@ -78,7 +79,7 @@ function renderHome({
 }: {
   initialPath?: string;
   initialUser?: AuthUser | null;
-  routes: Record<string, Response | unknown>;
+  routes: MockRoutes;
 }): ReactElement {
   vi.stubGlobal('fetch', createFetchMock(routes));
 
@@ -258,51 +259,4 @@ function articleResponse({
     title,
     updatedAt: '2026-05-06T00:00:00.000Z',
   };
-}
-
-function createFetchMock(routes: Record<string, Response | unknown>): typeof fetch {
-  const fetcher: typeof fetch = async (input: RequestInfo | URL): Promise<Response> => {
-    const path = requestPath(input);
-    const response = routes[path];
-
-    if (response instanceof Response) {
-      return response;
-    }
-
-    if (response !== undefined) {
-      return jsonResponse(response);
-    }
-
-    return jsonResponse(
-      {
-        errors: {
-          body: [`Unhandled request: ${path}`],
-        },
-      },
-      500,
-    );
-  };
-
-  return vi.fn(fetcher);
-}
-
-function requestPath(input: RequestInfo | URL): string {
-  if (typeof input === 'string') {
-    const url = new URL(input, window.location.origin);
-
-    return `${url.pathname}${url.search}`;
-  }
-
-  const url = input instanceof URL ? input : new URL(input.url, window.location.origin);
-
-  return `${url.pathname}${url.search}`;
-}
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    status,
-  });
 }

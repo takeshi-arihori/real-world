@@ -2,9 +2,14 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  createDeferred,
+  createFetchMock,
+  emptyResponse,
+  getRequestLog,
+  jsonResponse,
+} from '@/test/mockFetch';
 import { CommentList } from '../components/CommentList';
-
-type MockRouteResponse = Promise<Response> | Response | unknown | unknown[];
 
 describe('CommentList', () => {
   afterEach(() => {
@@ -280,125 +285,5 @@ function commentResponse({
     createdAt: '2026-05-08T00:00:00.000Z',
     id,
     updatedAt: '2026-05-08T00:00:00.000Z',
-  };
-}
-
-function createFetchMock(routes: Record<string, MockRouteResponse>): typeof fetch {
-  const fetcher: typeof fetch = async (
-    input: RequestInfo | URL,
-    init?: RequestInit,
-  ): Promise<Response> => {
-    const path = requestPath(input);
-    const method = requestMethod(input, init);
-    const response =
-      readMockResponse(routes, `${method} ${path}`) ?? readMockResponse(routes, path);
-
-    if (response instanceof Promise) {
-      return response;
-    }
-
-    if (response instanceof Response) {
-      return response;
-    }
-
-    if (response !== undefined) {
-      return jsonResponse(response);
-    }
-
-    return jsonResponse(
-      {
-        errors: {
-          body: [`Unhandled request: ${method} ${path}`],
-        },
-      },
-      500,
-    );
-  };
-
-  return vi.fn(fetcher);
-}
-
-function readMockResponse(
-  routes: Record<string, MockRouteResponse>,
-  key: string,
-): MockRouteResponse | undefined {
-  const response = routes[key];
-
-  if (Array.isArray(response)) {
-    return response.shift();
-  }
-
-  return response;
-}
-
-function requestPath(input: RequestInfo | URL): string {
-  if (typeof input === 'string') {
-    const url = new URL(input, window.location.origin);
-
-    return `${url.pathname}${url.search}`;
-  }
-
-  const url = input instanceof URL ? input : new URL(input.url, window.location.origin);
-
-  return `${url.pathname}${url.search}`;
-}
-
-function requestMethod(input: RequestInfo | URL, init: RequestInit | undefined): string {
-  if (init?.method !== undefined) {
-    return init.method.toUpperCase();
-  }
-
-  if (input instanceof Request) {
-    return input.method.toUpperCase();
-  }
-
-  return 'GET';
-}
-
-function getRequestLog(fetchMock: typeof fetch): string[] {
-  return vi.mocked(fetchMock).mock.calls.map(([input, init]) => {
-    const method = requestMethod(input, init);
-    const path = requestPath(input);
-
-    return `${method} ${path}`;
-  });
-}
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    status,
-  });
-}
-
-function emptyResponse(status = 204): Response {
-  return new Response(null, { status });
-}
-
-interface Deferred<T> {
-  promise: Promise<T>;
-  reject: (reason?: unknown) => void;
-  resolve: (value: T | PromiseLike<T>) => void;
-}
-
-function createDeferred<T>(): Deferred<T> {
-  let resolve: Deferred<T>['resolve'] | undefined;
-  let reject: Deferred<T>['reject'] | undefined;
-
-  const promise = new Promise<T>((innerResolve, innerReject) => {
-    resolve = innerResolve;
-    reject = innerReject;
-  });
-
-  if (resolve === undefined || reject === undefined) {
-    throw new Error('Deferred callbacks were not initialized.');
-  }
-
-  return {
-    promise,
-    reject,
-    resolve,
   };
 }

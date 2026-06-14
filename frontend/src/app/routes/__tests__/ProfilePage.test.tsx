@@ -6,6 +6,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppProviders } from '@/app/providers/AppProviders';
 import type { AuthApi, AuthUser } from '@/features/auth';
 import { ApiError } from '@/lib/apiError';
+import {
+  createDeferred,
+  createFetchMock,
+  jsonResponse,
+  type FetchMock,
+  type MockRoutes,
+} from '@/test/mockFetch';
 import { createAppRouter } from '../router';
 
 const DEMO_USER: AuthUser = {
@@ -46,8 +53,8 @@ function renderProfileRoute({
 }: {
   initialPath: string;
   initialUser?: AuthUser | null;
-  routes: Record<string, Response | unknown | unknown[]>;
-}): { fetchMock: ReturnType<typeof vi.fn>; view: ReactElement } {
+  routes: MockRoutes;
+}): { fetchMock: FetchMock; view: ReactElement } {
   const fetchMock = createFetchMock(routes);
   vi.stubGlobal('fetch', fetchMock);
 
@@ -97,6 +104,35 @@ describe('ProfilePage', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('Profile取得中はloading stateを表示し、成功後にProfile headerを表示する', async () => {
+    const profileResponse = createDeferred<Response>();
+    const { view } = renderProfileRoute({
+      initialPath: '/profile/loading-user',
+      routes: {
+        '/api/articles?author=loading-user&limit=10&offset=0': articlesWrapper([]),
+        '/api/profiles/loading-user': profileResponse.promise,
+      },
+    });
+
+    render(view);
+
+    expect(screen.getByText('Loading profile...')).toBeInTheDocument();
+
+    profileResponse.resolve(
+      jsonResponse(
+        profileWrapper({
+          bio: 'Loaded profile bio',
+          username: 'loading-user',
+        }),
+      ),
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'loading-user' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Loaded profile bio')).toBeInTheDocument();
+  });
+
   it('authenticated userは他ユーザーをfollow/unfollowでき、返却されたfollowing stateを表示へ反映する', async () => {
     const user = userEvent.setup();
     const { view } = renderProfileRoute({
@@ -131,6 +167,45 @@ describe('ProfilePage', () => {
     expect(
       await screen.findByRole('button', { name: 'Follow eric' }),
     ).toBeInTheDocument();
+  });
+
+  it('follow更新中はbuttonを無効化し、失敗時はerrorを表示して元のstateを維持する', async () => {
+    const user = userEvent.setup();
+    const followResponse = createDeferred<Response>();
+    const { view } = renderProfileRoute({
+      initialPath: '/profile/eric',
+      initialUser: DEMO_USER,
+      routes: {
+        '/api/articles?author=eric&limit=10&offset=0': articlesWrapper([]),
+        '/api/profiles/eric': profileWrapper({
+          following: false,
+          username: 'eric',
+        }),
+        '/api/session/csrf': { csrfToken: 'csrf-token' },
+        'POST /api/profiles/eric/follow': followResponse.promise,
+      },
+    });
+
+    render(view);
+
+    await user.click(await screen.findByRole('button', { name: 'Follow eric' }));
+    expect(screen.getByRole('button', { name: 'Follow eric' })).toBeDisabled();
+
+    followResponse.resolve(
+      jsonResponse(
+        {
+          errors: {
+            body: ['Follow state could not be updated.'],
+          },
+        },
+        403,
+      ),
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Follow state could not be updated.',
+    );
+    expect(screen.getByRole('button', { name: 'Follow eric' })).toBeEnabled();
   });
 
   it('自分のProfileではfollow buttonを表示せずsettings導線を表示する', async () => {
@@ -262,83 +337,4 @@ function articleResponse({
     title,
     updatedAt: '2026-05-06T00:00:00.000Z',
   };
-}
-
-function createFetchMock(
-  routes: Record<string, Response | unknown | unknown[]>,
-): ReturnType<typeof vi.fn> {
-  const fetcher: typeof fetch = async (
-    input: RequestInfo | URL,
-    init?: RequestInit,
-  ): Promise<Response> => {
-    const path = requestPath(input);
-    const method = requestMethod(input, init);
-    const response =
-      readMockResponse(routes, `${method} ${path}`) ?? readMockResponse(routes, path);
-
-    if (response instanceof Response) {
-      return response;
-    }
-
-    if (response !== undefined) {
-      return jsonResponse(response);
-    }
-
-    return jsonResponse(
-      {
-        errors: {
-          body: [`Unhandled request: ${method} ${path}`],
-        },
-      },
-      500,
-    );
-  };
-
-  return vi.fn(fetcher);
-}
-
-function readMockResponse(
-  routes: Record<string, Response | unknown | unknown[]>,
-  key: string,
-): Response | unknown {
-  const response = routes[key];
-
-  if (Array.isArray(response)) {
-    return response.shift();
-  }
-
-  return response;
-}
-
-function requestPath(input: RequestInfo | URL): string {
-  if (typeof input === 'string') {
-    const url = new URL(input, window.location.origin);
-
-    return `${url.pathname}${url.search}`;
-  }
-
-  const url = input instanceof URL ? input : new URL(input.url, window.location.origin);
-
-  return `${url.pathname}${url.search}`;
-}
-
-function requestMethod(input: RequestInfo | URL, init: RequestInit | undefined): string {
-  if (init?.method !== undefined) {
-    return init.method.toUpperCase();
-  }
-
-  if (input instanceof Request) {
-    return input.method.toUpperCase();
-  }
-
-  return 'GET';
-}
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    status,
-  });
 }
