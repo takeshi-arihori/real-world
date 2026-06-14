@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactElement, useState } from 'react';
+import { type FormEvent, type ReactElement, useRef, useState } from 'react';
 import type { RegisterCredentials } from '../types/auth';
 import { getFormErrors } from '../utils/formErrors';
 
@@ -19,9 +19,14 @@ export function RegisterForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const isSubmittingRef = useRef(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
+
+    if (isSubmittingRef.current) {
+      return;
+    }
 
     const validationErrors = validateRegister({ email, password, username });
 
@@ -31,6 +36,7 @@ export function RegisterForm({
     }
 
     setErrors([]);
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -39,6 +45,7 @@ export function RegisterForm({
     } catch (error: unknown) {
       setErrors(getFormErrors(error));
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }

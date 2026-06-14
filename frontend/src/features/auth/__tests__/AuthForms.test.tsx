@@ -54,6 +54,40 @@ describe('認証フォーム', () => {
     expect(screen.getByLabelText('Password')).toHaveValue('secret');
   });
 
+  it('login formは送信中の二重submitを防止する', async () => {
+    let resolveSubmit: (() => void) | undefined;
+    const submitPromise = new Promise<void>((resolve) => {
+      resolveSubmit = resolve;
+    });
+    const onSubmit = vi.fn().mockReturnValue(submitPromise);
+
+    render(<LoginForm onSubmit={onSubmit} />);
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'jake@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'secret' },
+    });
+
+    const form = screen.getByRole('button', { name: 'Sign in' }).closest('form');
+
+    if (form === null) {
+      throw new Error('Login form was not rendered');
+    }
+
+    fireEvent.submit(form);
+    fireEvent.submit(form);
+
+    expect(onSubmit).toHaveBeenCalledOnce();
+    expect(screen.getByRole('button', { name: 'Signing in...' })).toBeDisabled();
+
+    await act(async () => {
+      resolveSubmit?.();
+      await submitPromise;
+    });
+  });
+
   it('登録認証情報を送信しAPI拒否時も入力値を保持する', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn().mockRejectedValue(
@@ -82,6 +116,43 @@ describe('認証フォーム', () => {
     expect(screen.getByLabelText('Username')).toHaveValue('jake');
     expect(screen.getByLabelText('Email')).toHaveValue('jake@example.com');
     expect(screen.getByLabelText('Password')).toHaveValue('secret');
+  });
+
+  it('register formは送信中の二重submitを防止する', async () => {
+    let resolveSubmit: (() => void) | undefined;
+    const submitPromise = new Promise<void>((resolve) => {
+      resolveSubmit = resolve;
+    });
+    const onSubmit = vi.fn().mockReturnValue(submitPromise);
+
+    render(<RegisterForm onSubmit={onSubmit} />);
+
+    fireEvent.change(screen.getByLabelText('Username'), {
+      target: { value: 'jake' },
+    });
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'jake@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'secret' },
+    });
+
+    const form = screen.getByRole('button', { name: 'Sign up' }).closest('form');
+
+    if (form === null) {
+      throw new Error('Register form was not rendered');
+    }
+
+    fireEvent.submit(form);
+    fireEvent.submit(form);
+
+    expect(onSubmit).toHaveBeenCalledOnce();
+    expect(screen.getByRole('button', { name: 'Signing up...' })).toBeDisabled();
+
+    await act(async () => {
+      resolveSubmit?.();
+      await submitPromise;
+    });
   });
 
   it('settings formは現在のユーザー値を初期表示して更新内容を送信する', async () => {
