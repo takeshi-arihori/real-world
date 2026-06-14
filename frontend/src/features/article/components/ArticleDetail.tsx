@@ -215,7 +215,11 @@ export function ArticleDetail({
         <ArticleMeta author={article.author} createdAt={article.createdAt} />
       </footer>
 
-      <CommentList isAuthenticated={isAuthenticated} slug={article.slug} />
+      <CommentList
+        currentUsername={currentUsername}
+        isAuthenticated={isAuthenticated}
+        slug={article.slug}
+      />
     </article>
   );
 }

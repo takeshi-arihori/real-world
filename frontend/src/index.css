@@ -686,6 +686,15 @@ button.tag {
   font-weight: 700;
 }
 
+.comment-form {
+  margin-top: 20px;
+}
+
+.comment-form textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
 .comment-list {
   display: grid;
   gap: 16px;
@@ -725,6 +734,15 @@ button.tag {
 
 .comment-card__meta time {
   margin-left: auto;
+}
+
+.comment-card__delete {
+  flex: 0 0 auto;
+}
+
+.comment-card__error {
+  margin: 0;
+  padding: 0 18px 16px;
 }
 
 .profile-header {
