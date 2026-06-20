@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.6",
-    "hono": "^4.11.1",
+    "hono": "^4.12.25",
     "redis": "^6.0.0"
   },
   "devDependencies": {
