@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/takeshi-arihori/real-world/compare/v0.1.2...v0.1.3) (2026-06-25)
+
+
+### Bug Fixes
+
+* **frontend:** pnpm minimumReleaseAge違反を修正 ([#160](https://github.com/takeshi-arihori/real-world/issues/160)) ([3ba7dfc](https://github.com/takeshi-arihori/real-world/commit/3ba7dfc0fd4b18d91a31fe71805561a1fb68fd4f))
+
 ## [0.1.2](https://github.com/takeshi-arihori/real-world/compare/v0.1.1...v0.1.2) (2026-05-31)
 
 
