@@ -10,7 +10,7 @@ React 19 + Laravel 13 で API / CRUD / DDD を学ぶためのモノレポです�
 | フロントエンド | React 19 + TypeScript 5.9 + Vite 8 |
 | バックエンド | Laravel 13 + PHP 8.4 |
 | DB | MySQL 8.0 |
-| テスト | Vitest + Testing Library / Pest |
+| テスト | Vitest + Testing Library / Pest / Playwright |
 | 品質チェック | ESLint / Pint / PHPStan |
 
 ## セットアップ
@@ -111,6 +111,22 @@ pnpm -C bff test
 ```bash
 pnpm qa:auth
 ```
+
+E2E smoke（Docker 起動済み環境）:
+
+```bash
+pnpm install
+pnpm e2e:install
+docker compose up -d
+docker compose exec backend-php composer install
+docker compose exec backend-php php artisan key:generate
+docker compose exec backend-php php artisan migrate
+pnpm e2e
+```
+
+E2E は browser から `http://127.0.0.1:3005` を開き、Vite proxy -> BFF -> Laravel API の経路で register / login / article / comment / favorite の happy path を確認します。
+別の frontend origin で実行する場合は `E2E_BASE_URL=http://localhost:3005 pnpm e2e` のように指定できます。
+失敗時は `test-results/` の screenshot / trace と `playwright-report/` の HTML report を確認します。
 
 バックエンド:
 
