@@ -90,7 +90,7 @@ async function publishArticle(page: Page, article: ArticleInput): Promise<void> 
 
 async function postComment(page: Page, body: string): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Comments' })).toBeVisible();
-  await page.getByLabel('Comment').fill(body);
+  await page.getByRole('textbox', { name: 'Comment' }).fill(body);
   await page.getByRole('button', { name: 'Post Comment' }).click();
 }
 
