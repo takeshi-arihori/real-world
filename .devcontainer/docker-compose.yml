@@ -16,6 +16,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/workspace:cached
+      - devcontainer-root-node-modules:/workspace/node_modules
+      - devcontainer-frontend-node-modules:/workspace/frontend/node_modules
       - devcontainer-bashhistory:/commandhistory
       - pnpm-store:/home/node/.local/share/pnpm/store
       - "${HOME}/.config/gh:/home/node/.config/gh"
@@ -33,4 +35,6 @@ services:
 
 volumes:
   devcontainer-bashhistory:
+  devcontainer-root-node-modules:
+  devcontainer-frontend-node-modules:
   pnpm-store:
