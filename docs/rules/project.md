@@ -10,6 +10,39 @@ GitHub Issue と GitHub Projects で、Epic、sub-issue、Project custom field �
 - GitHub Projects の custom field は一覧性、grouping、filtering、sprint 管理のために使う。
 - Epic 候補と実装順の正本は `docs/issue-breakdown.md` とする。
 
+## GitHub CLI 実行ルール
+
+Issue、PR、sub-issue、GitHub Projects の読み取り・作成・編集では、GitHub 上の状態を正として扱う。
+`gh issue`、`gh pr`、`gh api` を使う場合は、`docs/ai/harness.md` の Codex sandbox 方針に従う。
+
+### sandbox 内で失敗した場合
+
+Codex sandbox では macOS keyring や外部ネットワークへアクセスできず、認証済みのユーザー端末と同じ `gh` コマンドでも失敗することがある。
+次のような失敗は、権限不足の一般論ではなく sandbox 境界として切り分ける。
+
+- keyring にアクセスできず、`gh auth status` や `gh issue view` が未認証扱いになる。
+- host resolution、network access、TLS、API 到達性のエラーで `gh issue`、`gh pr`、`gh api` が失敗する。
+- `.git` や credential 周辺へのアクセスが sandbox 制約で拒否される。
+
+この場合は、実行したい操作、対象 Issue / PR / Project、必要な理由を明示し、sandbox 外実行の許可を得てから再実行する。
+sudo / root 権限、root ユーザーの keyring、個人 access token の shell export で回避しない。
+
+### 認証情報の扱い
+
+- `GH_TOKEN` / `GITHUB_TOKEN` を shell config、`.env`、git 管理ファイル、Issue / PR 本文、ログへ直書きしない。
+- `gh auth login` によるユーザーセッションの keyring 認証を使う。
+- token 値、secret 値、cookie、credential helper の実体を表示、転記、コミットしない。
+- 認証状態を確認するときも、成功 / 失敗と必要な scope の有無だけを扱う。
+
+### 操作前チェック
+
+GitHub API を作成・編集系で使う前に、次を確認する。
+
+- 対象 repository、Issue / PR 番号、Project が意図したものか。
+- labels、parent issue、Project field、milestone などの変更対象が `docs/labels.md` とこの文書に沿っているか。
+- 1 Issue = 1 PR の原則を崩していないか。
+- 失敗時のログや PR 本文に secret 値を含めていないか。
+
 ## Epic Issue
 
 Epic Issue は、複数 Issue に分割される機能単位の親 Issue として扱う。

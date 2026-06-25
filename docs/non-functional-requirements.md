@@ -185,9 +185,101 @@ Required:
 Audit commands:
 
 ```bash
-cd backend && composer audit
+cd backend && composer audit --locked
 cd frontend && pnpm audit
+cd bff && pnpm audit
 ```
+
+## Dependency Audit Operations
+
+Dependency audit は Composer と pnpm 管理の依存ライブラリに対する
+セキュリティ確認ゲートとして扱う。依存関係の追加・更新、Dependabot PR、
+security-sensitive な変更、MVP hardening / release 前には、対象 manifest と
+lockfile に対応する audit を実行する。
+
+### Commands
+
+通常は変更した package manager / manifest に対応する command を実行する。
+依存更新や release 前の確認では、現在の backend / frontend / BFF の全対象を
+確認する。
+
+```bash
+cd backend && composer audit --locked
+cd frontend && pnpm audit
+cd bff && pnpm audit
+```
+
+Root `package.json` または root `pnpm-lock.yaml` を変更した場合は、repo root で
+`pnpm audit` も実行する。
+
+### When To Run
+
+- `composer.json` / `composer.lock` / `package.json` / `pnpm-lock.yaml` を変更した PR。
+- 新しい dependency または dev dependency を追加した PR。
+- Dependabot など dependency update PR の review 前。
+- security-sensitive な認証、認可、BFF、cookie、CSRF、JWT、入力処理の変更。
+- MVP hardening、release branch cut、または脆弱性 advisory を受けた臨時確認。
+
+### Triage Policy
+
+audit で finding が出た場合は、PR 本文または review comment に次を記録する。
+
+| Item | 内容 |
+| --- | --- |
+| severity | audit が示す severity と advisory ID / URL |
+| dependency path | affected package が direct dependency か transitive dependency か |
+| usage | runtime dependency か dev dependency か、実行経路が backend / frontend / BFF / build-time のどれか |
+| exploitability | このアプリの使い方で exploitability があるか。入力到達性、認証要否、browser exposure を確認する |
+| remediation | patch / minor / major update、package removal、代替 package、設定変更などの remediation 方針 |
+| owner and action | この PR で修正、follow-up Issue 作成、temporary exception のどれで扱うか |
+
+runtime dependency の high / critical finding は原則として merge 前に解消する。
+dev dependency の finding でも、build script、test runner、code generation、
+CI secret exposure に関係する場合は runtime finding と同じ優先度で扱う。
+
+### New Dependency PR Notes
+
+新しい dependency を追加する PR では、PR 本文の修正ファイル説明または
+マージ時の注意点に次を含める。
+
+- 追加した reason と、既存コードまたは標準 API では足りない理由。
+- 変更した manifest と lockfile。
+- runtime dependency / dev dependency の区分。
+- audit command の実行結果。未解消 finding がある場合は triage 結果。
+- package が認証、cookie、CSRF、JWT、入力処理、HTML rendering に触れる場合の
+  セキュリティ上の確認内容。
+
+`.env`、API key、token、password、private URL などの secret 実値は、audit
+結果、PR 本文、Issue、docs、test fixture に含めない。
+
+### Major Update Policy
+
+major update は破壊的変更を伴う前提で扱い、通常の feature / fix と同じ PR に
+混ぜない。脆弱性修正で major update が必要な場合は、次を確認してから実施する。
+
+- migration guide と breaking changes。
+- 影響する runtime、API contract、BFF proxy、browser behavior、test helper。
+- rollback または revert 可能性。
+- 関連する type-check、test、lint、static analysis、audit の結果。
+
+major update がすぐに適用できない場合は、temporary exception と follow-up
+Issue を作成し、期限と再評価条件を明示する。
+
+### Temporary Exception Policy
+
+temporary exception は、固定版が未提供、または修正が大きな migration を必要とし
+即時適用のリスクが高い場合に限る。例外は audit ignore の設定だけで済ませず、
+PR または Issue に次を残す。
+
+- advisory ID / URL、affected package、現在の version、dependency path。
+- severity とこのアプリでの exploitability 判断。
+- すぐに remediation できない reason。
+- mitigation、owner、follow-up Issue。
+- expiry と re-evaluation date。
+
+runtime dependency の high / critical finding は、明確な mitigation と短い
+expiry がない限り temporary exception にしない。期限切れの exception は新規
+dependency 追加や release の前に再評価する。
 
 ## Local Reproducibility
 
@@ -291,8 +383,9 @@ git diff --check
 Security-sensitive or dependency changes:
 
 ```bash
-cd backend && composer audit
+cd backend && composer audit --locked
 cd frontend && pnpm audit
+cd bff && pnpm audit
 ```
 
 ## Development Experience Requirements

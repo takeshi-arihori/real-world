@@ -7,18 +7,29 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/server.ts",
+    "lint": "eslint .",
     "start": "tsx src/server.ts",
     "test": "node --import tsx --test \"test/**/*.test.ts\"",
     "type-check": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.6",
-    "hono": "^4.11.1"
+    "hono": "^4.11.1",
+    "redis": "^6.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.0.0",
+    "eslint": "^10.4.1",
+    "globals": "^17.6.0",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.0"
+    "typescript": "^6.0.0",
+    "typescript-eslint": "^8.60.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": "0.28.1"
+    }
   },
   "engines": {
     "node": ">=24"

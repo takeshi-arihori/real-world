@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactElement, useState } from 'react';
+import { type FormEvent, type ReactElement, useRef, useState } from 'react';
 import type { LoginCredentials } from '../types/auth';
 import { getFormErrors } from '../utils/formErrors';
 
@@ -18,9 +18,14 @@ export function LoginForm({
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [password, setPassword] = useState('');
+  const isSubmittingRef = useRef(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
+
+    if (isSubmittingRef.current) {
+      return;
+    }
 
     const validationErrors = validateLogin({ email, password });
 
@@ -30,6 +35,7 @@ export function LoginForm({
     }
 
     setErrors([]);
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -38,6 +44,7 @@ export function LoginForm({
     } catch (error: unknown) {
       setErrors(getFormErrors(error));
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }

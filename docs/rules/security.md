@@ -38,6 +38,7 @@
 ## 依存ライブラリ管理
 
 - 定期的に `composer audit` / `pnpm audit` で脆弱性チェック
+- 実行タイミング、triage、temporary exception、PR 記載項目は `docs/non-functional-requirements.md` の `Dependency Audit Operations` を正本とする
 - メジャーバージョンアップは影響範囲を確認してから実施
 - 不要なパッケージは速やかに削除
 

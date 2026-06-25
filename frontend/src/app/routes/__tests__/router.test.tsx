@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { RouterProvider } from 'react-router-dom';
@@ -13,6 +13,13 @@ const DEMO_USER: AuthUser = {
   email: 'demo@example.com',
   image: '',
   username: 'demo-user',
+};
+
+const UPDATED_USER: AuthUser = {
+  bio: 'Updated bio',
+  email: 'updated@example.com',
+  image: 'https://example.com/updated.png',
+  username: 'updated-user',
 };
 
 /**
@@ -54,6 +61,13 @@ function renderRoute({
   );
 }
 
+async function waitForHomeRequestsToSettle(): Promise<void> {
+  await waitFor(() => {
+    expect(screen.queryByText('Loading articles...')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading tags...')).not.toBeInTheDocument();
+  });
+}
+
 describe('アプリルーター', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -69,6 +83,20 @@ describe('アプリルーター', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('/settings')).toBeInTheDocument();
   });
+
+  it.each(['/editor', '/editor/existing-article'])(
+    '未認証ユーザーを%sからreturn path付きログインへ遷移する',
+    async (initialPath) => {
+      const { render } = await import('@testing-library/react');
+
+      render(renderRoute({ initialPath }));
+
+      expect(
+        await screen.findByRole('heading', { name: 'Sign in' }),
+      ).toBeInTheDocument();
+      expect(screen.getByText(initialPath)).toBeInTheDocument();
+    },
+  );
 
   it('ログイン後にreturn pathへ復帰する', async () => {
     const user = userEvent.setup();
@@ -105,6 +133,7 @@ describe('アプリルーター', () => {
     expect(
       await screen.findByRole('heading', { name: 'Global Feed' }),
     ).toBeInTheDocument();
+    await waitForHomeRequestsToSettle();
   });
 
   it('認証済みユーザーをゲスト専用ルートからリダイレクトする', async () => {
@@ -113,8 +142,9 @@ describe('アプリルーター', () => {
     render(renderRoute({ initialPath: '/login', initialUser: DEMO_USER }));
 
     expect(
-      screen.getByRole('heading', { name: 'Global Feed' }),
+      await screen.findByRole('heading', { name: 'Global Feed' }),
     ).toBeInTheDocument();
+    await waitForHomeRequestsToSettle();
   });
 
   it('未知のルートではnot foundを表示する', async () => {
@@ -148,5 +178,64 @@ describe('アプリルーター', () => {
     expect(
       await screen.findByRole('heading', { name: 'Settings' }),
     ).toBeInTheDocument();
+  });
+
+  it('Settings更新成功後にcurrent user由来の表示を更新する', async () => {
+    const user = userEvent.setup();
+    const { render } = await import('@testing-library/react');
+    const authApi = createAuthApi({
+      updateCurrentUser: vi.fn().mockResolvedValue(UPDATED_USER),
+    });
+
+    render(
+      renderRoute({
+        authApi,
+        initialPath: '/settings',
+        initialUser: DEMO_USER,
+      }),
+    );
+
+    await user.clear(screen.getByLabelText('Username'));
+    await user.type(screen.getByLabelText('Username'), 'updated-user');
+    await user.clear(screen.getByLabelText('Email'));
+    await user.type(screen.getByLabelText('Email'), 'updated@example.com');
+    await user.clear(screen.getByLabelText('Bio'));
+    await user.type(screen.getByLabelText('Bio'), 'Updated bio');
+    await user.click(screen.getByRole('button', { name: 'Update Settings' }));
+
+    expect(authApi.updateCurrentUser).toHaveBeenCalledWith({
+      bio: 'Updated bio',
+      email: 'updated@example.com',
+      image: null,
+      username: 'updated-user',
+    });
+    expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute(
+      'href',
+      '/profile/updated-user',
+    );
+  });
+
+  it('Settings画面のlogoutでHomeへ遷移する', async () => {
+    const user = userEvent.setup();
+    const { render } = await import('@testing-library/react');
+    const authApi = createAuthApi();
+
+    render(
+      renderRoute({
+        authApi,
+        initialPath: '/settings',
+        initialUser: DEMO_USER,
+      }),
+    );
+
+    await user.click(
+      within(screen.getByRole('main')).getByRole('button', { name: 'Sign out' }),
+    );
+
+    expect(authApi.logout).toHaveBeenCalledOnce();
+    expect(
+      await screen.findByRole('heading', { name: 'Global Feed' }),
+    ).toBeInTheDocument();
+    await waitForHomeRequestsToSettle();
   });
 });

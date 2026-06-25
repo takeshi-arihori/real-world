@@ -4,7 +4,8 @@ import type { AddressInfo } from 'node:net';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { createBffServer } from '../src/server.js';
+import { createBffServer, createRedisSessionStore } from '../src/server.js';
+import { FakeRedisClient } from './support/fake-redis-client.js';
 
 interface StartedServer {
   close: () => Promise<void>;
@@ -243,6 +244,102 @@ test('current user と resource forwarding は session JWT を Token scheme で�
   }
 });
 
+test('current user は BFF process restart 後も Redis session から復元する', async () => {
+  const upstream = await startUpstreamServer(({ request, response }) => {
+    if (request.url === '/api/users/login') {
+      writeJson(response, 200, {
+        user: {
+          bio: null,
+          email: 'jake@example.com',
+          image: null,
+          token: 'public-jwt',
+          username: 'jake',
+        },
+      });
+      return;
+    }
+
+    if (request.url === '/api/user') {
+      assert.equal(request.headers.authorization, 'Token public-jwt');
+      writeJson(response, 200, {
+        user: {
+          bio: null,
+          email: 'jake@example.com',
+          image: null,
+          token: 'public-jwt',
+          username: 'jake',
+        },
+      });
+      return;
+    }
+
+    writeJson(response, 404, { errors: { body: ['not found'] } });
+  });
+  const redis = new FakeRedisClient();
+  const firstBff = await startBffServer(upstream.url, redis);
+
+  try {
+    let authenticated: AuthenticatedBffSession;
+
+    try {
+      authenticated = await loginThroughBff(firstBff.url);
+    } finally {
+      await firstBff.close();
+    }
+
+    const restartedBff = await startBffServer(upstream.url, redis);
+
+    try {
+      const currentResponse = await fetch(`${restartedBff.url}/api/session`, {
+        headers: { Cookie: authenticated.cookie },
+      });
+      const currentBody = await currentResponse.json() as { user: { token?: unknown } };
+
+      assert.equal(currentResponse.status, 200);
+      assert.equal(currentBody.user.token, undefined);
+      assert.equal(upstream.requests.filter((request) => request.url === '/api/user').length, 1);
+    } finally {
+      await restartedBff.close();
+    }
+  } finally {
+    await upstream.close();
+  }
+});
+
+test('失効済み Redis session cookie での current user request は browser cookie も破棄する', async () => {
+  const upstream = await startUpstreamServer(({ response }) => {
+    writeJson(response, 200, {
+      user: {
+        bio: null,
+        email: 'jake@example.com',
+        image: null,
+        token: 'public-jwt',
+        username: 'jake',
+      },
+    });
+  });
+  const redis = new FakeRedisClient();
+  const bff = await startBffServer(upstream.url, redis);
+
+  try {
+    const authenticated = await loginThroughBff(bff.url);
+
+    redis.advance(3_600_000);
+
+    const currentResponse = await fetch(`${bff.url}/api/session`, {
+      headers: { Cookie: authenticated.cookie },
+    });
+    const expiredCookie = getFirstSetCookie(currentResponse);
+
+    assert.equal(currentResponse.status, 401);
+    assert.match(expiredCookie, /^__Host-conduit_session=;/);
+    assert.match(expiredCookie, /Max-Age=0/);
+  } finally {
+    await bff.close();
+    await upstream.close();
+  }
+});
+
 test('resource forwarding の mutating request は CSRF proof なしでは拒否する', async () => {
   const upstream = await startUpstreamServer();
   const bff = await startBffServer(upstream.url);
@@ -388,9 +485,18 @@ async function bootstrapCsrf(baseUrl: string): Promise<CsrfBootstrap> {
   };
 }
 
-async function startBffServer(publicApiBaseUrl: string): Promise<StartedServer> {
-  const server = createBffServer({
+async function startBffServer(
+  publicApiBaseUrl: string,
+  redis: FakeRedisClient = new FakeRedisClient(),
+): Promise<StartedServer> {
+  const sessionStore = await createRedisSessionStore({
+    client: redis,
+    keyPrefix: 'bff:test:',
+    ttlSeconds: 3600,
+  });
+  const server = await createBffServer({
     publicApiBaseUrl,
+    sessionStore,
     sessionTtlSeconds: 3600,
   });
 

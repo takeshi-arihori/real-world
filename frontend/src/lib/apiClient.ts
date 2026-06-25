@@ -8,7 +8,9 @@ import {
   type ApiRequestOptionsWithMethod,
 } from './apiRequest';
 
-const DEFAULT_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+const DEFAULT_API_BASE_URL = resolveDefaultApiBaseUrl(
+  import.meta.env.VITE_API_BASE_URL,
+);
 const CSRF_PATH = '/api/session/csrf';
 const MUTATING_METHODS = new Set(['DELETE', 'PATCH', 'POST', 'PUT']);
 
@@ -175,6 +177,53 @@ export function createApiClient(config: ApiClientConfig = {}): ApiClient {
 
 export const apiClient = createApiClient();
 
+/**
+ * Browserの既定API接続先はsame-origin BFFだけに限定し、Public API直指定を採用しない。
+ */
+export function resolveDefaultApiBaseUrl(
+  configuredBaseUrl: string | undefined,
+  currentOrigin: string | undefined = getCurrentOrigin(),
+): string {
+  const baseUrl = configuredBaseUrl?.trim();
+
+  if (baseUrl === undefined || baseUrl === '') {
+    return '';
+  }
+
+  const configuredUrl = parseAbsoluteUrl(baseUrl);
+
+  if (configuredUrl === null || currentOrigin === undefined) {
+    return '';
+  }
+
+  const currentUrl = parseAbsoluteUrl(currentOrigin);
+
+  if (currentUrl === null) {
+    return '';
+  }
+
+  return configuredUrl.origin === currentUrl.origin ? configuredUrl.origin : '';
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
+}
+
+function getCurrentOrigin(): string | undefined {
+  if (
+    typeof globalThis.location === 'object' &&
+    typeof globalThis.location.origin === 'string'
+  ) {
+    return globalThis.location.origin;
+  }
+
+  return undefined;
+}
+
+function parseAbsoluteUrl(value: string): URL | null {
+  try {
+    return new URL(value);
+  } catch {
+    return null;
+  }
 }
