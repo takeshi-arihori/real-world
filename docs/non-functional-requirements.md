@@ -288,14 +288,15 @@ The project must be runnable with Docker Compose and lockfiles.
 Required local prerequisites:
 
 - Docker Desktop or compatible Docker environment
-- Node / pnpm for frontend work outside the container
-- Composer / PHP for backend work outside the container
+- Node 24 / pnpm for docs, frontend, BFF, or E2E work outside the containers
+- Backend Composer / PHP commands should run inside the `backend-php` container
 
 Version hints:
 
 - `mise.toml` pins Node `24` and Python `3.14`.
 - Backend dependencies are locked by `backend/composer.lock`.
 - Frontend dependencies are locked by `frontend/pnpm-lock.yaml`.
+- BFF dependencies are locked by `bff/pnpm-lock.yaml`.
 - The actual package versions are resolved from each package manifest and lockfile.
 
 Docker services:
@@ -303,16 +304,21 @@ Docker services:
 | Service | Purpose | Port |
 | --- | --- | --- |
 | `frontend` | Vite dev server | `3005` |
+| `bff` | Hono BFF for BrowserSession, CSRF, and Public API forwarding | `3006` |
 | `backend-nginx` | Laravel API through Nginx | `8080` |
 | `backend-php` | PHP-FPM / Laravel runtime | internal |
 | `db` | MySQL | host `3309`, container `3306` |
-| `mailpit` | Local mail UI | `8025` |
+| `redis` | BFF BrowserSession store | `6379` |
+| `mailpit` | Local SMTP / mail UI | SMTP `1025`, UI `8025` |
 
 Expected setup flow:
 
 ```bash
 docker compose up -d
 docker compose exec backend-php composer install
+cp backend/.env.example backend/.env
+perl -0pi -e 's/DB_HOST=.*/DB_HOST=db/; s/DB_PORT=.*/DB_PORT=3306/; s/DB_DATABASE=.*/DB_DATABASE=real_world/; s/DB_USERNAME=.*/DB_USERNAME=real_world/; s/DB_PASSWORD=.*/DB_PASSWORD=secret/' backend/.env
+JWT_SECRET="$(docker compose exec -T backend-php php -r 'echo bin2hex(random_bytes(32));')" perl -0pi -e 's/JWT_SIGNING_SECRET=.*/JWT_SIGNING_SECRET=$ENV{JWT_SECRET}/' backend/.env
 docker compose exec backend-php php artisan key:generate
 docker compose exec backend-php php artisan migrate
 docker compose exec frontend pnpm install
@@ -329,12 +335,13 @@ Browser -> frontend origin (:3005) /api/* -> bff -> backend-nginx (private Docke
 - Local development では frontend dev proxy または frontend-facing gateway が `/api/*` を `bff` service へ転送する。
 - `backend-nginx:8080` は Public API contract の直接検証用に利用できるが、first-party frontend の認証付き通信先にはしない。
 - BFF は `backend-nginx` へ server-to-server request を行い、server-side に保持した JWT だけを `Authorization: Token <jwt>` として送る。
-- `compose.yml`、Hono + TypeScript BFF runtime/container、proxy 設定、`.env.example` の追加変数は BFF 実装 Issue で変更する。
+- `compose.yml` では BFF が private network 上の `backend-nginx` と `redis` に接続し、frontend service は `/api/*` を `BFF_PROXY_TARGET` へ proxy する。
 
 `.env` handling:
 
 - Use `backend/.env.example` as the template.
 - `backend/.env` is ignored and must not be committed.
+- Docker local setup expects `DB_HOST=db`, `DB_DATABASE=real_world`, `DB_USERNAME=real_world`, `DB_PASSWORD=secret`, and a non-empty random `JWT_SIGNING_SECRET`.
 - Changes needed by every developer go into `.env.example` or docs, not a personal `.env`.
 
 ## README Requirements
