@@ -2,6 +2,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "e2e": "playwright test",
+    "e2e:install": "playwright install chromium",
+    "e2e:report": "playwright show-report",
     "prepare": "husky",
     "qa:auth": "node scripts/qa/auth-integration-qa.mjs",
     "test:docs": "node --test tests/docs/*.test.mjs",
@@ -10,6 +13,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
     "@commitlint/config-conventional": "^19.8.0",
+    "@playwright/test": "^1.61.1",
     "husky": "^9.1.7"
   }
 }
