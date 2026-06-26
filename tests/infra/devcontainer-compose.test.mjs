@@ -6,6 +6,9 @@ const devcontainerCompose = readFileSync(
   new URL('../../.devcontainer/docker-compose.yml', import.meta.url),
   'utf8',
 );
+const devcontainerConfig = JSON.parse(
+  readFileSync(new URL('../../.devcontainer/devcontainer.json', import.meta.url), 'utf8'),
+);
 const rootCompose = readFileSync(
   new URL('../../compose.yml', import.meta.url),
   'utf8',
@@ -43,6 +46,24 @@ test('README documents the Dev Container frontend test command', () => {
 test('root package exposes the infra configuration test', () => {
   assert.equal(rootPackage.scripts['test:infra'], 'node --test tests/infra/*.test.mjs');
 });
+
+test('Dev Container recommends the expected VS Code extensions', () => {
+  const extensions = devcontainerConfig.customizations.vscode.extensions;
+
+  assert.deepEqual(
+    requiredDevcontainerExtensions.filter((extension) => !extensions.includes(extension)),
+    [],
+  );
+});
+
+const requiredDevcontainerExtensions = [
+  'anthropic.claude-code',
+  'dbaeumer.vscode-eslint',
+  'esbenp.prettier-vscode',
+  'eamodio.gitlens',
+  'xdebug.php-debug',
+  'bmewburn.vscode-intelephense-client',
+];
 
 function assertVolumeMount(composeFile, volumeName, mountPath) {
   assert.match(
