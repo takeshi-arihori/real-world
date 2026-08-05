@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider } from 'react-router/dom';
 import { AppProviders } from '@/app/providers/AppProviders';
 import { createAppRouter } from '@/app/routes/router';
 

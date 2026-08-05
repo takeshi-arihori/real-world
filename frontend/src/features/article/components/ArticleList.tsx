@@ -1,5 +1,5 @@
 import { type ReactElement, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { isApiError } from '@/lib/apiError';
 import { ARTICLE_PAGE_SIZE } from '../api/articleApi';
 import type { ArticleSummary, LoadArticles } from '../types/article';

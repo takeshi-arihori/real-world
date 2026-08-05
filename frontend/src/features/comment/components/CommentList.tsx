@@ -4,7 +4,7 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { isApiError } from '@/lib/apiError';
 import { createComment, deleteComment, listComments } from '../api/commentApi';
 import type { ArticleComment } from '../types/comment';

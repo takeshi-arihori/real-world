@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useAuth } from '@/app/providers/useAuth';
 import { RegisterForm } from '@/features/auth';
 import { AuthPage } from './AuthPage';

@@ -1,5 +1,5 @@
 import { type ReactElement, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { CommentList } from '@/features/comment';
 import { isApiError } from '@/lib/apiError';
 import {

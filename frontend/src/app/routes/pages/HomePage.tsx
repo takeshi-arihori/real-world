@@ -1,5 +1,5 @@
 import { type ReactElement, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { useAuth } from '@/app/providers/useAuth';
 import {
   ArticleList,

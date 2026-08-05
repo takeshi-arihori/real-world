@@ -1,5 +1,5 @@
 import { type ReactElement, useCallback } from 'react';
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useParams, useSearchParams } from 'react-router';
 import { ProfileView, type ProfileTab } from '@/features/profile';
 
 export function ProfilePage(): ReactElement {

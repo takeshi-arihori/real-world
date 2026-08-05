@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useAuth } from '@/app/providers/useAuth';
 import { ArticleEditor } from '@/features/article';
 

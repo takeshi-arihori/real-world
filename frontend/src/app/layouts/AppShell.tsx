@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router';
 import { useAuth } from '@/app/providers/useAuth';
 
 interface AppShellProps {

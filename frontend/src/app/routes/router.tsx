@@ -4,7 +4,7 @@ import {
   type DataRouter,
   type InitialEntry,
   type RouteObject,
-} from 'react-router-dom';
+} from 'react-router';
 import { AppShell } from '@/app/layouts/AppShell';
 import { GuestOnly, RequireAuth } from './guards';
 import {
