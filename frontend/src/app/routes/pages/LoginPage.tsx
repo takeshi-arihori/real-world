@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '@/app/providers/useAuth';
 import { LoginForm } from '@/features/auth';
 import { getSafeReturnTo } from '../returnTo';

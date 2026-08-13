@@ -1,5 +1,5 @@
 import { type ReactElement, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 interface AuthPageProps {
   alternateHref: string;
