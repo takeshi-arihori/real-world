@@ -32,6 +32,40 @@ The implementation phase can start after #33-#38 are merged into `develop`.
 
 This order avoids building UI workflows before API contracts and authentication state are stable.
 
+## Implementation Roadmap
+
+> Updated: 2026-08-13
+
+2026-08-13 時点で計画した実装・品質改善 Issue は、単一レーンで作業する場合は次の順序を正とする。
+複数レーンで進める場合も、`Depends on` を満たすまでは後続 Issue をマージしない。
+完了した Issue の行は実装順の意思決定記録として残し、進捗状態はGitHub Issue / Projectを正とする。
+
+| Order | Issue | Direct prerequisites | Parallelization note |
+| ---: | --- | --- | --- |
+| 1 | #199 BFF依存関係のHigh脆弱性を解消する | None | #200、#207 と並行可能 |
+| 2 | #200 Backend依存関係のHigh脆弱性を解消する | None | #199、#207 と並行可能 |
+| 3 | #207 API性能要件と負荷試験方針を定義する | None | #199、#200 と並行可能 |
+| 4 | #203 ArticleとCommentを論理削除へ移行する | None | #201 と並行可能。#211、#210 より先に完了する |
+| 5 | #201 Frontendのfeature境界とPage責務を整理する | None | #203 と並行可能。#202、#204、#213 より先に完了する |
+| 6 | #211 大規模データセットで性能試験できるSeederを作成する | #203 | #202 と並行可能 |
+| 7 | #202 記事本文を安全なMarkdownとして表示する | #201 | #211 と並行可能 |
+| 8 | #208 k6でAPI負荷試験のベースラインを作成する | #199、#200、#207、#211 | Frontend品質改善とは並行可能 |
+| 9 | #209 APIレイテンシーのボトルネックを計測可能にする | #208 | #204、#213 と並行可能 |
+| 10 | #210 Article / Feed APIのDB性能を検証・改善する | #203、#208、#209 | Rate Limit導入前の同一条件でDB性能を評価する |
+| 11 | #212 APIのRate Limit / Timeout等の耐障害性を整備する | #208、#209、#210 | #210 の計測を保護機構で遮らないよう後に実施する |
+| 12 | #204 Frontendのbranch coverageを80%以上へ引き上げる | #201、#202 | #209〜#212 と並行可能 |
+| 13 | #213 Frontend Web Performance Budgetを定義・計測する | #201、#202、#207 | Backend性能改善と独立して計測し、API latencyとFrontend処理を分離する |
+
+運用ルール:
+
+- runtime dependency の High / Critical finding を扱う #199、#200 を、性能ベースライン取得前に完了する。
+- #203 を #211 より先に完了し、performance dataset が論理削除方針とDB制約に従うようにする。
+- #201 を #202、#204、#213 より先に完了し、Frontend構造を安定させてから表示、coverage、性能を評価する。
+- 性能改善は #207（要件）→ #211（データ）→ #208（負荷試験）→ #209（観測性）→ #210（DB改善）→ #212（耐障害性）の順に進める。
+- Issue の直接依存は各 Issue 本文の `Depends on` にも記載し、Epic 内の親子関係はGitHub native sub-issueを正とする。
+- Issue が完了してもこの表から削除せず、順序変更または後続 Issue の追加があった場合に表を更新する。
+- 実装順を変更する場合は、この節と対象 Issue の `Depends on` を同じ変更単位で更新する。
+
 ## Epic Candidates
 
 | Epic | Goal | Depends on | Done when |
