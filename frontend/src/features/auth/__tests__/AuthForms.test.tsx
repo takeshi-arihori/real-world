@@ -177,12 +177,12 @@ describe('認証フォーム', () => {
     expect(screen.getByLabelText('Bio')).toHaveValue('API learner');
 
     await user.clear(screen.getByLabelText('Bio'));
-    await user.type(screen.getByLabelText('Bio'), 'Conduit writer');
+    await user.type(screen.getByLabelText('Bio'), 'Blog Service writer');
     await user.clear(screen.getByLabelText('Password'));
     await user.click(screen.getByRole('button', { name: 'Update Settings' }));
 
     expect(onSubmit).toHaveBeenCalledWith({
-      bio: 'Conduit writer',
+      bio: 'Blog Service writer',
       email: 'jake@example.com',
       image: 'https://example.com/avatar.png',
       username: 'jake',

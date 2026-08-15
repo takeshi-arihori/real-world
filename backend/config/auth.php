@@ -44,7 +44,7 @@ return [
         ],
 
         'api' => [
-            'driver' => 'realworld-jwt',
+            'driver' => 'blog-service-jwt',
             'provider' => 'users',
         ],
     ],

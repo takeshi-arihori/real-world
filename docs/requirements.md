@@ -1,4 +1,4 @@
-# RealWorld 要件定義
+# Blog Service 要件定義
 
 > Parent Issue: #2
 > Initial Requirement Issue: #32
@@ -6,7 +6,7 @@
 
 ## 目的
 
-React 19 + Laravel 13 のモノレポで、RealWorld（Conduit）相当の API / CRUD / DDD を学ぶための MVP 要件を定義する。
+React 19 + Laravel 13 のモノレポ `Blog Service` で、RealWorld（Conduit）相当の API / CRUD / DDD を学ぶための MVP 要件を定義する。
 この文書は後続 Issue の分解、設計レビュー、実装範囲確認の正本として扱う。
 
 ## Detailed Planning Artifacts

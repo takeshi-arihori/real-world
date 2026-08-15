@@ -120,7 +120,7 @@ describe('認証Provider', () => {
     expect(await screen.findByText('jake')).toBeInTheDocument();
     expect(screen.getByText('authenticated')).toBeInTheDocument();
     expect(screen.getByText('idle')).toBeInTheDocument();
-    expect(window.localStorage.getItem('realworld.authToken')).toBeNull();
+    expect(window.localStorage.getItem('blog-service.authToken')).toBeNull();
     expect(authApi.getCurrentUser).toHaveBeenCalledOnce();
   });
 
@@ -147,7 +147,7 @@ describe('認証Provider', () => {
 
     expect(await screen.findByText('jake')).toBeInTheDocument();
     expect(screen.getByText('authenticated')).toBeInTheDocument();
-    expect(window.localStorage.getItem('realworld.authToken')).toBeNull();
+    expect(window.localStorage.getItem('blog-service.authToken')).toBeNull();
   });
 
   it('register後にcurrent userを更新する', async () => {

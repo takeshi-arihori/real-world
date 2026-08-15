@@ -3,18 +3,11 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Register - RealWorld</title>
+<title>Sign in - Blog Service</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-    </style>
 <script id="tailwind-config">
         tailwind.config = {
           darkMode: "class",
@@ -185,41 +178,51 @@
       },
           },
         }
-    </script>
+      </script>
 </head>
-<body class="bg-background text-on-background min-h-screen flex flex-col">
-<!-- TopNavBar Omitted: Transactional/Sign-up intent suppresses global nav shell -->
-<main class="flex-grow flex items-center justify-center px-margin-mobile md:px-gutter py-stack-xl">
-<div class="w-full max-w-[540px] flex flex-col items-center">
-<div class="mb-stack-lg text-center">
-<h1 class="font-display-lg text-display-lg text-on-surface mb-stack-sm">Sign up</h1>
-<a class="font-ui-label text-ui-label text-primary hover:underline transition-all" href="/login">Have an account?</a>
+<body class="bg-background text-on-surface min-h-screen flex flex-col font-ui-label">
+<!-- TopNavBar: Suppressed on transactional page -->
+<header class="bg-surface docked full-width top-0 sticky border-b border-surface-container-highest flat no shadows">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-16">
+<a class="font-headline-sm text-headline-sm font-bold text-primary" href="/">Blog Service</a>
+<nav class="hidden md:flex gap-stack-md items-center font-ui-label text-ui-label text-secondary">
+<!-- Minimal Nav for context, full nav suppressed -->
+</nav>
 </div>
-<form action="#" class="w-full flex flex-col gap-stack-md" method="POST">
-<div class="relative">
-<input class="w-full bg-surface border-0 border-b border-surface-container-highest focus:ring-0 focus:border-primary-container focus:border focus:rounded-[4px] px-0 py-3 font-body-lg text-body-lg text-on-surface placeholder:text-secondary-fixed-dim transition-all duration-200 outline-none" id="username" name="username" placeholder="Username" required="" type="text"/>
+</header>
+<main class="flex-grow flex items-center justify-center px-margin-mobile py-stack-xl">
+<div class="w-full max-w-[400px] flex flex-col items-center">
+<div class="text-center mb-stack-lg w-full">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-stack-sm">Sign in</h1>
+<a class="font-ui-label text-ui-label text-primary hover:underline transition-all" href="/register">Need an account?</a>
 </div>
-<div class="relative">
-<input class="w-full bg-surface border-0 border-b border-surface-container-highest focus:ring-0 focus:border-primary-container focus:border focus:rounded-[4px] px-0 py-3 font-body-lg text-body-lg text-on-surface placeholder:text-secondary-fixed-dim transition-all duration-200 outline-none" id="email" name="email" placeholder="Email" required="" type="email"/>
+<form class="w-full flex flex-col gap-stack-md">
+<div class="flex flex-col gap-stack-sm">
+<input class="w-full bg-surface border-0 border-b border-surface-container-highest px-0 py-stack-sm font-body-md text-body-md text-on-surface placeholder-secondary focus:ring-0 focus:border-b focus:border-primary-container focus:rounded transition-all" placeholder="Email" required="" type="email"/>
 </div>
-<div class="relative">
-<input class="w-full bg-surface border-0 border-b border-surface-container-highest focus:ring-0 focus:border-primary-container focus:border focus:rounded-[4px] px-0 py-3 font-body-lg text-body-lg text-on-surface placeholder:text-secondary-fixed-dim transition-all duration-200 outline-none" id="password" name="password" placeholder="Password" required="" type="password"/>
+<div class="flex flex-col gap-stack-sm">
+<input class="w-full bg-surface border-0 border-b border-surface-container-highest px-0 py-stack-sm font-body-md text-body-md text-on-surface placeholder-secondary focus:ring-0 focus:border-b focus:border-primary-container focus:rounded transition-all" placeholder="Password" required="" type="password"/>
 </div>
 <div class="flex justify-end mt-stack-md">
-<button class="bg-primary-container text-on-primary font-ui-button text-ui-button py-3 px-8 rounded-lg shadow-[0_4px_14px_rgba(92,184,92,0.25)] hover:bg-surface-tint hover:shadow-[0_6px_20px_rgba(92,184,92,0.35)] transition-all duration-200" type="submit">
-                        Sign up
+<button class="bg-primary-container text-on-primary font-ui-button text-ui-button px-6 py-4 rounded hover:bg-opacity-90 transition-all shadow-[0_4px_14px_0_rgba(92,184,92,0.39)]" type="submit">
+                        Sign in
                     </button>
 </div>
 </form>
 </div>
 </main>
-<footer class="bg-surface-container-low dark:bg-surface-dim full-width border-t border-surface-container-highest dark:border-outline-variant flat no shadows flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile py-stack-lg max-w-container-max mx-auto gap-stack-md mt-auto">
-<a class="font-ui-label text-ui-label font-bold text-primary dark:text-primary-fixed hover:underline transition-all" href="/">RealWorld</a>
-<div class="flex gap-stack-md items-center">
-<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="/">Home</a>
-<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="/terms">Terms</a>
-<a class="font-ui-meta text-ui-meta text-on-secondary-container dark:text-secondary-fixed-dim hover:underline transition-all" href="/privacy">Privacy</a>
+<!-- Footer: Shared Component -->
+<footer class="bg-surface-container-low full-width border-t border-surface-container-highest flat no shadows mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile py-stack-lg max-w-container-max mx-auto gap-stack-md">
+<div class="flex items-center gap-stack-sm">
+<a class="font-ui-label text-ui-label font-bold text-primary" href="/">Blog Service</a>
+<span class="font-ui-meta text-ui-meta text-on-secondary-container">© Blog Service — A full-stack learning project. Code &amp; design licensed under MIT.</span>
 </div>
-<p class="font-ui-meta text-ui-meta text-primary dark:text-primary-fixed text-center md:text-right">RealWorld — An interactive learning project from Thinkster. Code &amp; design licensed under MIT.</p>
+<nav class="flex gap-stack-md font-ui-meta text-ui-meta text-on-secondary-container">
+<a class="hover:underline transition-all" href="/">Home</a>
+<a class="hover:underline transition-all" href="/terms">Terms</a>
+<a class="hover:underline transition-all" href="/privacy">Privacy</a>
+</nav>
+</div>
 </footer>
 </body></html>

@@ -3,7 +3,7 @@
 > Issue: #37
 > Status: 初版
 
-この文書は RealWorld プロジェクトを継続開発するための品質、開発体験、ローカル再現性、検証ゲートを定義する。
+この文書は Blog Service プロジェクトを継続開発するための品質、開発体験、ローカル再現性、検証ゲートを定義する。
 詳細なコーディング規約は `docs/rules/*` を正本とし、この文書ではプロジェクト全体の非機能要件を扱う。
 
 ## Quality Goals
@@ -317,7 +317,7 @@ Expected setup flow:
 docker compose up -d
 docker compose exec backend-php composer install
 cp backend/.env.example backend/.env
-perl -0pi -e 's/DB_HOST=.*/DB_HOST=db/; s/DB_PORT=.*/DB_PORT=3306/; s/DB_DATABASE=.*/DB_DATABASE=real_world/; s/DB_USERNAME=.*/DB_USERNAME=real_world/; s/DB_PASSWORD=.*/DB_PASSWORD=secret/' backend/.env
+perl -0pi -e 's/DB_HOST=.*/DB_HOST=db/; s/DB_PORT=.*/DB_PORT=3306/; s/DB_DATABASE=.*/DB_DATABASE=blog_service/; s/DB_USERNAME=.*/DB_USERNAME=blog_service/; s/DB_PASSWORD=.*/DB_PASSWORD=secret/' backend/.env
 JWT_SECRET="$(docker compose exec -T backend-php php -r 'echo bin2hex(random_bytes(32));')" perl -0pi -e 's/JWT_SIGNING_SECRET=.*/JWT_SIGNING_SECRET=$ENV{JWT_SECRET}/' backend/.env
 docker compose exec backend-php php artisan key:generate
 docker compose exec backend-php php artisan migrate
@@ -341,7 +341,7 @@ Browser -> frontend origin (:3005) /api/* -> bff -> backend-nginx (private Docke
 
 - Use `backend/.env.example` as the template.
 - `backend/.env` is ignored and must not be committed.
-- Docker local setup expects `DB_HOST=db`, `DB_DATABASE=real_world`, `DB_USERNAME=real_world`, `DB_PASSWORD=secret`, and a non-empty random `JWT_SIGNING_SECRET`.
+- Docker local setup expects `DB_HOST=db`, `DB_DATABASE=blog_service`, `DB_USERNAME=blog_service`, `DB_PASSWORD=secret`, and a non-empty random `JWT_SIGNING_SECRET`.
 - Changes needed by every developer go into `.env.example` or docs, not a personal `.env`.
 
 ## README Requirements

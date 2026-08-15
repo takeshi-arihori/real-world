@@ -72,7 +72,7 @@ export function HomePage(): ReactElement {
   return (
     <main className="page page--wide">
       <section className="brand-hero" aria-labelledby="home-title">
-        <p className="eyebrow">conduit</p>
+        <p className="eyebrow">Blog Service</p>
         <p className="brand-hero__copy">A place to share your knowledge.</p>
       </section>
 

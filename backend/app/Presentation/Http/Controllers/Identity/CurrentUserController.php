@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class CurrentUserController extends Controller
 {
-    private const TOKEN_ATTRIBUTE = 'realworld_token';
+    private const TOKEN_ATTRIBUTE = 'blog_service_token';
 
     /**
      * 現在 User を RealWorld user wrapper で返す。

@@ -1,5 +1,5 @@
 ---
-name: RealWorld Design System
+name: Blog Service Design System
 colors:
   surface: '#faf9f9'
   surface-dim: '#dadada'

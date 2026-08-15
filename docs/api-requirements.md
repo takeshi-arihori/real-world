@@ -1,10 +1,10 @@
-# RealWorld API Requirements
+# Blog Service API Requirements
 
 > Issue: #35
 > Updated by: #124
 > Status: JWT 認証移行方針反映
 
-この文書は Laravel API サーバで RealWorld 互換 API を実装するための API 一覧、認証要否、認可、レスポンス形式、Command / Query 分離方針を定義する。
+この文書は Blog Service の Laravel API サーバで RealWorld 互換 API を実装するための API 一覧、認証要否、認可、レスポンス形式、Command / Query 分離方針を定義する。
 
 References:
 
@@ -86,7 +86,7 @@ Article、Comment、Profile、Favorite、Feed、Tag の browser request は BFF 
 | Item | Decision |
 | --- | --- |
 | Browser credential | BFF が管理する推測困難な opaque session identifier。JWT を cookie または browser response body に含めない |
-| Cookie | BFF origin から `__Host-conduit_session`; `Path=/; HttpOnly; Secure; SameSite=Lax` を発行し、`Domain` attribute を設定しない |
+| Cookie | BFF origin から `__Host-blog_service_session`; `Path=/; HttpOnly; Secure; SameSite=Lax` を発行し、`Domain` attribute を設定しない |
 | Deployment boundary | Browser は frontend/BFF の同一 origin のみを呼ぶ。Public API が異なる site に配置されても browser credential を cross-site 送信しない |
 | Session expiry | BFF session、cookie、保持 JWT は開始から最大 `60` 分で期限切れとし、期限切れ後は再 login を要求する |
 | Login / register | 認証成功時に session identifier を再生成して fixation を防止する |
