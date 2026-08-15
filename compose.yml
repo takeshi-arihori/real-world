@@ -1,4 +1,4 @@
-name: real-world
+name: blog-service
 
 services:
   db:
@@ -9,8 +9,8 @@ services:
       - "3309:3306"
     environment:
       MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-secret}"
-      MYSQL_DATABASE: "${DB_DATABASE:-real_world}"
-      MYSQL_USER: "${DB_USERNAME:-real_world}"
+      MYSQL_DATABASE: "${DB_DATABASE:-blog_service}"
+      MYSQL_USER: "${DB_USERNAME:-blog_service}"
       MYSQL_PASSWORD: "${DB_PASSWORD:-secret}"
     volumes:
       - db-data:/var/lib/mysql
@@ -76,7 +76,7 @@ services:
       PUBLIC_API_BASE_URL: "http://backend-nginx"
       # browser cookie には opaque id だけを保持し、session state は Redis に保存する。
       BFF_REDIS_URL: "redis://redis:6379"
-      BFF_SESSION_COOKIE_NAME: "__Host-conduit_session"
+      BFF_SESSION_COOKIE_NAME: "__Host-blog_service_session"
       BFF_SESSION_KEY_PREFIX: "${BFF_SESSION_KEY_PREFIX:-bff:session:}"
       BFF_SESSION_TTL_SECONDS: "${BFF_SESSION_TTL_SECONDS:-3600}"
     depends_on:

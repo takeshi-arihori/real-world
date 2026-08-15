@@ -7,7 +7,7 @@ export function NotFoundPage(): ReactElement {
       <section className="not-found" aria-labelledby="not-found-title">
         <p className="eyebrow">404</p>
         <h1 id="not-found-title">Page not found</h1>
-        <p>The route does not exist in the RealWorld MVP shell.</p>
+        <p>The route does not exist in the Blog Service shell.</p>
         <Link className="primary-action" to="/">
           Go home
         </Link>

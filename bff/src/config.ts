@@ -1,7 +1,7 @@
 const DEFAULT_PORT = 3006;
 const DEFAULT_PUBLIC_API_BASE_URL = 'http://localhost:8080';
 const DEFAULT_REDIS_URL = 'redis://localhost:6379';
-const DEFAULT_SESSION_COOKIE_NAME = '__Host-conduit_session';
+const DEFAULT_SESSION_COOKIE_NAME = '__Host-blog_service_session';
 const DEFAULT_SESSION_KEY_PREFIX = 'bff:session:';
 const DEFAULT_SESSION_TTL_SECONDS = 60 * 60;
 

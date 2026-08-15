@@ -16,7 +16,7 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         config([
-            'jwt.signing_secret' => 'testing-realworld-jwt-secret',
+            'jwt.signing_secret' => 'testing-blog-service-jwt-secret',
             'jwt.ttl_minutes' => 60,
         ]);
     }

@@ -20,7 +20,7 @@ export function AppShell({ children }: AppShellProps): ReactElement {
       <header className="top-nav">
         <div className="top-nav__inner">
           <Link className="brand-link" to="/">
-            RealWorld
+            Blog Service
           </Link>
           <nav className="top-nav__links" aria-label="Primary navigation">
             <NavLink to="/">Home</NavLink>
@@ -51,7 +51,7 @@ export function AppShell({ children }: AppShellProps): ReactElement {
       <footer className="app-footer">
         <div>
           <Link className="brand-link brand-link--small" to="/">
-            RealWorld
+            Blog Service
           </Link>
           <span>Code and design licensed under MIT.</span>
         </div>

@@ -1,2 +1,3 @@
 overrides:
   electron-to-chromium: 1.5.368
+  nanoid: 3.3.18

@@ -14,7 +14,7 @@ interface ArticleInput {
   title: string;
 }
 
-test.describe('RealWorld MVP smoke', () => {
+test.describe('Blog Service MVP smoke', () => {
   test('registers, logs in, publishes, comments, and favorites an article', async ({
     page,
   }, testInfo) => {

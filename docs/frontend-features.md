@@ -3,7 +3,7 @@
 > Issue: #36
 > Status: 初版
 
-この文書は React + TypeScript + Vite で RealWorld MVP を実装するための画面、ルーティング、feature 分割、フォーム、エラーハンドリング方針を定義する。
+この文書は React + TypeScript + Vite で Blog Service MVP を実装するための画面、ルーティング、feature 分割、フォーム、エラーハンドリング方針を定義する。
 
 ## Current State
 

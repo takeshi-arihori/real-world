@@ -14,14 +14,14 @@ use Illuminate\Support\ServiceProvider;
 
 final class JwtAuthServiceProvider extends ServiceProvider
 {
-    private const TOKEN_ATTRIBUTE = 'realworld_token';
+    private const TOKEN_ATTRIBUTE = 'blog_service_token';
 
     /**
      * RealWorld `Token` scheme の JWT guard を登録する。
      */
     public function boot(JwtTokenCodec $tokens): void
     {
-        Auth::viaRequest('realworld-jwt', function (Request $request) use ($tokens): ?Authenticatable {
+        Auth::viaRequest('blog-service-jwt', function (Request $request) use ($tokens): ?Authenticatable {
             $token = $this->tokenFromRequest($request);
 
             if ($token === null) {

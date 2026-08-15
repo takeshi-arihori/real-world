@@ -56,7 +56,7 @@ test('CSRF bootstrap は pre-session cookie と CSRF proof を返す', async () 
       throw new TypeError('csrfToken must be a string');
     }
     assert.ok(csrfToken.length >= 32);
-    assert.match(setCookie, /^__Host-conduit_session=[^;]+;/);
+    assert.match(setCookie, /^__Host-blog_service_session=[^;]+;/);
     assert.match(setCookie, /Path=\//);
     assert.match(setCookie, /HttpOnly/);
     assert.match(setCookie, /Secure/);
@@ -172,7 +172,7 @@ test('login は Public JWT を Browser response から除去して server-side s
         username: 'jake',
       },
     });
-    assert.ok(authenticatedCookie.startsWith('__Host-conduit_session='));
+    assert.ok(authenticatedCookie.startsWith('__Host-blog_service_session='));
     assert.notEqual(authenticatedCookie, csrf.cookie);
     assert.equal(upstream.requests.length, 1);
   } finally {
@@ -332,7 +332,7 @@ test('失効済み Redis session cookie での current user request は browser 
     const expiredCookie = getFirstSetCookie(currentResponse);
 
     assert.equal(currentResponse.status, 401);
-    assert.match(expiredCookie, /^__Host-conduit_session=;/);
+    assert.match(expiredCookie, /^__Host-blog_service_session=;/);
     assert.match(expiredCookie, /Max-Age=0/);
   } finally {
     await bff.close();
@@ -389,7 +389,7 @@ test('logout は server-side session と browser cookie を破棄する', async 
     const expiredCookie = getFirstSetCookie(response);
 
     assert.equal(response.status, 204);
-    assert.match(expiredCookie, /^__Host-conduit_session=;/);
+    assert.match(expiredCookie, /^__Host-blog_service_session=;/);
     assert.match(expiredCookie, /Max-Age=0/);
 
     const currentResponse = await fetch(`${bff.url}/api/session`, {

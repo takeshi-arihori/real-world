@@ -1,7 +1,7 @@
-Project real_world {
+Project blog_service {
   database_type: 'MySQL'
   Note: '''
-  RealWorld MVP の ER 図 / DB スキーマ初版。
+  Blog Service MVP の ER 図 / DB スキーマ初版。
 
   - 対象: Identity / Publishing / Social Context の MVP テーブル
   - 認証トークン: Laravel Sanctum の framework managed table で管理するため、この DBML では domain table に限定する

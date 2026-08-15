@@ -1,9 +1,9 @@
-# RealWorld Ubiquitous Language
+# Blog Service Ubiquitous Language
 
 > Issue: #34
 > Status: 初版
 
-この文書は RealWorld MVP の要件、設計、コード、Issue、レビューで使うドメイン用語を定義する。
+この文書は Blog Service MVP の要件、設計、コード、Issue、レビューで使うドメイン用語を定義する。
 実装時はここにある英語名をクラス名、メソッド名、API 名、Frontend feature 名の基準にする。
 
 ## Naming Principles

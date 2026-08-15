@@ -129,8 +129,8 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_real_world
-          MYSQL_USER: real_world
+          MYSQL_DATABASE: test_blog_service
+          MYSQL_USER: blog_service
           MYSQL_PASSWORD: secret
         ports:
           - 3306:3306
@@ -171,8 +171,8 @@ jobs:
         run: |
           echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
           echo "DB_PORT=3306" >> $GITHUB_ENV
-          echo "DB_DATABASE=test_real_world" >> $GITHUB_ENV
-          echo "DB_USERNAME=real_world" >> $GITHUB_ENV
+          echo "DB_DATABASE=test_blog_service" >> $GITHUB_ENV
+          echo "DB_USERNAME=blog_service" >> $GITHUB_ENV
           echo "DB_PASSWORD=secret" >> $GITHUB_ENV
 
       - name: Generate application key
@@ -224,11 +224,11 @@ jobs:
         run: |
           cp backend/.env.example backend/.env
           sed -i 's/^APP_URL=.*/APP_URL=http:\/\/localhost:8080/' backend/.env
-          sed -i 's/^JWT_SIGNING_SECRET=.*/JWT_SIGNING_SECRET=ci-realworld-e2e-jwt-secret/' backend/.env
+          sed -i 's/^JWT_SIGNING_SECRET=.*/JWT_SIGNING_SECRET=ci-blog-service-e2e-jwt-secret/' backend/.env
           sed -i 's/^DB_HOST=.*/DB_HOST=db/' backend/.env
           sed -i 's/^DB_PORT=.*/DB_PORT=3306/' backend/.env
-          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=real_world/' backend/.env
-          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=real_world/' backend/.env
+          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=blog_service/' backend/.env
+          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=blog_service/' backend/.env
           sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=secret/' backend/.env
 
       - name: Start Docker services

@@ -3,10 +3,12 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Sign in - RealWorld</title>
+<title>Settings - Blog Service</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
@@ -180,48 +182,75 @@
         }
       </script>
 </head>
-<body class="bg-background text-on-surface min-h-screen flex flex-col font-ui-label">
-<!-- TopNavBar: Suppressed on transactional page -->
-<header class="bg-surface docked full-width top-0 sticky border-b border-surface-container-highest flat no shadows">
+<body class="bg-surface text-on-surface min-h-screen flex flex-col font-ui-meta antialiased">
+<!-- TopNavBar -->
+<header class="bg-surface docked full-width top-0 sticky border-b border-surface-container-highest z-50">
 <div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-16">
-<a class="font-headline-sm text-headline-sm font-bold text-primary" href="/">RealWorld</a>
-<nav class="hidden md:flex gap-stack-md items-center font-ui-label text-ui-label text-secondary">
-<!-- Minimal Nav for context, full nav suppressed -->
+<a class="font-headline-sm text-headline-sm font-bold text-primary" href="#">Blog Service</a>
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-ui-label text-ui-label text-secondary hover:text-primary transition-colors" href="#">Home</a>
+<a class="font-ui-label text-ui-label text-secondary hover:text-primary transition-colors" href="#">New Article</a>
+<a class="font-ui-label text-ui-label text-on-surface font-bold hover:text-primary transition-colors" href="#">Settings</a>
 </nav>
+<div class="flex items-center gap-4">
+<a class="flex items-center gap-2 font-ui-label text-ui-label text-secondary hover:text-primary transition-colors" href="#">
+<img alt="User profile avatar" class="w-8 h-8 rounded-full object-cover" data-alt="A small, circular avatar portrait of a modern professional, softly lit against a clean background, fitting the minimalist editorial style of the application. The image is crisp and unobtrusive." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNl1_jViW-IATqlrHF1dUEN208RV8JcBBvphvwerK5PbsQCgyNvOInH9afFRalO8khuT0XHH2wTGOpRHiqlNHYTltxZ28iM5A2_mHjfEyjJqyGnTozH3yvwJ9DlC8IFlpkZoFloa7iCH-88LYtptibjt2jL7eAjIfOiK5gfMsHAA4jyRYPHDvH6TelFIL6MYD0Pmmb1VIn1KhK8QT5c4aexXlHUKo14rXYXF_YPl02zgubRMcd06MPipNG6hkDFKfiPR6W_nZjH2o"/>
+<span class="hidden md:inline">Profile</span>
+</a>
+</div>
 </div>
 </header>
-<main class="flex-grow flex items-center justify-center px-margin-mobile py-stack-xl">
-<div class="w-full max-w-[400px] flex flex-col items-center">
-<div class="text-center mb-stack-lg w-full">
-<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-stack-sm">Sign in</h1>
-<a class="font-ui-label text-ui-label text-primary hover:underline transition-all" href="/register">Need an account?</a>
+<!-- Main Content -->
+<main class="flex-grow w-full px-margin-mobile md:px-gutter py-stack-xl flex justify-center">
+<div class="w-full max-w-reading-column-max">
+<h1 class="font-headline-md text-headline-md text-center mb-stack-lg">Your Settings</h1>
+<form class="flex flex-col gap-stack-md w-full">
+<!-- URL for profile picture -->
+<div>
+<input class="w-full bg-transparent border-0 border-b border-surface-container-highest px-0 py-3 font-body-md text-body-md text-on-surface placeholder-secondary focus:ring-0 focus:border-b focus:border-primary-container focus:rounded transition-all" placeholder="URL of profile picture" type="text"/>
 </div>
-<form class="w-full flex flex-col gap-stack-md">
-<div class="flex flex-col gap-stack-sm">
-<input class="w-full bg-surface border-0 border-b border-surface-container-highest px-0 py-stack-sm font-body-md text-body-md text-on-surface placeholder-secondary focus:ring-0 focus:border-b focus:border-primary-container focus:rounded transition-all" placeholder="Email" required="" type="email"/>
+<!-- Username -->
+<div>
+<input class="w-full bg-transparent border-0 border-b border-surface-container-highest px-0 py-3 font-headline-sm text-headline-sm text-on-surface placeholder-secondary focus:ring-0 focus:border-b focus:border-primary-container focus:rounded transition-all" placeholder="Username" type="text"/>
 </div>
-<div class="flex flex-col gap-stack-sm">
-<input class="w-full bg-surface border-0 border-b border-surface-container-highest px-0 py-stack-sm font-body-md text-body-md text-on-surface placeholder-secondary focus:ring-0 focus:border-b focus:border-primary-container focus:rounded transition-all" placeholder="Password" required="" type="password"/>
+<!-- Short bio -->
+<div>
+<textarea class="w-full bg-transparent border-0 border-b border-surface-container-highest px-0 py-3 font-body-md text-body-md text-on-surface placeholder-secondary focus:ring-0 focus:border-b focus:border-primary-container focus:rounded transition-all resize-none" placeholder="Short bio about you" rows="5"></textarea>
 </div>
+<!-- Email -->
+<div>
+<input class="w-full bg-transparent border-0 border-b border-surface-container-highest px-0 py-3 font-body-md text-body-md text-on-surface placeholder-secondary focus:ring-0 focus:border-b focus:border-primary-container focus:rounded transition-all" placeholder="Email" type="email"/>
+</div>
+<!-- New Password -->
+<div>
+<input class="w-full bg-transparent border-0 border-b border-surface-container-highest px-0 py-3 font-body-md text-body-md text-on-surface placeholder-secondary focus:ring-0 focus:border-b focus:border-primary-container focus:rounded transition-all" placeholder="New Password" type="password"/>
+</div>
+<!-- Primary Action -->
 <div class="flex justify-end mt-stack-md">
-<button class="bg-primary-container text-on-primary font-ui-button text-ui-button px-6 py-4 rounded hover:bg-opacity-90 transition-all shadow-[0_4px_14px_0_rgba(92,184,92,0.39)]" type="submit">
-                        Sign in
+<button class="bg-primary-container text-on-primary px-8 py-3 rounded font-ui-button text-ui-button hover:opacity-90 transition-opacity shadow-[0_4px_14px_0_rgba(92,184,92,0.39)]" type="submit">
+                        Update Settings
                     </button>
 </div>
 </form>
+<div class="mt-stack-lg pt-stack-md border-t border-surface-container-highest flex justify-start">
+<!-- Secondary Action -->
+<button class="border border-error text-error px-4 py-2 rounded font-ui-button text-ui-button hover:bg-error-container hover:text-on-error-container transition-colors" type="button">
+                    Or click here to logout
+                </button>
+</div>
 </div>
 </main>
-<!-- Footer: Shared Component -->
-<footer class="bg-surface-container-low full-width border-t border-surface-container-highest flat no shadows mt-auto">
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-surface-container-highest mt-auto">
 <div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile py-stack-lg max-w-container-max mx-auto gap-stack-md">
-<div class="flex items-center gap-stack-sm">
-<a class="font-ui-label text-ui-label font-bold text-primary" href="/">RealWorld</a>
-<span class="font-ui-meta text-ui-meta text-on-secondary-container">© RealWorld — An interactive learning project from Thinkster. Code &amp; design licensed under MIT.</span>
-</div>
-<nav class="flex gap-stack-md font-ui-meta text-ui-meta text-on-secondary-container">
-<a class="hover:underline transition-all" href="/">Home</a>
-<a class="hover:underline transition-all" href="/terms">Terms</a>
-<a class="hover:underline transition-all" href="/privacy">Privacy</a>
+<a class="font-ui-label text-ui-label font-bold text-primary" href="#">Blog Service</a>
+<p class="font-ui-meta text-ui-meta text-secondary text-center md:text-left">
+                Blog Service — A full-stack learning project. Code &amp; design licensed under MIT.
+            </p>
+<nav class="flex items-center gap-4">
+<a class="font-ui-meta text-ui-meta text-on-secondary-container hover:underline transition-all" href="#">Home</a>
+<a class="font-ui-meta text-ui-meta text-on-secondary-container hover:underline transition-all" href="#">Terms</a>
+<a class="font-ui-meta text-ui-meta text-on-secondary-container hover:underline transition-all" href="#">Privacy</a>
 </nav>
 </div>
 </footer>

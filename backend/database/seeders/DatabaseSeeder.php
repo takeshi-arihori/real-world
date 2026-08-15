@@ -29,17 +29,17 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $article = Article::query()->updateOrCreate([
-            'slug' => 'welcome-to-realworld',
+            'slug' => 'welcome-to-blog-service',
         ], [
             'author_user_id' => $user->getKey(),
-            'title' => 'Welcome to RealWorld',
+            'title' => 'Welcome to Blog Service',
             'description' => 'A demo article for the Home feed',
             'body' => 'This article seeds tags for local development.',
             'created_at' => Carbon::parse('2026-05-01 00:00:00'),
             'updated_at' => Carbon::parse('2026-05-01 00:00:00'),
         ]);
 
-        $tagIds = collect(['laravel', 'react', 'realworld'])
+        $tagIds = collect(['laravel', 'react', 'blog-service'])
             ->map(fn (string $name): int => (int) Tag::query()->updateOrCreate(['name' => $name])->getKey())
             ->all();
 

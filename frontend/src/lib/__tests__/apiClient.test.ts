@@ -65,7 +65,7 @@ describe('共通API client', () => {
     const headers = new Headers(requestOptions.headers);
     expect(requestOptions.credentials).toBe('same-origin');
     expect(headers.get('Authorization')).toBeNull();
-    expect(window.localStorage.getItem('realworld.authToken')).toBeNull();
+    expect(window.localStorage.getItem('blog-service.authToken')).toBeNull();
   });
 
   it('base URL未設定時はrelativeなBFF pathへrequestする', async () => {

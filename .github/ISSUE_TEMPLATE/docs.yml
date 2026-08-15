@@ -15,7 +15,7 @@ body:
     attributes:
       label: 概要
       description: 何を整理・作成・更新するIssueかを記述してください。
-      placeholder: RealWorldプロジェクトの要件定義書を作成する。
+      placeholder: Blog Serviceプロジェクトの要件定義書を作成する。
     validations:
       required: true
 

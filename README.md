@@ -1,4 +1,4 @@
-# real-world
+# blog-service
 
 React 19 + Laravel 13 で API / CRUD / DDD を学ぶためのモノレポです。
 フロントエンド、バックエンド、Docker 環境をまとめて管理しています。
@@ -27,7 +27,7 @@ React 19 + Laravel 13 で API / CRUD / DDD を学ぶためのモノレポです�
 docker compose up -d
 docker compose exec backend-php composer install
 cp backend/.env.example backend/.env
-perl -0pi -e 's/DB_HOST=.*/DB_HOST=db/; s/DB_PORT=.*/DB_PORT=3306/; s/DB_DATABASE=.*/DB_DATABASE=real_world/; s/DB_USERNAME=.*/DB_USERNAME=real_world/; s/DB_PASSWORD=.*/DB_PASSWORD=secret/' backend/.env
+perl -0pi -e 's/DB_HOST=.*/DB_HOST=db/; s/DB_PORT=.*/DB_PORT=3306/; s/DB_DATABASE=.*/DB_DATABASE=blog_service/; s/DB_USERNAME=.*/DB_USERNAME=blog_service/; s/DB_PASSWORD=.*/DB_PASSWORD=secret/' backend/.env
 JWT_SECRET="$(docker compose exec -T backend-php php -r 'echo bin2hex(random_bytes(32));')" perl -0pi -e 's/JWT_SIGNING_SECRET=.*/JWT_SIGNING_SECRET=$ENV{JWT_SECRET}/' backend/.env
 docker compose exec backend-php php artisan key:generate
 docker compose exec backend-php php artisan migrate
@@ -35,7 +35,14 @@ docker compose exec frontend pnpm install
 ```
 
 BFF は起動時に `bff/pnpm-lock.yaml` の checksum を見て、必要な場合だけ container 内で `pnpm install --frozen-lockfile` を実行します。
-`backend/.env` は gitignored のローカル設定です。既存ファイルがある場合は上書きせず、Docker では `DB_HOST=db`、`DB_DATABASE=real_world`、`DB_USERNAME=real_world`、`DB_PASSWORD=secret`、`JWT_SIGNING_SECRET` が設定されていることを確認してください。
+`backend/.env` は gitignored のローカル設定です。既存ファイルがある場合は上書きせず、Docker では `DB_HOST=db`、`DB_DATABASE=blog_service`、`DB_USERNAME=blog_service`、`DB_PASSWORD=secret`、`JWT_SIGNING_SECRET` が設定されていることを確認してください。
+
+旧 `real-world` Compose project から移行する場合は、ポート競合を避けるために旧 container を先に停止してください。旧 volume は削除されず、新しい `blog-service` project は別の volume で起動します。セッション cookie 名も変わるため、既存のブラウザセッションは再ログインが必要です。
+
+```bash
+docker compose -p real-world down
+docker compose up -d
+```
 
 Dev Container 内でフロントエンドテストを実行する場合:
 

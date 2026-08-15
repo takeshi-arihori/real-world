@@ -10,7 +10,7 @@ import { join, relative } from 'node:path';
  */
 const DEFAULT_PUBLIC_API_BASE_URL = 'http://localhost:8080';
 const DEFAULT_FRONTEND_ORIGIN = 'http://localhost:3005';
-const SESSION_COOKIE_NAME = '__Host-conduit_session';
+const SESSION_COOKIE_NAME = '__Host-blog_service_session';
 const REQUEST_TIMEOUT_MS = 10_000;
 const SERVICE_READY_TIMEOUT_MS = 60_000;
 const SERVICE_READY_INTERVAL_MS = 1_000;
@@ -439,7 +439,7 @@ function extractCsrfToken(payload) {
 }
 
 function assertSessionCookieAttributes(setCookie, label) {
-  assert.match(setCookie, /^__Host-conduit_session=[^;]+;/, `${label}: session cookie name`);
+  assert.match(setCookie, /^__Host-blog_service_session=[^;]+;/, `${label}: session cookie name`);
   assert.match(setCookie, /;\s*Path=\//, `${label}: session cookie Path=/`);
   assert.match(setCookie, /;\s*HttpOnly\b/i, `${label}: session cookie HttpOnly`);
   assert.match(setCookie, /;\s*Secure\b/i, `${label}: session cookie Secure`);

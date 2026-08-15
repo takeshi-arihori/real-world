@@ -1,9 +1,9 @@
-# RealWorld Issue Breakdown
+# Blog Service Issue Breakdown
 
 > Issue: #38
 > Status: 初版
 
-この文書は RealWorld MVP の要件定義を、後続の設計・実装 Issue に分解するための計画である。
+この文書は Blog Service MVP の要件定義を、後続の設計・実装 Issue に分解するための計画である。
 親 Issue #2 を閉じる前に、要件、DDD、API、Frontend、非機能要件の成果物が揃っていることを確認する。
 
 ## Reviewed Inputs
@@ -75,7 +75,7 @@ This order avoids building UI workflows before API contracts and authentication 
 | Browser BFF | Hono + TypeScript の same-origin BFF、BrowserSession、CSRF、Public API forwarding、Docker 経路を用意する | #124, Backend Foundation | frontend が JWT を受け取らず Public API 機能を利用できる |
 | Identity Context | Register / Login / Current User / Settings API と画面を実装する | Backend/Foundation, Frontend/Foundation | 認証状態を使う後続機能が実装可能 |
 | Publishing Context | Article / Comment / Tag の API と画面を実装する | Identity | 記事作成から詳細閲覧、コメントまで動く |
-| Social Context | Profile / Follow / Favorite / Feed を実装する | Identity, Publishing | RealWorld の social workflow が動く |
+| Social Context | Profile / Follow / Favorite / Feed を実装する | Identity, Publishing | Blog Service の social workflow が動く |
 | API Integration | Backend API と Frontend feature API を結合する | 各 Context | 主要画面が実 API で動く |
 | E2E / Quality | 代表ユーザーフロー、CI、audit、レビュー観点を強化する | 全 Epic | MVP の回帰検出ができる |
 
@@ -115,7 +115,7 @@ This order avoids building UI workflows before API contracts and authentication 
 | --- | --- | --- | --- | --- |
 | 1 | chore: READMEとローカルセットアップを実装状態へ追従する | `type: docs`, `area: infra`, `area: non-functional` | README commands, ports, troubleshooting | first-run steps are copy-pasteable |
 | 2 | ci: Frontend / Backend / Secrets Scan のCIをMVP実装へ合わせる | `type: chore`, `area: infra` | GitHub Actions checks | required checks match rules |
-| 3 | test: RealWorld MVP のE2Eスモークを追加する | `type: test`, `area: frontend`, `area: backend` | register/login/article/comment/favorite flow | representative happy path covered |
+| 3 | test: Blog Service MVP のE2Eスモークを追加する | `type: test`, `area: frontend`, `area: backend` | register/login/article/comment/favorite flow | representative happy path covered |
 | 4 | chore: dependency audit の運用を整理する | `type: chore`, `area: non-functional` | composer audit, pnpm audit | audit command and triage policy documented |
 | 5 | docs: API contract examplesを実装後レスポンスで更新する | `type: docs`, `area: api` | examples in docs | docs match real response tests |
 

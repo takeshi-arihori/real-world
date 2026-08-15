@@ -1,9 +1,9 @@
-# RealWorld Context Map
+# Blog Service Context Map
 
 > Issue: #33
 > Status: 初版
 
-この文書は RealWorld MVP を DDD 前提で実装するための Context Map である。
+この文書は Blog Service MVP を DDD 前提で実装するための Context Map である。
 Backend の Domain / Application / Infrastructure / Presentation 分割、Frontend の feature 分割、後続 Issue 分解の判断材料として使う。
 
 ## Context Overview

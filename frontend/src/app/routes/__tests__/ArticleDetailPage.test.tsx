@@ -342,7 +342,7 @@ function articleWrapper({
       favorited,
       favoritesCount,
       slug,
-      tagList: ['react', 'realworld'],
+      tagList: ['react', 'blog-service'],
       title,
       updatedAt: '2026-05-07T00:00:00.000Z',
     },
